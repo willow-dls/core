@@ -1,0 +1,19 @@
+{
+  "name": "cvtest",
+  "version": "1.0.0",
+  "description": "Test CircuitVerse circuits with a simple JavaScript API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gvsucis/w25-simutest.git"
+  },
+  "author": "Jordan Bancino",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gvsucis/w25-simutest/issues"
+  },
+  "homepage": "https://github.com/gvsucis/w25-simutest#readme"
+}
