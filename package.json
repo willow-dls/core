@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/gvsucis/w25-simutest#readme",
   "dependencies": {
+    "cv-frontend-vue": "github:CircuitVerse/cv-frontend-vue",
+    "husky": "^9.1.7",
     "jest": "^29.7.0"
   }
 }
