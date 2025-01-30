@@ -4,7 +4,7 @@
   "description": "Test CircuitVerse circuits with a simple JavaScript API.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/gvsucis/w25-simutest/issues"
   },
-  "homepage": "https://github.com/gvsucis/w25-simutest#readme"
+  "homepage": "https://github.com/gvsucis/w25-simutest#readme",
+  "dependencies": {
+    "jest": "^29.7.0"
+  }
 }
