@@ -2,6 +2,7 @@ import { Stream } from "node:stream";
 import fs from "node:fs";
 
 import { CircuitElement } from "./CircuitElement";
+import { Circuit } from "./Circuit";
 
 async function readStream(stream: Stream): Promise<string> {
     const chunks: Buffer<any>[] = [];
@@ -13,7 +14,7 @@ async function readStream(stream: Stream): Promise<string> {
     });
 }
 
-async function loadFileOrStream(file: string | Stream): Promise<JSON> {
+async function loadFileOrStream(file: string | Stream): Promise<object> {
     let stream;
 
     if (file instanceof Stream) {
@@ -25,10 +26,10 @@ async function loadFileOrStream(file: string | Stream): Promise<JSON> {
     return readStream(stream).then((data) => JSON.parse(data))
 }
 
-export type CircuitProject = Record<string, CircuitElement> | CircuitElement;
+export type CircuitProject = Record<string, Circuit> | Circuit;
 
 export interface CircuitLoader {
-    load(data: JSON): CircuitProject;
+    load(data: object): CircuitProject;
 }
 
 export async function loadProject(loader: new () => CircuitLoader, data: Stream | string): Promise<CircuitProject> {

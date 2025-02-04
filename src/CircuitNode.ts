@@ -1,9 +1,9 @@
 export class CircuitNode {
     #bitWidth: number;
-    #connections: Node[];
+    #connections: CircuitNode[];
     #value: number | undefined;
 
-    constructor(bitWidth: number, ...connections: Node[]) {
+    constructor(bitWidth: number, ...connections: CircuitNode[]) {
         this.#bitWidth = bitWidth;
         this.#connections = connections;
     }
@@ -12,7 +12,7 @@ export class CircuitNode {
         return this.#bitWidth;
     }
 
-    getConnections(): Node[] {
+    getConnections(): CircuitNode[] {
         return this.#connections;
     }
 
@@ -22,6 +22,8 @@ export class CircuitNode {
 
     setValue(value: number): void {
         this.#value = value;
+        // Propagate value to connected nodes.
+        this.#connections.forEach(c => c.setValue(value));
     }
 
     getValue(): number {

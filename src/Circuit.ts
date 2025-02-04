@@ -4,14 +4,12 @@ import { Output } from "./CircuitElement/Output";
 import { CircuitNode } from "./CircuitNode";
 
 export class Circuit {
-    #nodes: CircuitNode[];
     #elements: CircuitElement[];
 
-    #inputs: Record<string, CircuitElement>;
-    #outputs: Record<string, CircuitElement>;
+    #inputs: Record<string, Input>;
+    #outputs: Record<string, Output>;
 
-    constructor(nodes: CircuitNode[], elements: CircuitElement[]) {
-        this.#nodes = nodes;
+    constructor(elements: CircuitElement[]) {
         this.#elements = elements;
 
         this.#inputs = {};
@@ -35,6 +33,22 @@ export class Circuit {
     }
 
     run(inputs: Record<string, number>): Record<string, number> {
+        // Set circuit inputs
+        const inputLabels = Object.keys(inputs);
+        for (const i in inputLabels) {
+            const key = inputLabels[i];
+
+            if (this.#inputs[key] === undefined) {
+                throw new Error(`Circuit does not have input with label '${key}'.`);
+            }
+
+            this.#inputs[key].setValue(inputs[key]);
+        }
+
+        // Execute circuit simulation
+
+        // Return circuit outputs
+
         throw new Error('Not implemented.');
     }
 }
