@@ -1,0 +1,11 @@
+- Patch vite config
+- Add lib to export symbols
+- Patch output lib file to add jquery code to output
+- In output, patch out call to `p$1()`
+- Patch out getCanvasColors() block of code
+- Patch out all calls to updateThemeForStyle()
+- Patch out call to resizeTabs()
+- Patch out all jQuery UI code (starting at var jqueryUi_min = "";) to rest of file. (Exclude from Vite compilation?)
+- Patch out all references to toggleLayoutMode and changeLightMode
+- Add package.json and npm install.
+- Install the resulting package.

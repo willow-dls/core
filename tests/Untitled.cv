@@ -1,0 +1,245 @@
+{
+    "name": "Untitled",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "pLgg5hxdGq93LOoRaJnE",
+    "focussedCircuit": 89296368746,
+    "orderedTabs": [
+        "89296368746"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 60,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        2
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        3
+                    ]
+                },
+                {
+                    "x": -10,
+                    "y": -10,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        0
+                    ]
+                },
+                {
+                    "x": -10,
+                    "y": 10,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        1
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        5
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        4
+                    ]
+                }
+            ],
+            "testbenchData": {
+                "currentCase": 0,
+                "currentGroup": 0,
+                "testData": {
+                    "type": "seq",
+                    "title": "Untitled",
+                    "groups": [
+                        {
+                            "label": "Set 1",
+                            "inputs": [
+                                {
+                                    "label": "inp1  ",
+                                    "bitWidth": 1,
+                                    "values": [
+                                        "0",
+                                        "0",
+                                        "1",
+                                        "1"
+                                    ]
+                                },
+                                {
+                                    "label": "inp2  ",
+                                    "bitWidth": 1,
+                                    "values": [
+                                        "0",
+                                        "1",
+                                        "0",
+                                        "1"
+                                    ]
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "label": "out1  ",
+                                    "bitWidth": 1,
+                                    "values": [
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "1"
+                                    ]
+                                }
+                            ],
+                            "n": 4
+                        }
+                    ]
+                }
+            },
+            "id": 89296368746,
+            "name": "Main",
+            "Input": [
+                {
+                    "x": 450,
+                    "y": 220,
+                    "objectType": "Input",
+                    "label": "inp1",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 0
+                        },
+                        "values": {
+                            "state": 0
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1,
+                            {
+                                "x": 0,
+                                "y": 20,
+                                "id": "eo7Q3IMiiCrHyupVT4Fy"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 450,
+                    "y": 240,
+                    "objectType": "Input",
+                    "label": "inp2",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 1
+                        },
+                        "values": {
+                            "state": 1
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1,
+                            {
+                                "x": 0,
+                                "y": 40,
+                                "id": "t1WSZ76tQqJpI8Cbbfkb"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "Output": [
+                {
+                    "x": 560,
+                    "y": 230,
+                    "objectType": "Output",
+                    "label": "out1",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 5
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 20,
+                                "id": "3IAKeL5F0g4ojMtsDMcx"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "AndGate": [
+                {
+                    "x": 510,
+                    "y": 230,
+                    "objectType": "AndGate",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            2,
+                            1
+                        ],
+                        "nodes": {
+                            "inp": [
+                                2,
+                                3
+                            ],
+                            "output1": 4
+                        }
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": []
+        }
+    ]
+}

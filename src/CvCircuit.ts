@@ -1,12 +1,14 @@
 import { Stream } from "node:stream";
 import fs from "node:fs";
-// @ts-ignore
-import {loadScope} from "cv-frontend-vue/src/simulator/src/data/load";
-import Scope from "cv-frontend-vue/src/simulator/src/circuit";
 
+// @ts-ignore
+import {loadScope, Scope} from 'circuitverse';
+
+// import {loadScope} from "cv-frontend-vue/src/simulator/src/data/load";
+// import Scope from "cv-frontend-vue/src/simulator/src/circuit";
 
 export class CvCircuit {
-    #scope;
+    #scope: Scope | null;
 
     static #readStream(stream: Stream): Promise<string> {
         const chunks: Buffer<any>[] = [];
@@ -33,7 +35,8 @@ export class CvCircuit {
     }
 
     constructor(circuit: JSON, scopeId?: string) {
-        this.#scope = new Scope(scopeId);
+        //this.#scope = new Scope(scopeId);
+        this.#scope = null;
         loadScope(this.#scope, circuit); 
     }
 
