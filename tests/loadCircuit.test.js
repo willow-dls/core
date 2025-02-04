@@ -1,9 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
-// import 'jquery';
-
 import {CvCircuit} from '../dist/CvCircuit';
 
 test('Load a CircuitVerse file', async () => {
