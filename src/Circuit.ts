@@ -9,27 +9,41 @@ export class Circuit {
     #inputs: Record<string, Input>;
     #outputs: Record<string, Output>;
 
-    constructor(elements: CircuitElement[]) {
+    #id: string;
+    #name: string;
+
+    constructor(id: string, name: string, elements: CircuitElement[]) {
         this.#elements = elements;
 
         this.#inputs = {};
         this.#outputs = {};
 
+        this.#name = name;
+        this.#id = id;
+
         elements.forEach(e => {
             if (e instanceof Input) {
                 if (this.#inputs[e.getLabel()]) {
-                    throw new Error(`Multiple inputs with the same label: ${e.getLabel()}`);
+                    throw new Error(`Multiple inputs with the same label: '${e.getLabel()}'.`);
                 }
                 this.#inputs[e.getLabel()] = e;
             }
 
             if (e instanceof Output) {
                 if (this.#outputs[e.getLabel()]) {
-                    throw new Error(`Multiple outputs with the same label: ${e.getLabel()}`);
+                    throw new Error(`Multiple outputs with the same label: '${e.getLabel()}'.`);
                 }
                 this.#outputs[e.getLabel()] = e;
             }
         });
+    }
+
+    getName(): string {
+        return this.#name;
+    }
+
+    getId(): string {
+        return this.#id;
     }
 
     run(inputs: Record<string, number>): Record<string, number> {

@@ -1,11 +1,11 @@
 import { Gate } from "./Gate";
 
-export class AndGate extends Gate {
+export class NorGate extends Gate {
     initialValue(): number {
-        return 1;
+        return 0;
     }
-    
+
     evaluate(previousValue: number, currentValue: number): number {
-        return previousValue && currentValue;
+        return !(previousValue || currentValue) ? 1 : 0;
     }
 }

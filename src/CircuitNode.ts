@@ -12,6 +12,10 @@ export class CircuitNode {
         return this.#bitWidth;
     }
 
+    connect(node: CircuitNode): void {
+        this.#connections.push(node);
+    }
+
     getConnections(): CircuitNode[] {
         return this.#connections;
     }

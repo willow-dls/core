@@ -1,10 +1,8 @@
-import {CvCircuit} from '../dist/CvCircuit';
+import {loadProject} from '../src/CircuitLoader';
+import {CircuitVerseLoader} from '../src/CircuitLoader/CircuitVerseLoader';
 
 test('Load a CircuitVerse file', async () => {
-    await expect(async () => {
-        const circuit = await CvCircuit.load('tests/Untitled.cv');
-    }).not.toThrowError();
-
-    // console.log('Circuit Loaded!');
-    //expect(circuit).notToBe(null);
+    const circuit = await loadProject(CircuitVerseLoader, 'tests/cv/Simple.cv');
+    
+    expect(circuit).not.toBe(null);
 });

@@ -5,7 +5,7 @@ export class Input extends CircuitElement {
     #label: string;
     #value: number;
 
-    constructor(label: string, initialValue: number, outputs: CircuitNode[]) {
+    constructor(label: string, outputs: CircuitNode[], initialValue: number = 0) {
         super(0, [], outputs);
         this.#value = initialValue;
         this.#label = label;
