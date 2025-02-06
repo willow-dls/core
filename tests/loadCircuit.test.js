@@ -2,7 +2,10 @@ import {loadProject} from '../src/CircuitLoader';
 import {CircuitVerseLoader} from '../src/CircuitLoader/CircuitVerseLoader';
 
 test('Load a CircuitVerse file', async () => {
-    const circuit = await loadProject(CircuitVerseLoader, 'tests/cv/Simple.cv');
+    const project = await loadProject(CircuitVerseLoader, 'tests/cv/Simple.cv');
     
+    expect(project).not.toBe(null);
+
+    const circuit = project.getCircuitByName('Sequential');
     expect(circuit).not.toBe(null);
 });
