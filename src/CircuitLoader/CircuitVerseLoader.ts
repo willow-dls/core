@@ -7,6 +7,7 @@ import { Output } from "../CircuitElement/Output";
 import { CircuitLoader } from "../CircuitLoader";
 import { CircuitNode } from "../CircuitNode";
 import { CircuitProject } from "../CircuitProject";
+import {NandGate} from "../CircuitElement/NandGate";
 
 type CircuitContext = {
     nodes: CircuitNode[],
@@ -30,6 +31,14 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     'Output': ({nodes, data}) => new Output(
         data.label,
         nodes[data.customData.nodes.inp1]
+    ),
+    'NandGate': ({nodes, data}) => new NandGate(
+        data.customData.nodes.inp.map((i: number) => nodes[i]),
+        [nodes[data.customData.nodes.output1]]
+    ),
+    'OrGate': ({nodes, data}) => new NorGate(
+        data.customData.nodes.inp.map((i: number) => nodes[i]),
+        [nodes[data.customData.nodes.output1]]
     )
 };
 
