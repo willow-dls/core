@@ -4,6 +4,7 @@ import { AndGate } from "../CircuitElement/AndGate";
 import { Input } from "../CircuitElement/Input";
 import { NorGate } from "../CircuitElement/NorGate";
 import { Output } from "../CircuitElement/Output";
+import { SubCircuit } from "../CircuitElement/SubCircuit";
 import { CircuitLoader } from "../CircuitLoader";
 import { CircuitNode } from "../CircuitNode";
 import { CircuitProject } from "../CircuitProject";
@@ -24,12 +25,19 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
         [nodes[data.customData.nodes.output1]]
     ),
     'Input': ({nodes, data}) => new Input(
+        data.index,
         data.label, 
         [nodes[data.customData.nodes.output1]]
     ),
     'Output': ({nodes, data}) => new Output(
+        data.index,
         data.label,
         nodes[data.customData.nodes.inp1]
+    ),
+    'SubCircuit': ({nodes, data, project}) => new SubCircuit(
+        project.getCircuitById(data.id),
+        data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
+        data.outputNodes.map((nodeInd: number) => nodes[nodeInd])
     )
 };
 
@@ -80,8 +88,11 @@ export class CircuitVerseLoader implements CircuitLoader {
             // Collect the circuit elements into an array.
             const elementArray = Object.keys(scope)
                 .filter(k => !blacklistKeys.includes(k))
-                .map(k => scope[k].map((e: any) => (e.objectType = k, e)))
-                .flat();
+                .map(k => scope[k].map((e: any, ind: number) => {
+                    e.objectType = k;
+                    e.index = ind;
+                    return e;
+                })).flat();
             
             const id = scope.id;
             const name = scope.name;

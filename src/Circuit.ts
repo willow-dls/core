@@ -3,6 +3,12 @@ import { Input } from "./CircuitElement/Input";
 import { Output } from "./CircuitElement/Output";
 import { CircuitNode } from "./CircuitNode";
 
+export type CircuitRunType = Record<string, number> | number[];
+export type CircuitRunResult<T extends CircuitRunType> = {
+    outputs: T,
+    propagationDelay: number;
+};
+
 export class Circuit {
     #elements: CircuitElement[];
 
@@ -46,17 +52,24 @@ export class Circuit {
         return this.#id;
     }
 
-    run(inputs: Record<string, number>): Record<string, number> {
+    run<T extends CircuitRunType>(inputs: T): CircuitRunResult<T> {
         // Set circuit inputs
-        const inputLabels = Object.keys(inputs);
-        for (const i in inputLabels) {
-            const key = inputLabels[i];
+        if (Array.isArray(inputs)) {
+            Object.values(this.#inputs).forEach(input => {
+                const value = inputs[input.getIndex()];
+                input.setValue(value);
+            });
+        } else {
+            const inputLabels = Object.keys(inputs);
+            for (const i in inputLabels) {
+                const key = inputLabels[i];
 
-            if (this.#inputs[key] === undefined) {
-                throw new Error(`Circuit does not have input with label '${key}'.`);
+                if (this.#inputs[key] === undefined) {
+                    throw new Error(`Circuit does not have input with label '${key}'.`);
+                }
+
+                this.#inputs[key].setValue(inputs[key]);
             }
-
-            this.#inputs[key].setValue(inputs[key]);
         }
 
         // Execute circuit simulation

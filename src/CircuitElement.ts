@@ -4,23 +4,15 @@ export abstract class CircuitElement {
     #inputs: CircuitNode[];
     #outputs: CircuitNode[];
 
-    #propagationDelay: number;
-
     constructor(
-        propagationDelay: number = 0,
         inputs: CircuitNode[] = [], 
         outputs: CircuitNode[] = []
     ) {
-        this.#propagationDelay = propagationDelay;
         this.#inputs = inputs;
         this.#outputs = outputs;
     }
 
-    getPropagationDelay(): number {
-        return this.#propagationDelay;
-    }
-
-    resolve(): (() => void) | null {
+    resolve(): (() => number) | null {
         const waiting = this.#inputs.filter(n => !n.hasValue());
 
         // We are waiting on inputs; cannot resolve.
@@ -35,9 +27,9 @@ export abstract class CircuitElement {
         return () => {
             // Inputs are fully resolved, execute the circuit and produce
             // the outputs.
-            this.run(this.#inputs, this.#outputs);
+            return this.run(this.#inputs, this.#outputs);
         };
     }
 
-    abstract run(inputs: CircuitNode[], outputs: CircuitNode[]): void;
+    abstract run(inputs: CircuitNode[], outputs: CircuitNode[]): number;
 }
