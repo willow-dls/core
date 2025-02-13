@@ -10,26 +10,18 @@ export abstract class CircuitElement {
     ) {
         this.#inputs = inputs;
         this.#outputs = outputs;
+
+        this.#inputs.forEach(i => i.connectElement(this));
+        this.#outputs.forEach(i => i.connectElement(this));
     }
 
-    resolve(): (() => number) | null {
-        const waiting = this.#inputs.filter(n => !n.hasValue());
+    abstract resolve(): number;
 
-        // We are waiting on inputs; cannot resolve.
-        if (waiting.length > 0) {
-            return null;
-        }
-
-        // This function is executed after the propagation delay
-        // of the circuit to resolve the outputs. run() should
-        // call setValue() on its output nodes to propagate
-        // the changes to the next circuit depending on these.
-        return () => {
-            // Inputs are fully resolved, execute the circuit and produce
-            // the outputs.
-            return this.run(this.#inputs, this.#outputs);
-        };
+    getInputs(): CircuitNode[] {
+        return this.#inputs
     }
 
-    abstract run(inputs: CircuitNode[], outputs: CircuitNode[]): number;
+    getOutputs(): CircuitNode[] {
+        return this.#outputs;
+    }
 }

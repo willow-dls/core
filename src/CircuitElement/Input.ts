@@ -25,7 +25,8 @@ export class Input extends CircuitElement {
         this.#value = value;
     }
 
-    run(inputs: CircuitNode[], outputs: CircuitNode[]): number {
+    resolve(): number {
+        const outputs = this.getOutputs();
         outputs.forEach(o => o.setValue(this.#value));
         return 0;
     }

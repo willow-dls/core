@@ -6,7 +6,10 @@ export abstract class Gate extends CircuitElement {
         super(inputs, outputs);
     }
 
-    run(inputs: CircuitNode[], outputs: CircuitNode[]): number {
+    resolve(): number {
+        const inputs = this.getInputs();
+        const outputs = this.getOutputs();
+        
         const result = inputs.reduce((prev, cur) => this.evaluate(prev, cur.getValue()), this.initialValue());
         outputs.forEach(o => o.setValue(result));
 

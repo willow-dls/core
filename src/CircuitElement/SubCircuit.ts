@@ -10,7 +10,10 @@ export class SubCircuit extends CircuitElement {
         this.#circuit = circuit;
     }
 
-    run(inputs: CircuitNode[], outputs: CircuitNode[]): number {
+    resolve(): number {
+        const inputs = this.getInputs();
+        const outputs = this.getOutputs();
+        
         const result = this.#circuit.run(inputs.map(node => node.getValue()));
         
         result.outputs.forEach((value, index) => {
