@@ -135,7 +135,6 @@ export class CircuitVerseLoader implements CircuitLoader {
         const type = elementData.objectType;
 
         if (!createElement[type]) {
-          console.log(elementData);
           throw new Error(`Circuit '${name}' (${id}) uses unsupported element: ${type}.`);
         }
 
