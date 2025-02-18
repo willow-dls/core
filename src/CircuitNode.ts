@@ -42,6 +42,10 @@ export class CircuitNode {
     }
 
     setValue(value: number): void {
+        if (value == this.#value) {
+            return;
+        }
+        
         this.#value = value;
         // Propagate value to connected nodes.
         this.#connections.forEach(c => c.setValue(value));
