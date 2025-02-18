@@ -112,7 +112,6 @@ export class Circuit {
             
             console.log(`run(): Current outputs: ${JSON.stringify(currentOutputs)}`);
             console.log(`run(): Resolved outputs: ${JSON.stringify(entry.element.getOutputs().map(o => o.getValue()))}`);
-            // @ts-ignore
             console.log(`run(): Dependent Elements: ${JSON.stringify(propTo.filter(e => e != entry?.element).map(e => e.constructor.name))}`);
 
             for (const el of propTo) {
