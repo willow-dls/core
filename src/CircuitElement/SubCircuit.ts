@@ -13,7 +13,7 @@ export class SubCircuit extends CircuitElement {
     resolve(): number {
         const inputs = this.getInputs();
         const outputs = this.getOutputs();
-        
+
         const result = this.#circuit.run(inputs.map(node => node.getValue()));
         
         result.outputs.forEach((value, index) => {

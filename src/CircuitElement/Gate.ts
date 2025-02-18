@@ -9,13 +9,10 @@ export abstract class Gate extends CircuitElement {
     resolve(): number {
         const inputs = this.getInputs();
         const outputs = this.getOutputs();
+
+        const inputValues = inputs.map(i => i.getValue());
+        const result: number = inputValues.slice(1).reduce((prev, cur) => this.evaluate(prev, cur), inputValues[0]);
         
-        // We are ignoring Typescript here because it expects the return value
-        // of reduce to be of the same type as the inputs, but this is not how we
-        // are using this function. Everything is fine, there is no bug here, so we 
-        // can safely ignore this. 
-        // @ts-ignore
-        const result: number = inputs.reduce((prev, cur) => this.evaluate(prev.getValue(), cur.getValue()));
         outputs.forEach(o => o.setValue(result));
 
         // TODO: The gate may have a custom propagation delay; we must support this.

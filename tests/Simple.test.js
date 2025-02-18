@@ -5,7 +5,6 @@ let project;
 
 beforeAll(async () => {
     project = await loadProject(CircuitVerseLoader, 'tests/cv/Simple.cv');
-    //return project;
 });
 
 test('Simple Combinatorial 1', async() => {
