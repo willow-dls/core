@@ -150,13 +150,6 @@ export class Circuit {
             if (steps > 1000000) {
                 throw new Error('Simulation step limit exceeded; check for loops in circuit.');
             }
-
-
-
-            // if (steps > 10) {
-            //     console.log('run(): Exceeded max steps, breaking.');
-            //     break;
-            // }
         }
 
         // Return circuit outputs
