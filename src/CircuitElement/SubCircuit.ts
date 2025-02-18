@@ -22,5 +22,4 @@ export class SubCircuit extends CircuitElement {
 
         return result.propagationDelay;
     }
-    
 }
