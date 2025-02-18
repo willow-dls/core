@@ -73,17 +73,33 @@ export class Circuit {
         } else {
             const inputLabels = Object.keys(inputs);
             for (const i in inputLabels) {
+                let didSetLabel = false;
+
                 const key = inputLabels[i];
 
-                if (this.#inputs[key] === undefined) {
-                    throw new Error(`Circuit does not have input with label '${key}'.`);
+                if (this.#inputs[key]) {
+                    this.#inputs[key].setValue(inputs[key]);
+                    eventQueue.push({
+                        time: 0,
+                        element: this.#inputs[key]
+                    });
+
+                    didSetLabel = true;
                 }
 
-                this.#inputs[key].setValue(inputs[key]);
-                eventQueue.push({
-                    time: 0,
-                    element: this.#inputs[key]
-                });
+                if (this.#outputs[key]) {
+                    this.#outputs[key].setValue(inputs[key]);
+                    eventQueue.push({
+                        time: 0,
+                        element: this.#outputs[key]
+                    });
+
+                    didSetLabel = true;
+                }
+
+                if (!didSetLabel) {
+                    throw new Error(`No inputs or outputs with the given label: ${key}`);
+                }
             }
         }
 

@@ -21,6 +21,13 @@ export class Output extends CircuitElement {
         return this.#label;
     }
 
+    setValue(value: number) {
+        this.#value = value;
+
+        const inputs = this.getInputs();
+        inputs.forEach(i => i.setValue(value));
+    }
+
     getValue(): number {
         return this.#value;
     }
@@ -28,7 +35,12 @@ export class Output extends CircuitElement {
     resolve(): number {
         const inputs = this.getInputs();
         // There is only ever one input for this circuit.
+        //inputs.forEach(i => i.setValue(this.#value));
         inputs.forEach(i => this.#value = i.getValue());
         return 0;
+    }
+
+    getOutputs(): CircuitNode[] {
+        return this.getInputs();
     }
 }
