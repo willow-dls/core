@@ -22,6 +22,5 @@ export abstract class Gate extends CircuitElement {
         return 10;
     }
 
-    abstract initialValue(): number;
     abstract evaluate(previousValue: number, currentValue: number): number;
 }
