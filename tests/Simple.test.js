@@ -66,8 +66,38 @@ test('Simple Sequential 1', async () => {
         Set: 1
     }).outputs;
 
-    expect(outputs).toBe({
+    expect(outputs).toStrictEqual({
         Q: 1,
         NotQ: 0
+    });
+});
+
+test('Simple Sequential 2', async () => {
+    const circuit = project.getCircuitByName('Sequential');
+    expect(circuit).not.toBe(null);
+
+    const outputs = circuit.run({
+        Reset: 1,
+        Set: 0
+    }).outputs;
+
+    expect(outputs).toStrictEqual({
+        Q: 0,
+        NotQ: 1
+    });
+});
+
+test('Simple Sequential 3', async () => {
+    const circuit = project.getCircuitByName('Sequential');
+    expect(circuit).not.toBe(null);
+
+    const outputs = circuit.run({
+        Reset: 1,
+        Set: 0
+    }).outputs;
+
+    expect(outputs).toStrictEqual({
+        Q: 0,
+        NotQ: 1
     });
 });
