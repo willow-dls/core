@@ -1,8 +1,8 @@
 {
     "name": "Circuit Tests",
     "timePeriod": 500,
-    "clockEnabled": true,
-    "projectId": "2wpBuJxgYQqboGcgu3EK",
+    "clockEnabled": false,
+    "projectId": "e3h0Y4Jy5bxdaVEEEIu2",
     "focussedCircuit": 76526444532,
     "orderedTabs": [
         "17639089390",
@@ -147,7 +147,7 @@
                     "x": 650,
                     "y": 200,
                     "objectType": "Output",
-                    "label": "",
+                    "label": "out1",
                     "direction": "LEFT",
                     "labelDirection": "RIGHT",
                     "propagationDelay": 0,
@@ -351,8 +351,8 @@
                     "bitWidth": 1,
                     "label": "",
                     "connections": [
-                        12,
-                        3
+                        3,
+                        12
                     ]
                 },
                 {
@@ -396,8 +396,8 @@
                     "bitWidth": 1,
                     "label": "",
                     "connections": [
-                        16,
-                        1
+                        1,
+                        16
                     ]
                 }
             ],
@@ -408,7 +408,7 @@
                     "x": 560,
                     "y": 230,
                     "objectType": "Input",
-                    "label": "inp1",
+                    "label": "Reset",
                     "direction": "RIGHT",
                     "labelDirection": "LEFT",
                     "propagationDelay": 0,
@@ -417,7 +417,7 @@
                             "output1": 6
                         },
                         "values": {
-                            "state": 1
+                            "state": 0
                         },
                         "constructorParamaters": [
                             "RIGHT",
@@ -434,7 +434,7 @@
                     "x": 560,
                     "y": 330,
                     "objectType": "Input",
-                    "label": "inp2",
+                    "label": "Set",
                     "direction": "RIGHT",
                     "labelDirection": "LEFT",
                     "propagationDelay": 0,
@@ -462,7 +462,7 @@
                     "x": 730,
                     "y": 240,
                     "objectType": "Output",
-                    "label": "out1",
+                    "label": "Q",
                     "direction": "LEFT",
                     "labelDirection": "RIGHT",
                     "propagationDelay": 0,
@@ -485,7 +485,7 @@
                     "x": 730,
                     "y": 320,
                     "objectType": "Output",
-                    "label": "out2",
+                    "label": "NotQ",
                     "direction": "LEFT",
                     "labelDirection": "RIGHT",
                     "propagationDelay": 0,
@@ -587,7 +587,7 @@
                     "bitWidth": 1,
                     "label": "",
                     "connections": [
-                        9
+                        5
                     ]
                 },
                 {
@@ -607,47 +607,7 @@
                     "bitWidth": 1,
                     "label": "",
                     "connections": [
-                        4
-                    ]
-                },
-                {
-                    "x": 100,
-                    "y": 20,
-                    "type": 1,
-                    "bitWidth": 1,
-                    "label": "",
-                    "connections": [
-                        1
-                    ]
-                },
-                {
-                    "x": 100,
-                    "y": 40,
-                    "type": 1,
-                    "bitWidth": 1,
-                    "label": "",
-                    "connections": [
-                        2
-                    ]
-                },
-                {
-                    "x": 0,
-                    "y": 20,
-                    "type": 0,
-                    "bitWidth": 1,
-                    "label": "",
-                    "connections": [
                         7
-                    ]
-                },
-                {
-                    "x": 0,
-                    "y": 40,
-                    "type": 0,
-                    "bitWidth": 1,
-                    "label": "",
-                    "connections": [
-                        8
                     ]
                 },
                 {
@@ -657,7 +617,7 @@
                     "bitWidth": 1,
                     "label": "",
                     "connections": [
-                        5
+                        1
                     ]
                 },
                 {
@@ -679,13 +639,33 @@
                     "connections": [
                         0
                     ]
+                },
+                {
+                    "x": -10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        4
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        2
+                    ]
                 }
             ],
             "id": 76526444532,
             "name": "Subcircuit",
             "Input": [
                 {
-                    "x": 470,
+                    "x": 560,
                     "y": 270,
                     "objectType": "Input",
                     "label": "inp1",
@@ -694,10 +674,10 @@
                     "propagationDelay": 0,
                     "customData": {
                         "nodes": {
-                            "output1": 7
+                            "output1": 3
                         },
                         "values": {
-                            "state": 0
+                            "state": 1
                         },
                         "constructorParamaters": [
                             "RIGHT",
@@ -711,7 +691,7 @@
                     }
                 },
                 {
-                    "x": 470,
+                    "x": 560,
                     "y": 290,
                     "objectType": "Input",
                     "label": "inp2",
@@ -720,7 +700,7 @@
                     "propagationDelay": 0,
                     "customData": {
                         "nodes": {
-                            "output1": 8
+                            "output1": 4
                         },
                         "values": {
                             "state": 0
@@ -739,16 +719,16 @@
             ],
             "Output": [
                 {
-                    "x": 780,
+                    "x": 820,
                     "y": 270,
                     "objectType": "Output",
-                    "label": "",
+                    "label": "out1",
                     "direction": "LEFT",
                     "labelDirection": "RIGHT",
                     "propagationDelay": 0,
                     "customData": {
                         "nodes": {
-                            "inp1": 9
+                            "inp1": 5
                         },
                         "constructorParamaters": [
                             "LEFT",
@@ -762,9 +742,30 @@
                     }
                 }
             ],
+            "NotGate": [
+                {
+                    "x": 620,
+                    "y": 290,
+                    "objectType": "NotGate",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1
+                        ],
+                        "nodes": {
+                            "output1": 7,
+                            "inp1": 6
+                        }
+                    }
+                }
+            ],
             "SubCircuit": [
                 {
-                    "x": 630,
+                    "x": 670,
                     "y": 250,
                     "id": "17639089390",
                     "label": "",
@@ -775,22 +776,6 @@
                     ],
                     "outputNodes": [
                         0
-                    ],
-                    "version": "2.0"
-                },
-                {
-                    "x": 510,
-                    "y": 250,
-                    "id": "66474638600",
-                    "label": "",
-                    "labelDirection": "LEFT",
-                    "inputNodes": [
-                        5,
-                        6
-                    ],
-                    "outputNodes": [
-                        3,
-                        4
                     ],
                     "version": "2.0"
                 }

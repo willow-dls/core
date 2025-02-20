@@ -1,11 +1,16 @@
+import { CircuitElement } from "./CircuitElement";
+
 export class CircuitNode {
     #bitWidth: number;
     #connections: CircuitNode[];
-    #value: number | undefined;
+    #elements: CircuitElement[];
+    #value: number;
 
     constructor(bitWidth: number, ...connections: CircuitNode[]) {
         this.#bitWidth = bitWidth;
         this.#connections = connections;
+        this.#value = 0;
+        this.#elements = [];
     }
 
     getBitWidth(): number {
@@ -13,6 +18,9 @@ export class CircuitNode {
     }
 
     connect(node: CircuitNode): void {
+        if (this.#elements.length > 0) {
+            throw new Error("Cannot connect circuit nodes after elements have been added.");
+        }
         this.#connections.push(node);
     }
 
@@ -20,21 +28,30 @@ export class CircuitNode {
         return this.#connections;
     }
 
-    hasValue(): boolean {
-        return this.#value !== undefined;
+    connectElement(element: CircuitElement): void {
+        if (this.#elements.includes(element)) {
+            return;
+        }
+        
+        this.#elements.push(element);
+        this.#connections.forEach(n => n.connectElement(element));
+    }
+
+    getElements(): CircuitElement[] {
+        return this.#elements;
     }
 
     setValue(value: number): void {
+        if (value == this.#value) {
+            return;
+        }
+        
         this.#value = value;
         // Propagate value to connected nodes.
         this.#connections.forEach(c => c.setValue(value));
     }
 
     getValue(): number {
-        if (!this.hasValue()) {
-            throw new Error('Attempt to retrieve value on node before it has one.');
-        }
-
-        return this.#value as number;
+        return this.#value;
     }
 }

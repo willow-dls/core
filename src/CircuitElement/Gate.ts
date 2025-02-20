@@ -6,14 +6,18 @@ export abstract class Gate extends CircuitElement {
         super(inputs, outputs);
     }
 
-    run(inputs: CircuitNode[], outputs: CircuitNode[]): number {
-        const result = inputs.reduce((prev, cur) => this.evaluate(prev, cur.getValue()), this.initialValue());
+    resolve(): number {
+        const inputs = this.getInputs();
+        const outputs = this.getOutputs();
+
+        const inputValues = inputs.map(i => i.getValue());
+        const result: number = inputValues.length == 1 ? this.evaluate(0, inputValues[0]) : inputValues.slice(1).reduce((prev, cur) => this.evaluate(prev, cur), inputValues[0]);
+        
         outputs.forEach(o => o.setValue(result));
 
         // TODO: The gate may have a custom propagation delay; we must support this.
         return 10;
     }
 
-    abstract initialValue(): number;
     abstract evaluate(previousValue: number, currentValue: number): number;
 }
