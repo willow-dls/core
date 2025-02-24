@@ -1,7 +1,7 @@
-import {loadProject} from '../src/CircuitLoader';
-import {BitString} from '../src/BitString';
+import {loadProject} from '../../src/CircuitLoader';
+import {BitString} from '../../src/BitString';
 
-import {CircuitVerseLoader} from '../src/CircuitLoader/CircuitVerseLoader';
+import {CircuitVerseLoader} from '../../src/CircuitLoader/CircuitVerseLoader';
 
 let project;
 

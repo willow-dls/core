@@ -5,8 +5,8 @@ export abstract class CircuitElement {
     #outputs: CircuitBus[];
 
     constructor(
-        inputs: CircuitBus[] = [], 
-        outputs: CircuitBus[] = []
+        inputs: CircuitBus[], 
+        outputs: CircuitBus[]
     ) {
         this.#inputs = inputs;
         this.#outputs = outputs;
