@@ -125,7 +125,7 @@ export class BitString {
     }
 
     equals(str: BitString) {
-        return str.#str == str.#str;
+        return str.#str == this.#str;
     }
 
     truncate(length: number, upper: boolean = false): BitString {

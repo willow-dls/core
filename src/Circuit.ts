@@ -115,10 +115,10 @@ export class Circuit {
             const propDelay = entry.element.resolve();
             const propTo = entry.element
                 .getOutputs()
-                .filter((o, i) => entry?.element instanceof Input || o.getValue() != currentOutputs[i])
+                .filter((o, i) => entry?.element instanceof Input || !o.getValue().equals(currentOutputs[i]))
                 .map(o => o.getElements())
                 .flat();
-            
+
             for (const el of propTo) {
                 if (el == entry.element) {
                     continue;
