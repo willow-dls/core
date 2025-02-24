@@ -1,5 +1,6 @@
 import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
+import { BitString } from "../BitString";
 
 export abstract class Gate extends CircuitElement {
     constructor(inputs: CircuitBus[], outputs: CircuitBus[]) {
@@ -11,7 +12,7 @@ export abstract class Gate extends CircuitElement {
         const outputs = this.getOutputs();
 
         const inputValues = inputs.map(i => i.getValue());
-        const result: number = inputValues.length == 1 ? this.evaluate(0, inputValues[0]) : inputValues.slice(1).reduce((prev, cur) => this.evaluate(prev, cur), inputValues[0]);
+        const result: BitString = inputValues.length == 1 ? this.evaluate(0, inputValues[0]) : inputValues.slice(1).reduce((prev, cur) => this.evaluate(prev, cur), inputValues[0]);
         
         outputs.forEach(o => o.setValue(result));
 
@@ -19,5 +20,5 @@ export abstract class Gate extends CircuitElement {
         return 10;
     }
 
-    abstract evaluate(previousValue: number, currentValue: number): number;
+    abstract evaluate(previousValue: BitString, currentValue: BitString): BitString;
 }

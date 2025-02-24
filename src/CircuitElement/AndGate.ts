@@ -1,7 +1,8 @@
+import { BitString } from "../BitString";
 import { Gate } from "./Gate";
 
 export class AndGate extends Gate {
-    evaluate(previousValue: number, currentValue: number): number {
-        return previousValue && currentValue;
+    evaluate(previousValue: BitString, currentValue: BitString): BitString {
+        return previousValue.and(currentValue);
     }
 }

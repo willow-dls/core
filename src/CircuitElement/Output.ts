@@ -1,16 +1,17 @@
 import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
+import { BitString } from "../BitString";
 
 export class Output extends CircuitElement {
     #index: number;
     #label: string;
-    #value: number;
+    #value: BitString;
 
     constructor(index: number, label: string, input: CircuitBus) {
         super([input], []);
         this.#index = index;
         this.#label = label;
-        this.#value = 0;
+        this.#value = BitString.from('0');
     }
 
     getIndex(): number {
@@ -21,14 +22,14 @@ export class Output extends CircuitElement {
         return this.#label;
     }
 
-    setValue(value: number) {
+    setValue(value: BitString) {
         this.#value = value;
 
         const inputs = this.getInputs();
         inputs.forEach(i => i.setValue(value));
     }
 
-    getValue(): number {
+    getValue(): BitString {
         return this.#value;
     }
 
