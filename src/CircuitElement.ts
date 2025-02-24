@@ -1,12 +1,12 @@
-import { CircuitNode } from "./CircuitNode";
+import { CircuitBus } from "./CircuitBus";
 
 export abstract class CircuitElement {
-    #inputs: CircuitNode[];
-    #outputs: CircuitNode[];
+    #inputs: CircuitBus[];
+    #outputs: CircuitBus[];
 
     constructor(
-        inputs: CircuitNode[] = [], 
-        outputs: CircuitNode[] = []
+        inputs: CircuitBus[] = [], 
+        outputs: CircuitBus[] = []
     ) {
         this.#inputs = inputs;
         this.#outputs = outputs;
@@ -17,11 +17,11 @@ export abstract class CircuitElement {
 
     abstract resolve(): number;
 
-    getInputs(): CircuitNode[] {
+    getInputs(): CircuitBus[] {
         return this.#inputs
     }
 
-    getOutputs(): CircuitNode[] {
+    getOutputs(): CircuitBus[] {
         return this.#outputs;
     }
 }

@@ -1,8 +1,8 @@
 import { CircuitElement } from "../CircuitElement";
-import { CircuitNode } from "../CircuitNode";
+import { CircuitBus } from "../CircuitBus";
 
 export abstract class Gate extends CircuitElement {
-    constructor(inputs: CircuitNode[], outputs: CircuitNode[]) {
+    constructor(inputs: CircuitBus[], outputs: CircuitBus[]) {
         super(inputs, outputs);
     }
 
