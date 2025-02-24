@@ -14,8 +14,6 @@ export type CircuitRunResult<T extends CircuitRunType> = {
 };
 
 export class Circuit {
-    #elements: CircuitElement[];
-
     #inputs: Record<string, Input>;
     #outputs: Record<string, Output>;
 
@@ -23,8 +21,6 @@ export class Circuit {
     #name: string;
 
     constructor(id: string, name: string, elements: CircuitElement[]) {
-        this.#elements = elements;
-
         this.#inputs = {};
         this.#outputs = {};
 
