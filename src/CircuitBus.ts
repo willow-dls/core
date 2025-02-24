@@ -12,10 +12,6 @@ export class CircuitBus {
         this.#elements = [];
     }
 
-    getBitWidth(): number {
-        return this.#value.getWidth();
-    }
-
     connect(node: CircuitBus): void {
         if (this.#elements.length > 0) {
             throw new Error("Cannot connect circuit nodes after elements have been added.");
@@ -43,6 +39,10 @@ export class CircuitBus {
     setValue(value: BitString): void {
         if (value.equals(this.#value)) {
             return;
+        }
+
+        if (value.getWidth() !== this.#value.getWidth()) {
+            throw new Error(`Bus error: Attempting to set ${value.getWidth()}-bit value on ${this.#value.getWidth()}-bit bus.`);
         }
         
         this.#value = value;
