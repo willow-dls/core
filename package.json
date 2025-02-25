@@ -2,7 +2,7 @@
   "name": "simutest",
   "version": "1.0.0",
   "description": "Test CircuitVerse circuits with a simple JavaScript API.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "test": "jest",

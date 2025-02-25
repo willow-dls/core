@@ -12,6 +12,7 @@ import { NandGate } from "../CircuitElement/NandGate";
 import { NotGate } from "../CircuitElement/NotGate";
 import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
+import { LogLevel } from "../CircuitLogger";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -73,13 +74,22 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   )
 };
 
-export class CircuitVerseLoader implements CircuitLoader {
+export class CircuitVerseLoader extends CircuitLoader {
+  constructor() {
+    super('CircuitVerseLoader');
+  }
+
   load(data: any): CircuitProject {
     const project: CircuitProject = new CircuitProject();
+    this.propagateLoggersTo(project);
+
+    this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
     // Each scope is a circuit
     for (const scopeInd in data.scopes) {
       const scope = data.scopes[scopeInd];
+
+      this.log(LogLevel.DEBUG, `Loading scope:`, scope);
 
       const nodes: CircuitBus[] = [];
 
@@ -88,6 +98,7 @@ export class CircuitVerseLoader implements CircuitLoader {
         const scopeNode = scope.allNodes[nodeInd];
         const node = new CircuitBus(scopeNode.bitWidth);
         nodes.push(node);
+        this.log(LogLevel.TRACE, `Created bus with width ${scopeNode.bitWidth}`);
       }
 
       // Second pass over nodes to add connections now that all nodes
@@ -98,6 +109,7 @@ export class CircuitVerseLoader implements CircuitLoader {
         for (const connectInd in scopeNode.connections) {
           const ind = scopeNode.connections[connectInd];
           nodes[nodeInd].connect(nodes[ind]);
+          this.log(LogLevel.TRACE, `Connecting bus: ${nodeInd} => ${ind}`);
         }
       }
 
@@ -117,7 +129,7 @@ export class CircuitVerseLoader implements CircuitLoader {
         'nodes'
       ];
 
-      // Collect the circuit elements into an array.
+      this.log(LogLevel.TRACE, 'Collecting scope elements...');
       const elementArray = Object.keys(scope)
         .filter(k => !blacklistKeys.includes(k))
         .map(k => scope[k].map((e: any, ind: number) => {
@@ -134,6 +146,8 @@ export class CircuitVerseLoader implements CircuitLoader {
         const elementData = elementArray[i];
         const type = elementData.objectType;
 
+        this.log(LogLevel.DEBUG, `Creating element of type '${type}'...`, elementData)
+
         if (!createElement[type]) {
           throw new Error(`Circuit '${name}' (${id}) uses unsupported element: ${type}.`);
         }
@@ -146,8 +160,8 @@ export class CircuitVerseLoader implements CircuitLoader {
       }
 
       // The final circuit for this scope.
+      this.log(LogLevel.TRACE, 'Constructing circuit and adding it to the project...');
       const circuit = new Circuit(id, name, elements);
-
       project.addCircuit(circuit);
     }
 

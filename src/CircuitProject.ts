@@ -1,12 +1,15 @@
 import { Circuit } from "./Circuit";
+import { CircuitLoggable } from "./CircuitLogger";
 
-export class CircuitProject {
+export class CircuitProject extends CircuitLoggable {
     #circuits: Circuit[];
 
     #nameIndex: Record<string, Circuit>;
     #idIndex: Record<string, Circuit>;
 
     constructor(...ciruits: Circuit[]) {
+        super('Project');
+
         this.#circuits = ciruits;
 
         this.#nameIndex = {};
@@ -19,6 +22,7 @@ export class CircuitProject {
         this.#circuits.forEach(circuit => {
             this.#nameIndex[circuit.getName()] = circuit;
             this.#idIndex[circuit.getId()] = circuit;
+            this.propagateLoggersTo(circuit);
         });
     }
 

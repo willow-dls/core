@@ -2,6 +2,7 @@ import { BitString } from "./BitString";
 import { CircuitElement } from "./CircuitElement";
 import { Input } from "./CircuitElement/Input";
 import { Output } from "./CircuitElement/Output";
+import { CircuitLoggable, LogLevel } from "./CircuitLogger";
 
 type QueueEntry = {
     time: number,
@@ -14,7 +15,7 @@ export type CircuitRunResult<T extends CircuitRunType> = {
     propagationDelay: number;
 };
 
-export class Circuit {
+export class Circuit extends CircuitLoggable {
     #elements: CircuitElement[];
 
     #inputs: Record<string, Input>;
@@ -24,6 +25,8 @@ export class Circuit {
     #name: string;
 
     constructor(id: string, name: string, elements: CircuitElement[]) {
+        super('Circuit');
+
         this.#elements = elements;
 
         this.#inputs = {};
@@ -46,6 +49,8 @@ export class Circuit {
                 }
                 this.#outputs[e.getLabel()] = e;
             }
+
+            this.propagateLoggersTo(e);
         });
     }
 
@@ -57,11 +62,17 @@ export class Circuit {
         return this.#id;
     }
 
+    #log(level: LogLevel, msg: string, data?:  any) {
+       super.log(level, `[id: '${this.getId()}', name: '${this.getName()}']: ${msg}`, data);
+    }
+
     run<T extends CircuitRunType>(inputs: T, haltCond?: (inputs: Record<string, Input>, outputs: Record<string, Output>) => boolean): CircuitRunResult<T> {
+        this.#log(LogLevel.INFO, 'Beginning simulation with inputs:', { inputs: inputs});
         const eventQueue: QueueEntry[] = [];
 
-        // Set circuit inputs
+        this.#log(LogLevel.DEBUG, 'Setting inputs...');
         if (Array.isArray(inputs)) {
+            this.#log(LogLevel.TRACE, 'Input was provided as array; setting inputs by index.');
             Object.values(this.#inputs).forEach(input => {
                 const value = inputs[input.getIndex()];
                 input.setValue(value);
@@ -71,6 +82,7 @@ export class Circuit {
                 });
             });
         } else {
+            this.#log(LogLevel.TRACE, 'Input was provided as an object; setting inputs by key.');
             const inputLabels = Object.keys(inputs);
             for (const i in inputLabels) {
                 let didSetLabel = false;
@@ -85,6 +97,8 @@ export class Circuit {
                     });
 
                     didSetLabel = true;
+                    this.#log(LogLevel.TRACE, `Set input: ${key}`);
+
                 }
 
                 if (this.#outputs[key]) {
@@ -95,6 +109,7 @@ export class Circuit {
                     });
 
                     didSetLabel = true;
+                    this.#log(LogLevel.TRACE, `Set output: ${key}`);
                 }
 
                 if (!didSetLabel) {
@@ -103,13 +118,14 @@ export class Circuit {
             }
         }
 
-        // Execute circuit simulation
+        this.#log(LogLevel.TRACE, `Starting simulation event loop...`);
         let steps = 0;
         let time = 0;
 
         let entry: QueueEntry | undefined = undefined;
         while (entry = eventQueue.shift()) {
             time = entry.time;
+            this.#log(LogLevel.DEBUG, `[Step: ${steps + 1}, Time: ${time}] Resolving element: ${entry.element.constructor.name}`);
 
             const currentOutputs = entry.element.getOutputs().map(o => o.getValue());
             const propDelay = entry.element.resolve();
@@ -119,23 +135,22 @@ export class Circuit {
                 .map(o => o.getElements())
                 .flat();
 
+            this.#log(LogLevel.TRACE, `Propagation delay: ${propDelay}`);
+            this.#log(LogLevel.DEBUG, `Outputs:`, {
+                current: currentOutputs,
+                resolved: entry.element.getOutputs().map(o => o.getValue())
+            });
+
             for (const el of propTo) {
                 if (el == entry.element) {
                     continue;
                 }
 
+                this.#log(LogLevel.TRACE, `Propagating to element: ${el.constructor.name}`);
                 eventQueue.push({
                     time: entry.time + propDelay,
                     element: el
                 });
-            }
-
-            // Sort the event queue by time.
-            eventQueue.sort((a, b) => a.time - b.time);
-            steps++;
-
-            if (steps > 1000000) {
-                throw new Error('Simulation step limit exceeded; check for loops in circuit.');
             }
 
             // If the halt condition is satisfied in this step of the simulation,
@@ -145,29 +160,48 @@ export class Circuit {
             // Note that a premature halt of the simulation which is earlier than expected
             // is a bug in the circuit, not the simulation.
             if (haltCond && haltCond(this.#inputs, this.#outputs)) {
+                this.#log(LogLevel.DEBUG, `Halt condition satisfied; breaking simulation loop.`);
                 break;
+            } else {
+                this.#log(LogLevel.TRACE, `No halt condition, or halt condition not satisfied.`);
+            }
+
+            this.#log(LogLevel.TRACE, `Sorting event queue...`);
+            eventQueue.sort((a, b) => a.time - b.time);
+            steps++;
+
+            if (steps > 1000000) {
+                throw new Error('Simulation step limit exceeded; check for loops in circuit.');
             }
         }
 
+        this.#log(LogLevel.TRACE, "Simulation completed. Collecting outputs...");
+        let output;
+
         // Return circuit outputs
         if (Array.isArray(inputs)) {
-            return {
-                // @ts-ignore
+            this.#log(LogLevel.TRACE, 'Building output as array.');
+            output = {
                 outputs: Object.values(this.#outputs).map(o => o.getValue()),
                 propagationDelay: time
             };
         } else {
+            this.#log(LogLevel.TRACE, 'Building output as object.');
             const outputs: Record<string, BitString> = {};
 
             for (const key of Object.keys(this.#outputs)) {
                 outputs[key] = this.#outputs[key].getValue();
             }
 
-            return {
-                // @ts-ignore
+            output = {
                 outputs: outputs,
                 propagationDelay: time
             };
         }
+
+        this.#log(LogLevel.INFO, `Ending simulation with outputs:`, output);
+
+        // @ts-ignore
+        return output;
     }
 }
