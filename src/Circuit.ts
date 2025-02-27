@@ -1,3 +1,4 @@
+import { BitString } from "./BitString";
 import { CircuitElement } from "./CircuitElement";
 import { Input } from "./CircuitElement/Input";
 import { Output } from "./CircuitElement/Output";
@@ -7,7 +8,7 @@ type QueueEntry = {
     element: CircuitElement
 };
 
-export type CircuitRunType = Record<string, number> | number[];
+export type CircuitRunType = Record<string, BitString> | BitString[];
 export type CircuitRunResult<T extends CircuitRunType> = {
     outputs: T,
     propagationDelay: number;
@@ -114,10 +115,10 @@ export class Circuit {
             const propDelay = entry.element.resolve();
             const propTo = entry.element
                 .getOutputs()
-                .filter((o, i) => entry?.element instanceof Input || o.getValue() != currentOutputs[i])
+                .filter((o, i) => entry?.element instanceof Input || !o.getValue().equals(currentOutputs[i]))
                 .map(o => o.getElements())
                 .flat();
-            
+
             for (const el of propTo) {
                 if (el == entry.element) {
                     continue;
@@ -146,7 +147,7 @@ export class Circuit {
                 propagationDelay: time
             };
         } else {
-            const outputs: Record<string, number> = {};
+            const outputs: Record<string, BitString> = {};
 
             for (const key of Object.keys(this.#outputs)) {
                 outputs[key] = this.#outputs[key].getValue();

@@ -1,7 +1,8 @@
+import { BitString } from "../BitString";
 import { Gate } from "./Gate";
 
 export class NorGate extends Gate {
-    evaluate(previousValue: number, currentValue: number): number {
-        return !(previousValue || currentValue) ? 1 : 0;
+    evaluate(previousValue: BitString, currentValue: BitString): BitString {
+        return previousValue.or(currentValue).not();
     }
 }

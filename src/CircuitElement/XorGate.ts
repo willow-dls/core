@@ -1,9 +1,8 @@
+import { BitString } from "../BitString";
 import { Gate } from "./Gate";
 
 export class XorGate extends Gate {
-  evaluate(previousValue: number, currentValue: number): number {
-    return Number(
-      (previousValue && !currentValue) || (!previousValue && currentValue),
-    );
+  evaluate(previousValue: BitString, currentValue: BitString): BitString {
+    return previousValue.and(currentValue.not()).or(previousValue.not().and(currentValue));
   }
 }
