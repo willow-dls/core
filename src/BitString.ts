@@ -183,24 +183,26 @@ export class BitString {
             return this.#str;
         } else if (radix == 16) {
             let result = '';
-
-            for (let i = this.#str.length - 4; i > 0; i -= 4) {
-                let slice = this.#str.slice(i, i + 4);
+            // Make the length of the binary string a multiple of 4 by padding at the start
+            let paddedStr = this.#str as string;
+            const paddingLength = 4 - (this.#str.length % 4);
+            if (paddingLength !== 4) {
+                paddedStr = '0'.repeat(paddingLength) + this.#str;
+            }
+    
+            // Process every 4 bits and convert to hexadecimal
+            for (let i = 0; i < paddedStr.length; i += 4) {
+                let slice = paddedStr.slice(i, i + 4);
                 result += parseInt(slice, 2).toString(16).toUpperCase();
             }
     
-            if (this.#str.length % 4) {
-                result += parseInt(this.#str.slice(0, this.#str.length % 4), 2).toString(16).toUpperCase();
-            }
-    
-            result += 'x0';
-    
-            return result.split('').reverse().join('');
+            return '0x' + result;
         } else {
             // TODO: Support arbitrary radices.
             throw new Error(`Unsupported radix: ${radix}. Only 2 and 16 are supported.`);
         }
     }
+    
 
     toJSON(): string {
         return this.toString();
