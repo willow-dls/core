@@ -1,13 +1,16 @@
 import { CircuitBus } from "./CircuitBus";
+import { CircuitLoggable } from "./CircuitLogger";
 
-export abstract class CircuitElement {
+export abstract class CircuitElement extends CircuitLoggable {
     #inputs: CircuitBus[];
     #outputs: CircuitBus[];
 
     constructor(
+        subsystem: string = 'Element',
         inputs: CircuitBus[] = [], 
         outputs: CircuitBus[] = []
     ) {
+        super(subsystem);
         this.#inputs = inputs;
         this.#outputs = outputs;
 
@@ -18,7 +21,7 @@ export abstract class CircuitElement {
     abstract resolve(): number;
 
     getInputs(): CircuitBus[] {
-        return this.#inputs
+        return this.#inputs;
     }
 
     getOutputs(): CircuitBus[] {
