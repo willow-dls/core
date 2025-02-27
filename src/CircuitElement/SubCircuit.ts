@@ -6,7 +6,7 @@ export class SubCircuit extends CircuitElement {
     #circuit: Circuit;
     
     constructor(circuit: Circuit, inputs: CircuitBus[], outputs: CircuitBus[]) {
-        super(inputs, outputs);
+        super('SubCircuitElement', inputs, outputs);
         this.#circuit = circuit;
     }
 
