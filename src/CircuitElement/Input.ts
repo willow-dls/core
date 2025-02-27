@@ -7,7 +7,7 @@ export class Input extends CircuitElement {
     #label: string;
     #value: BitString;
 
-    constructor(index: number, label: string, outputs: CircuitBus[], initialValue: BitString = BitString.from('0')) {
+    constructor(index: number, label: string, outputs: CircuitBus[], initialValue: BitString = new BitString('0')) {
         super('InputElement', [], outputs);
         this.#index = index;
         this.#value = initialValue;

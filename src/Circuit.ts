@@ -9,7 +9,7 @@ type QueueEntry = {
     element: CircuitElement
 };
 
-export type CircuitRunType = Record<string, BitString> | BitString[];
+export type CircuitRunType = Record<string, BitString | string> | (BitString | string)[];
 export type CircuitRunResult<T extends CircuitRunType> = {
     outputs: T,
     propagationDelay: number;
@@ -70,7 +70,12 @@ export class Circuit extends CircuitLoggable {
         if (Array.isArray(inputs)) {
             this.#log(LogLevel.TRACE, 'Input was provided as array; setting inputs by index.');
             Object.values(this.#inputs).forEach(input => {
-                const value = inputs[input.getIndex()];
+                let value = inputs[input.getIndex()];
+
+                if (typeof value === 'string') {
+                    value = new BitString(value);
+                }
+
                 input.setValue(value);
                 eventQueue.push({
                     time: 0,
@@ -84,9 +89,14 @@ export class Circuit extends CircuitLoggable {
                 let didSetLabel = false;
 
                 const key = inputLabels[i];
+                let value = inputs[key];
+
+                if (typeof value === 'string') {
+                    value = new BitString(value);
+                }
 
                 if (this.#inputs[key]) {
-                    this.#inputs[key].setValue(inputs[key]);
+                    this.#inputs[key].setValue(value);
                     eventQueue.push({
                         time: 0,
                         element: this.#inputs[key]
@@ -98,7 +108,7 @@ export class Circuit extends CircuitLoggable {
                 }
 
                 if (this.#outputs[key]) {
-                    this.#outputs[key].setValue(inputs[key]);
+                    this.#outputs[key].setValue(value);
                     eventQueue.push({
                         time: 0,
                         element: this.#outputs[key]
@@ -175,6 +185,9 @@ export class Circuit extends CircuitLoggable {
         let output;
 
         // Return circuit outputs
+        // Regardless of whether the user submitted a string or a BitString
+        // for the inputs, BitStrings will be returned as they preserve information
+        // such as the bus width of the output.
         if (Array.isArray(inputs)) {
             this.#log(LogLevel.TRACE, 'Building output as array.');
             output = {
