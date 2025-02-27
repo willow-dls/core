@@ -4,7 +4,7 @@ import { BitString } from "../BitString";
 
 export abstract class Gate extends CircuitElement {
     constructor(inputs: CircuitBus[], outputs: CircuitBus[]) {
-        super(inputs, outputs);
+        super('GateElement', inputs, outputs);
     }
 
     resolve(): number {

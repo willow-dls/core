@@ -110,6 +110,10 @@ export class BitString {
         return this.#str;
     }
 
+    toJSON(): string {
+        return this.toString();
+    }
+
     toSigned(): number {
         const negative = this.#str[0] === '1';
 
@@ -143,11 +147,11 @@ export class BitString {
         return BitString.from(slice);
     }
 
-    setWidth(width: number): BitString {
-        if (width < this.getWidth()) {
-            return this.truncate(width);
-        } else {
-            return BitString.from(this.#str.toString(), width);
+    pad(width: number): BitString {
+        if (width <= this.getWidth()) {
+            return this;
         }
+        
+        return BitString.from(this.#str.toString(), width);
     }
 }
