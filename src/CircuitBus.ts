@@ -8,7 +8,7 @@ export class CircuitBus {
 
     constructor(bitWidth: number, ...connections: CircuitBus[]) {
         this.#connections = connections;
-        this.#value = BitString.from('0', bitWidth);
+        this.#value = new BitString('0', bitWidth);
         this.#elements = [];
     }
 

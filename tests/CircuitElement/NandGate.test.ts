@@ -3,28 +3,28 @@ import {NandGate} from "../../src/CircuitElement/NandGate";
 
 test('Should return 1', () => {
     expect(new NandGate([], []).evaluate(
-        BitString.from('0'), 
-        BitString.from('1')
+        new BitString('0'), 
+        new BitString('1')
     ).toString()).toBe('1');
 })
 
 test('Should return 1', () => {
     expect(new NandGate([], []).evaluate(
-        BitString.from('1'), 
-        BitString.from('0')
+        new BitString('1'), 
+        new BitString('0')
     ).toString()).toBe('1');
 })
 
 test('Should return 1', () => {
     expect(new NandGate([], []).evaluate(
-        BitString.from('0'), 
-        BitString.from('0')
+        new BitString('0'), 
+        new BitString('0')
     ).toString()).toBe('1');
 })
 
 test('Should return 0', () => {
     expect(new NandGate([], []).evaluate(
-        BitString.from('1'), 
-        BitString.from('1')
+        new BitString('1'), 
+        new BitString('1')
     ).toString()).toBe('0');
 })

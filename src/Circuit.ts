@@ -77,7 +77,7 @@ export class Circuit extends CircuitLoggable {
                 let value = inputs[input.getIndex()];
 
                 if (typeof value === 'string') {
-                    value = BitString.from(value);
+                    value = new BitString(value);
                 }
 
                 input.setValue(value);
@@ -96,7 +96,7 @@ export class Circuit extends CircuitLoggable {
                 let value = inputs[key];
 
                 if (typeof value === 'string') {
-                    value = BitString.from(value);
+                    value = new BitString(value);
                 }
 
                 if (this.#inputs[key]) {
