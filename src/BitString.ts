@@ -2,7 +2,55 @@ type Bit = '0' | '1';
 type BinaryString = string & { __binaryString: true };
 
 function isBinaryString(str: string): str is BinaryString {
-    return /^[01]*$/.test(str);
+    return /^[01]+$/.test(str);
+}
+
+function isHexString(str: string): boolean {
+    return /^0x[abcdef0123456789]+$/.test(str.toLowerCase());
+}
+
+function hexToBinary(str: string): BinaryString {
+    if (isHexString(str)) {
+        const hexMap: Record<string, string> = {
+            '0': '0000',
+            '1': '0001',
+            '2': '0010',
+            '3': '0011',
+            '4': '0100',
+            '5': '0101',
+            '6': '0110',
+            '7': '0111',
+            '8': '1000',
+            '9': '1001',
+            'a': '1010',
+            'b': '1011',
+            'c': '1100',
+            'd': '1101',
+            'e': '1110',
+            'f': '1111'
+        };
+
+        let result  = str
+            .slice(2)
+            .toLowerCase()
+            .split('')
+            .map(c => hexMap[c])
+            .join('')
+            .replace(/^0+/, '');
+        
+        if (result == '') {
+            result = '0';
+        }
+        
+        if (isBinaryString(result)) {
+            return result;
+        } else {
+            // This should never happen.
+            throw new Error(`Internal error: failed to convert valid hex string into binary: '${str}' => '${result}'`);
+        }
+    } else {
+        throw new Error(`Not a hex string: '${str}'`);
+    }
 }
 
 function forBit(str: string, func: (b: string, i: number) => string): BinaryString {
@@ -19,10 +67,6 @@ function forBit(str: string, func: (b: string, i: number) => string): BinaryStri
 }
 
 export class BitString {
-    static from(str: string, pad: number = 0) {
-        return new BitString(str.padStart(pad, '0'));
-    }
-
     static high(width: number = 1) {
         return new BitString('1'.repeat(width));
     }
@@ -33,21 +77,23 @@ export class BitString {
 
     #str: BinaryString;
 
-    constructor(str: string) {
-        if (!isBinaryString(str)) {
-            throw new Error(`Not a binary string: '${str}'`);
+    constructor(str: string, width: number = 0) {
+        if (isBinaryString(str)) {
+            this.#str = str;
+        } else if (isHexString(str)) {
+            this.#str = hexToBinary(str);
+        } else {
+            throw new Error(`Not a hex or binary string: '${str}'`);
         }
-
-        this.#str = str;
     }
 
     not(): BitString {
-        return BitString.from(forBit(this.#str, c => c === '0' ? '1' : '0'));
+        return new BitString(forBit(this.#str, c => c === '0' ? '1' : '0'));
     }
 
     add(str: BitString | string): BitString {
         if (typeof str === 'string') {
-            str = BitString.from(str);
+            str = new BitString(str);
         }
 
         if (str.getWidth() != this.getWidth()) {
@@ -77,42 +123,42 @@ export class BitString {
             carry = r[1];
         }
 
-        return BitString.from(result.join(''));
+        return new BitString(result.join(''));
     }
 
     and(str: BitString | string): BitString {
         if (typeof str === 'string') {
-            str = BitString.from(str);
+            str = new BitString(str);
         }
 
         if (str.getWidth() != this.getWidth()) {
             throw new Error(`Cannot AND bit strings: width mismatch: ${str.getWidth()} != ${this.getWidth()}`);
         }
 
-        return BitString.from(forBit(str.toString(), (_, i) => str.#str[i] == '1' && this.#str[i] == '1' ? '1' : '0'));
+        return new BitString(forBit(str.toString(), (_, i) => str.#str[i] == '1' && this.#str[i] == '1' ? '1' : '0'));
     }
 
     or(str: BitString | string): BitString {
         if (typeof str === 'string') {
-            str = BitString.from(str);
+            str = new BitString(str);
         }
 
         if (str.getWidth() != this.getWidth()) {
             throw new Error(`Cannot OR bit strings: width mismatch: ${str.getWidth()} != ${this.getWidth()}`);
         }
 
-        return BitString.from(forBit(str.toString(), (_, i) => str.#str[i] == '1' || this.#str[i] == '1' ? '1' : '0'));
+        return new BitString(forBit(str.toString(), (_, i) => str.#str[i] == '1' || this.#str[i] == '1' ? '1' : '0'));
     }
 
     twosCompliment(): BitString {
         // Twos compliment is implemented by flipping all the bits
         // then adding one.
-        return this.not().add(BitString.from('1', this.getWidth()));
+        return this.not().add(new BitString('1', this.getWidth()));
     }
 
     sub(str: BitString | string): BitString {
         if (typeof str === 'string') {
-            str = BitString.from(str);
+            str = new BitString(str);
         }
         return this.add(str.twosCompliment());
     }
@@ -141,7 +187,7 @@ export class BitString {
 
     equals(str: BitString | string): boolean {
         if (typeof str === 'string') {
-            str = BitString.from(str);
+            str = new BitString(str);
         }
         return str.#str == this.#str;
     }
@@ -158,14 +204,14 @@ export class BitString {
             slice = this.#str.substring(this.getWidth() - length);
         }
 
-        return BitString.from(slice);
+        return new BitString(slice);
     }
 
     setWidth(width: number): BitString {
         if (width < this.getWidth()) {
             return this.truncate(width);
         } else {
-            return BitString.from(this.#str.toString(), width);
+            return new BitString(this.#str.toString(), width);
         }
     }
 }
