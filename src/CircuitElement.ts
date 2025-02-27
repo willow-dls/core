@@ -7,8 +7,8 @@ export abstract class CircuitElement extends CircuitLoggable {
 
     constructor(
         subsystem: string = 'Element',
-        inputs: CircuitBus[] = [], 
-        outputs: CircuitBus[] = []
+        inputs: CircuitBus[], 
+        outputs: CircuitBus[]
     ) {
         super(subsystem);
         this.#inputs = inputs;
