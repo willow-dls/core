@@ -16,8 +16,6 @@ export type CircuitRunResult<T extends CircuitRunType> = {
 };
 
 export class Circuit extends CircuitLoggable {
-    #elements: CircuitElement[];
-
     #inputs: Record<string, Input>;
     #outputs: Record<string, Output>;
 
@@ -26,8 +24,6 @@ export class Circuit extends CircuitLoggable {
 
     constructor(id: string, name: string, elements: CircuitElement[]) {
         super('Circuit');
-
-        this.#elements = elements;
 
         this.#inputs = {};
         this.#outputs = {};
@@ -68,6 +64,7 @@ export class Circuit extends CircuitLoggable {
 
     run<T extends CircuitRunType>(inputs: T, haltCond?: (inputs: Record<string, Input>, outputs: Record<string, Output>) => boolean): CircuitRunResult<T> {
         this.#log(LogLevel.INFO, 'Beginning simulation with inputs:', { inputs: inputs});
+
         const eventQueue: QueueEntry[] = [];
 
         this.#log(LogLevel.DEBUG, 'Setting inputs...');
@@ -172,6 +169,16 @@ export class Circuit extends CircuitLoggable {
 
             if (steps > 1000000) {
                 throw new Error('Simulation step limit exceeded; check for loops in circuit.');
+            }
+
+            // If the halt condition is satisfied in this step of the simulation,
+            // break out of the event loop early, even if there are more inputs to
+            // process.
+            //
+            // Note that a premature halt of the simulation which is earlier than expected
+            // is a bug in the circuit, not the simulation.
+            if (haltCond && haltCond(this.#inputs, this.#outputs)) {
+                break;
             }
         }
 
