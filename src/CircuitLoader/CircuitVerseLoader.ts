@@ -6,7 +6,7 @@ import { NorGate } from "../CircuitElement/NorGate";
 import { Output } from "../CircuitElement/Output";
 import { SubCircuit } from "../CircuitElement/SubCircuit";
 import { CircuitLoader } from "../CircuitLoader";
-import { CircuitNode } from "../CircuitNode";
+import { CircuitBus } from "../CircuitBus";
 import { CircuitProject } from "../CircuitProject";
 import { NandGate } from "../CircuitElement/NandGate";
 import { NotGate } from "../CircuitElement/NotGate";
@@ -14,7 +14,7 @@ import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 
 type CircuitContext = {
-  nodes: CircuitNode[];
+  nodes: CircuitBus[];
   data: any;
   project: CircuitProject;
 };
@@ -81,12 +81,12 @@ export class CircuitVerseLoader implements CircuitLoader {
     for (const scopeInd in data.scopes) {
       const scope = data.scopes[scopeInd];
 
-      const nodes: CircuitNode[] = [];
+      const nodes: CircuitBus[] = [];
 
       // First pass over nodes array to create nodes.
       for (let nodeInd = 0; nodeInd < scope.allNodes.length; nodeInd++) {
         const scopeNode = scope.allNodes[nodeInd];
-        const node = new CircuitNode(scopeNode.bitWidth);
+        const node = new CircuitBus(scopeNode.bitWidth);
         nodes.push(node);
       }
 

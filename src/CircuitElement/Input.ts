@@ -1,12 +1,12 @@
 import { CircuitElement } from "../CircuitElement";
-import { CircuitNode } from "../CircuitNode";
+import { CircuitBus } from "../CircuitBus";
 
 export class Input extends CircuitElement {
     #index: number;
     #label: string;
     #value: number;
 
-    constructor(index: number, label: string, outputs: CircuitNode[], initialValue: number = 0) {
+    constructor(index: number, label: string, outputs: CircuitBus[], initialValue: number = 0) {
         super([], outputs);
         this.#index = index;
         this.#value = initialValue;

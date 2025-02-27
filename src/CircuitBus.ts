@@ -1,12 +1,12 @@
 import { CircuitElement } from "./CircuitElement";
 
-export class CircuitNode {
+export class CircuitBus {
     #bitWidth: number;
-    #connections: CircuitNode[];
+    #connections: CircuitBus[];
     #elements: CircuitElement[];
     #value: number;
 
-    constructor(bitWidth: number, ...connections: CircuitNode[]) {
+    constructor(bitWidth: number, ...connections: CircuitBus[]) {
         this.#bitWidth = bitWidth;
         this.#connections = connections;
         this.#value = 0;
@@ -17,14 +17,14 @@ export class CircuitNode {
         return this.#bitWidth;
     }
 
-    connect(node: CircuitNode): void {
+    connect(node: CircuitBus): void {
         if (this.#elements.length > 0) {
             throw new Error("Cannot connect circuit nodes after elements have been added.");
         }
         this.#connections.push(node);
     }
 
-    getConnections(): CircuitNode[] {
+    getConnections(): CircuitBus[] {
         return this.#connections;
     }
 

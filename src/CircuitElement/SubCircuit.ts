@@ -1,11 +1,11 @@
 import { Circuit } from "../Circuit";
 import { CircuitElement } from "../CircuitElement";
-import { CircuitNode } from "../CircuitNode";
+import { CircuitBus } from "../CircuitBus";
 
 export class SubCircuit extends CircuitElement {
     #circuit: Circuit;
     
-    constructor(circuit: Circuit, inputs: CircuitNode[], outputs: CircuitNode[]) {
+    constructor(circuit: Circuit, inputs: CircuitBus[], outputs: CircuitBus[]) {
         super(inputs, outputs);
         this.#circuit = circuit;
     }
