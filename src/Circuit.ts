@@ -53,7 +53,7 @@ export class Circuit {
         return this.#id;
     }
 
-    run<T extends CircuitRunType>(inputs: T): CircuitRunResult<T> {
+    run<T extends CircuitRunType>(inputs: T, haltCond?: (inputs: Record<string, Input>, outputs: Record<string, Output>) => boolean): CircuitRunResult<T> {
         const eventQueue: QueueEntry[] = [];
 
         // Set circuit inputs
@@ -132,6 +132,16 @@ export class Circuit {
 
             if (steps > 1000000) {
                 throw new Error('Simulation step limit exceeded; check for loops in circuit.');
+            }
+
+            // If the halt condition is satisfied in this step of the simulation,
+            // break out of the event loop early, even if there are more inputs to
+            // process.
+            //
+            // Note that a premature halt of the simulation which is earlier than expected
+            // is a bug in the circuit, not the simulation.
+            if (haltCond && haltCond(this.#inputs, this.#outputs)) {
+                break;
             }
         }
 
