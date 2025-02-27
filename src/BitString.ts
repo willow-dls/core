@@ -45,7 +45,11 @@ export class BitString {
         return BitString.from(forBit(this.#str, c => c === '0' ? '1' : '0'));
     }
 
-    add(str: BitString): BitString {
+    add(str: BitString | string): BitString {
+        if (typeof str === 'string') {
+            str = BitString.from(str);
+        }
+
         if (str.getWidth() != this.getWidth()) {
             throw new Error(`Cannot ADD bit strings: width mismatch: ${str.getWidth()} != ${this.getWidth()}`);
         }
@@ -76,7 +80,11 @@ export class BitString {
         return BitString.from(result.join(''));
     }
 
-    and(str: BitString): BitString {
+    and(str: BitString | string): BitString {
+        if (typeof str === 'string') {
+            str = BitString.from(str);
+        }
+
         if (str.getWidth() != this.getWidth()) {
             throw new Error(`Cannot AND bit strings: width mismatch: ${str.getWidth()} != ${this.getWidth()}`);
         }
@@ -84,7 +92,11 @@ export class BitString {
         return BitString.from(forBit(str.toString(), (_, i) => str.#str[i] == '1' && this.#str[i] == '1' ? '1' : '0'));
     }
 
-    or(str: BitString): BitString {
+    or(str: BitString | string): BitString {
+        if (typeof str === 'string') {
+            str = BitString.from(str);
+        }
+
         if (str.getWidth() != this.getWidth()) {
             throw new Error(`Cannot OR bit strings: width mismatch: ${str.getWidth()} != ${this.getWidth()}`);
         }
@@ -98,7 +110,10 @@ export class BitString {
         return this.not().add(BitString.from('1', this.getWidth()));
     }
 
-    sub(str: BitString): BitString {
+    sub(str: BitString | string): BitString {
+        if (typeof str === 'string') {
+            str = BitString.from(str);
+        }
         return this.add(str.twosCompliment());
     }
 
@@ -124,7 +139,10 @@ export class BitString {
         return parseInt(this.#str, 2);
     }
 
-    equals(str: BitString) {
+    equals(str: BitString | string): boolean {
+        if (typeof str === 'string') {
+            str = BitString.from(str);
+        }
         return str.#str == this.#str;
     }
 

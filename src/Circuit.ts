@@ -8,7 +8,7 @@ type QueueEntry = {
     element: CircuitElement
 };
 
-export type CircuitRunType = Record<string, BitString> | BitString[];
+export type CircuitRunType = Record<string, BitString | string> | (BitString | string)[];
 export type CircuitRunResult<T extends CircuitRunType> = {
     outputs: T,
     propagationDelay: number;
@@ -63,7 +63,12 @@ export class Circuit {
         // Set circuit inputs
         if (Array.isArray(inputs)) {
             Object.values(this.#inputs).forEach(input => {
-                const value = inputs[input.getIndex()];
+                let value = inputs[input.getIndex()];
+
+                if (typeof value === 'string') {
+                    value = BitString.from(value);
+                }
+
                 input.setValue(value);
                 eventQueue.push({
                     time: 0,
@@ -76,9 +81,14 @@ export class Circuit {
                 let didSetLabel = false;
 
                 const key = inputLabels[i];
+                let value = inputs[key];
+
+                if (typeof value === 'string') {
+                    value = BitString.from(value);
+                }
 
                 if (this.#inputs[key]) {
-                    this.#inputs[key].setValue(inputs[key]);
+                    this.#inputs[key].setValue(value);
                     eventQueue.push({
                         time: 0,
                         element: this.#inputs[key]
@@ -88,7 +98,7 @@ export class Circuit {
                 }
 
                 if (this.#outputs[key]) {
-                    this.#outputs[key].setValue(inputs[key]);
+                    this.#outputs[key].setValue(value);
                     eventQueue.push({
                         time: 0,
                         element: this.#outputs[key]
@@ -140,6 +150,9 @@ export class Circuit {
         }
 
         // Return circuit outputs
+        // Regardless of whether the user submitted a string or a BitString
+        // for the inputs, BitStrings will be returned as they preserve information
+        // such as the bus width of the output.
         if (Array.isArray(inputs)) {
             return {
                 // @ts-ignore
