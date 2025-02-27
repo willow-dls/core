@@ -247,6 +247,6 @@ export class BitString {
             return this;
         }
         
-        return new BitString(this.#str.toString(), width);
+        return new BitString(this.#str.toString().padStart(width, '0'));
     }
 }
