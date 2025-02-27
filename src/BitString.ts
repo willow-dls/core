@@ -10,48 +10,40 @@ function isHexString(str: string): boolean {
 }
 
 function hexToBinary(str: string): BinaryString {
-    if (isHexString(str)) {
-        const hexMap: Record<string, string> = {
-            '0': '0000',
-            '1': '0001',
-            '2': '0010',
-            '3': '0011',
-            '4': '0100',
-            '5': '0101',
-            '6': '0110',
-            '7': '0111',
-            '8': '1000',
-            '9': '1001',
-            'a': '1010',
-            'b': '1011',
-            'c': '1100',
-            'd': '1101',
-            'e': '1110',
-            'f': '1111'
-        };
+    const hexMap: Record<string, string> = {
+        '0': '0000',
+        '1': '0001',
+        '2': '0010',
+        '3': '0011',
+        '4': '0100',
+        '5': '0101',
+        '6': '0110',
+        '7': '0111',
+        '8': '1000',
+        '9': '1001',
+        'a': '1010',
+        'b': '1011',
+        'c': '1100',
+        'd': '1101',
+        'e': '1110',
+        'f': '1111'
+    };
 
-        let result  = str
-            .slice(2)
-            .toLowerCase()
-            .split('')
-            .map(c => hexMap[c])
-            .join('')
-            .replace(/^0+/, '');
-        
-        if (result == '') {
-            result = '0';
-        }
-        
-        if (isBinaryString(result)) {
-            return result;
-        } else {
-            // This should never happen.
-            throw new Error(`Internal error: failed to convert valid hex string into binary: '${str}' => '${result}'`);
-        }
-    } else {
-        throw new Error(`Not a hex string: '${str}'`);
+    let result = str
+        .slice(2)
+        .toLowerCase()
+        .split('')
+        .map(c => hexMap[c])
+        .join('')
+        .replace(/^0+/, '');
+
+    if (result == '') {
+        result = '0';
     }
+
+    return result as BinaryString;
 }
+
 
 function forBit(str: string, func: (b: string, i: number) => string): BinaryString {
     const result = str
@@ -128,7 +120,7 @@ export class BitString {
 
         for (let i = 0; i < result.length; i++) {
             const key: string = `${carry}${this.#str[i]}${str.#str[i]}`;
-            const r:  Bit[] = map[key];
+            const r: Bit[] = map[key];
 
             result[i] = r[0];
             carry = r[1];
@@ -171,6 +163,7 @@ export class BitString {
         if (typeof str === 'string') {
             str = new BitString(str);
         }
+
         return this.add(str.twosCompliment());
     }
 
@@ -189,20 +182,20 @@ export class BitString {
             if (paddingLength !== 4) {
                 paddedStr = '0'.repeat(paddingLength) + this.#str;
             }
-    
+
             // Process every 4 bits and convert to hexadecimal
             for (let i = 0; i < paddedStr.length; i += 4) {
                 let slice = paddedStr.slice(i, i + 4);
                 result += parseInt(slice, 2).toString(16).toUpperCase();
             }
-    
+
             return '0x' + result;
         } else {
             // TODO: Support arbitrary radices.
             throw new Error(`Unsupported radix: ${radix}. Only 2 and 16 are supported.`);
         }
     }
-    
+
 
     toJSON(): string {
         return this.toString();
@@ -248,7 +241,7 @@ export class BitString {
         if (width <= this.getWidth()) {
             return this;
         }
-        
+
         return new BitString(this.#str.toString().padStart(width, '0'));
     }
 }
