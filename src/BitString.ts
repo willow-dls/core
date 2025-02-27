@@ -85,6 +85,17 @@ export class BitString {
         } else {
             throw new Error(`Not a hex or binary string: '${str}'`);
         }
+
+        // If a fixed width was provided, we ensure that the bit width
+        // is exactly that wide  by padding or truncating the bit
+        // string.
+        if (width) {
+            if (this.getWidth() > width) {
+                this.#str = this.truncate(width).#str;
+            } else if (this.getWidth() < width) {
+                this.#str = this.pad(width).#str;
+            }
+        }
     }
 
     not(): BitString {
@@ -167,8 +178,28 @@ export class BitString {
         return this.#str.length;
     }
 
-    toString(): string {
-        return this.#str;
+    toString(radix: number = 2): string {
+        if (radix == 2) {
+            return this.#str;
+        } else if (radix == 16) {
+            let result = '';
+
+            for (let i = this.#str.length - 4; i > 0; i -= 4) {
+                let slice = this.#str.slice(i, i + 4);
+                result += parseInt(slice, 2).toString(16).toUpperCase();
+            }
+    
+            if (this.#str.length % 4) {
+                result += parseInt(this.#str.slice(0, this.#str.length % 4), 2).toString(16).toUpperCase();
+            }
+    
+            result += 'x0';
+    
+            return result.split('').reverse().join('');
+        } else {
+            // TODO: Support arbitrary radices.
+            throw new Error(`Unsupported radix: ${radix}. Only 2 and 16 are supported.`);
+        }
     }
 
     toJSON(): string {
