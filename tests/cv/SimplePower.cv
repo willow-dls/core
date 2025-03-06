@@ -1,0 +1,203 @@
+{
+    "name": "SimplePower",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "kVtggvw7MKxSsQg8S5t2",
+    "focussedCircuit": 15100532482,
+    "orderedTabs": [
+        "15100532482"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 40,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [
+                {
+                    "x": -10,
+                    "y": -10,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        6
+                    ]
+                },
+                {
+                    "x": -10,
+                    "y": 10,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        3
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        5
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        1
+                    ]
+                },
+                {
+                    "x": 0,
+                    "y": 10,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        6
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        2
+                    ]
+                },
+                {
+                    "x": 520,
+                    "y": 240,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        4,
+                        0
+                    ]
+                }
+            ],
+            "id": 15100532482,
+            "name": "Main",
+            "Input": [
+                {
+                    "x": 520,
+                    "y": 260,
+                    "objectType": "Input",
+                    "label": "inp1",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 3
+                        },
+                        "values": {
+                            "state": 1
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1,
+                            {
+                                "x": 0,
+                                "y": 20,
+                                "id": "GnHK3Jsm9hcXxiXYinXu"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "Output": [
+                {
+                    "x": 740,
+                    "y": 250,
+                    "objectType": "Output",
+                    "label": "out1",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 5
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 20,
+                                "id": "7KcQIbQxLBBVtwiqR0ou"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "AndGate": [
+                {
+                    "x": 640,
+                    "y": 250,
+                    "objectType": "AndGate",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            2,
+                            1
+                        ],
+                        "nodes": {
+                            "inp": [
+                                0,
+                                1
+                            ],
+                            "output1": 2
+                        }
+                    }
+                }
+            ],
+            "Power": [
+                {
+                    "x": 520,
+                    "y": 220,
+                    "objectType": "Power",
+                    "label": "pow",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 4
+                        },
+                        "constructorParamaters": [
+                            1
+                        ]
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": [
+                6
+            ]
+        }
+    ]
+}
