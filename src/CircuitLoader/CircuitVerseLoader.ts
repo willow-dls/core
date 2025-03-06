@@ -13,6 +13,7 @@ import { NotGate } from "../CircuitElement/NotGate";
 import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { LogLevel } from "../CircuitLogger";
+import { BitString } from "../BitString";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -71,7 +72,37 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     project.getCircuitById(data.id),
     data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
     data.outputNodes.map((nodeInd: number) => nodes[nodeInd])
-  )
+  ),
+
+  // Simu-112 Additional Inputs
+  'Button': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]]
+  ),
+  'Power': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]],
+    new BitString('1')
+  ),
+  'Ground': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]],
+    new BitString('0')
+  ),
+  'ConstantVal': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]],
+    new BitString(data.customData.constructorParamaters[2])
+  ),
+  'Stepper': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]]
+  ),
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
