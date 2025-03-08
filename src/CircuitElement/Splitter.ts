@@ -5,8 +5,8 @@ import { LogLevel } from "../CircuitLogger";
 
 export class Splitter extends CircuitElement {
     #split: number[];
-    #prevInput: BitString;
-    #prevOutputs: BitString[];
+    #prevInput: BitString | null;
+    #prevOutputs: BitString[] | null;
 
     #bitStringsEqual(a: BitString[], b: BitString[]): boolean {
         if (a === b) return true;
@@ -30,13 +30,18 @@ export class Splitter extends CircuitElement {
         super('SplitterElement', [input, ...outputs], [input, ...outputs]);
 
         this.#split = split;
-        this.#prevInput = input.getValue();
-        this.#prevOutputs = outputs.map(o => o.getValue());
+        this.#prevInput = null;
+        this.#prevOutputs = null;
     }
 
     resolve(): number {
         const input: BitString = this.getInputs()[0].getValue();
         const outputs: BitString[] = this.getOutputs().slice(1).map(o => o.getValue());
+
+        if (!this.#prevInput || !this.#prevOutputs) {
+            this.#prevInput = input;
+        this.#prevOutputs = outputs;
+        }
 
         if (!input.equals(this.#prevInput) && this.#bitStringsEqual(this.#prevOutputs, outputs)) {
             this.log(LogLevel.TRACE, 'Input changed and outputs have not; splitting input into outputs...');
@@ -85,10 +90,9 @@ export class Splitter extends CircuitElement {
     }
 
     reset() {
-        const input: BitString = this.getInputs()[0].getValue();
-        const outputs: BitString[] = this.getOutputs().slice(1).map(o => o.getValue());
+        super.reset();
 
-        this.#prevInput = input;
-        this.#prevOutputs = outputs;
+        this.#prevInput = null;
+        this.#prevOutputs = null;
     }
 }
