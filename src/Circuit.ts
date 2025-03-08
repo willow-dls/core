@@ -168,13 +168,12 @@ export class Circuit extends CircuitLoggable {
             if (haltCond && haltCond(this.#inputs, this.#outputs)) {
                 this.#log(LogLevel.DEBUG, `Halt condition satisfied; breaking simulation loop.`);
                 break;
-            } else {
-                this.#log(LogLevel.TRACE, `No halt condition, or halt condition not satisfied.`);
             }
 
-            this.#log(LogLevel.TRACE, `Sorting event queue...`);
             eventQueue.sort((a, b) => a.time - b.time);
             steps++;
+            this.#log(LogLevel.TRACE, `Event Queue:`, eventQueue.map(e => e.element.constructor.name));
+
 
             if (steps > 1000000) {
                 throw new Error('Simulation step limit exceeded; check for loops in circuit.');

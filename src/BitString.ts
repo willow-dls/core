@@ -244,4 +244,16 @@ export class BitString {
 
         return new BitString(this.#str.toString().padStart(width, '0'));
     }
+
+    substring(start: number, end?: number): BitString {
+        return new BitString(this.#str.substring(start, end));
+    }
+
+    msb(n: number): BitString {
+        return this.substring(0, n);
+    }
+
+    lsb(n: number): BitString {
+        return this.substring(this.getWidth() - n);
+    }
 }

@@ -13,6 +13,7 @@ import { NotGate } from "../CircuitElement/NotGate";
 import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { LogLevel } from "../CircuitLogger";
+import { Splitter } from "../CircuitElement/Splitter";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -71,6 +72,13 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     project.getCircuitById(data.id),
     data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
     data.outputNodes.map((nodeInd: number) => nodes[nodeInd])
+  ),
+  'Splitter': ({nodes, data }) => new Splitter(
+    // No, this is not a typo in our code, their data file actually has "constructorParamaters"
+    // instead of the proper spelling "constructorParameters"...
+    data.customData.constructorParamaters[2],
+    nodes[data.customData.nodes.inp1],
+    data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd])
   )
 };
 
