@@ -27,4 +27,14 @@ export abstract class CircuitElement extends CircuitLoggable {
     getOutputs(): CircuitBus[] {
         return this.#outputs;
     }
+
+    reset(): void {
+        // This method is expected to be overridden by child
+        // elements who may have internal state they which to reset
+        // when the circuit is re-run with new inputs.
+        //
+        // (For example, the Splitter element, which must retain a history
+        // of its inputs and outputs to know which direction to propagate,
+        // since it is bi-directional.)
+    }
 }

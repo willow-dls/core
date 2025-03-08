@@ -42,7 +42,7 @@ export class CircuitBus {
         }
 
         if (value.getWidth() !== this.#value.getWidth()) {
-            throw new Error(`Bus error: Attempting to set ${value.getWidth()}-bit value on ${this.#value.getWidth()}-bit bus.`);
+            throw new Error(`Bus error: Attempting to set ${value.getWidth()}-bit value '${value}' on ${this.#value.getWidth()}-bit bus, currently holding '${this.#value}'.`);
         }
         
         this.#value = value;

@@ -13,11 +13,13 @@ export type CircuitRunType = Record<string, BitString | string> | (BitString | s
 export type CircuitRunResult<T extends CircuitRunType> = {
     outputs: T,
     propagationDelay: number;
+    steps: number;
 };
 
 export class Circuit extends CircuitLoggable {
     #inputs: Record<string, Input>;
     #outputs: Record<string, Output>;
+    #elements: CircuitElement[];
 
     #id: string;
     #name: string;
@@ -48,14 +50,19 @@ export class Circuit extends CircuitLoggable {
 
             this.propagateLoggersTo(e);
         });
+
+        this.#elements = elements;
     }
 
     getName(): string {
         return this.#name;
     }
 
-    getId(): string {
-        return this.#id;
+    getId(): number {
+        // TODO: We should intake an integer instead of parsing the
+        // string ID here, particularly because this method could potentially
+        // get called a lot.
+        return parseInt(this.#id);
     }
 
     #log(level: LogLevel, msg: string, data?:  any) {
@@ -65,6 +72,9 @@ export class Circuit extends CircuitLoggable {
     run<T extends CircuitRunType>(inputs: T, haltCond?: (inputs: Record<string, Input>, outputs: Record<string, Output>) => boolean): CircuitRunResult<T> {
         this.#log(LogLevel.INFO, 'Beginning simulation with inputs:', { inputs: inputs});
         const eventQueue: QueueEntry[] = [];
+
+        this.#log(LogLevel.TRACE, 'Resetting all elements...');
+        this.#elements.forEach(e => e.reset());
 
         this.#log(LogLevel.DEBUG, 'Setting inputs...');
         if (Array.isArray(inputs)) {
@@ -131,15 +141,10 @@ export class Circuit extends CircuitLoggable {
         let entry: QueueEntry | undefined = undefined;
         while (entry = eventQueue.shift()) {
             time = entry.time;
-            this.#log(LogLevel.DEBUG, `[Step: ${steps + 1}, Time: ${time}] Resolving element: ${entry.element.constructor.name}`);
+            this.#log(LogLevel.DEBUG, `[Step: ${steps + 1}, Time: ${time}] Resolving element: ${entry.element.constructor.name}[id=${entry.element.getId()}]`);
 
             const currentOutputs = entry.element.getOutputs().map(o => o.getValue());
             const propDelay = entry.element.resolve();
-            const propTo = entry.element
-                .getOutputs()
-                .filter((o, i) => entry?.element instanceof Input || !o.getValue().equals(currentOutputs[i]))
-                .map(o => o.getElements())
-                .flat();
 
             this.#log(LogLevel.TRACE, `Propagation delay: ${propDelay}`);
             this.#log(LogLevel.DEBUG, `Outputs:`, {
@@ -147,12 +152,18 @@ export class Circuit extends CircuitLoggable {
                 resolved: entry.element.getOutputs().map(o => o.getValue())
             });
 
+            const propTo = entry.element
+                .getOutputs()
+                .filter((o, i) => entry?.element instanceof Input || !o.getValue().equals(currentOutputs[i]))
+                .map(o => o.getElements())
+                .flat();
+
             for (const el of propTo) {
                 if (el == entry.element) {
                     continue;
                 }
 
-                this.#log(LogLevel.TRACE, `Propagating to element: ${el.constructor.name}`);
+                this.#log(LogLevel.TRACE, `Propagating to element: ${el.constructor.name}[id=${el.getId()}]`);
                 eventQueue.push({
                     time: entry.time + propDelay,
                     element: el
@@ -172,7 +183,7 @@ export class Circuit extends CircuitLoggable {
 
             eventQueue.sort((a, b) => a.time - b.time);
             steps++;
-            this.#log(LogLevel.TRACE, `Event Queue:`, eventQueue.map(e => e.element.constructor.name));
+            this.#log(LogLevel.TRACE, `Event Queue:`, eventQueue.map(e => `${e.element.constructor.name}[id=${e.element.getId()}]`));
 
 
             if (steps > 1000000) {
@@ -191,7 +202,8 @@ export class Circuit extends CircuitLoggable {
             this.#log(LogLevel.TRACE, 'Building output as array.');
             output = {
                 outputs: Object.values(this.#outputs).map(o => o.getValue()),
-                propagationDelay: time
+                propagationDelay: time,
+                steps: steps
             };
         } else {
             this.#log(LogLevel.TRACE, 'Building output as object.');
@@ -203,7 +215,8 @@ export class Circuit extends CircuitLoggable {
 
             output = {
                 outputs: outputs,
-                propagationDelay: time
+                propagationDelay: time,
+                steps: steps
             };
         }
 
