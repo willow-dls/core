@@ -65,12 +65,12 @@ export class Circuit extends CircuitLoggable {
         return parseInt(this.#id);
     }
 
-    #log(level: LogLevel, msg: string, data?:  any) {
-       super.log(level, `[id: '${this.getId()}', name: '${this.getName()}']: ${msg}`, data);
+    #log(level: LogLevel, msg: string, data?: any) {
+        super.log(level, `[id: '${this.getId()}', name: '${this.getName()}']: ${msg}`, data);
     }
 
     run<T extends CircuitRunType>(inputs: T, haltCond?: (inputs: Record<string, Input>, outputs: Record<string, Output>) => boolean): CircuitRunResult<T> {
-        this.#log(LogLevel.INFO, 'Beginning simulation with inputs:', { inputs: inputs});
+        this.#log(LogLevel.INFO, 'Beginning simulation with inputs:', { inputs: inputs });
         const eventQueue: QueueEntry[] = [];
 
         this.#log(LogLevel.TRACE, 'Resetting all elements...');
@@ -87,10 +87,6 @@ export class Circuit extends CircuitLoggable {
                 }
 
                 input.setValue(value);
-                eventQueue.push({
-                    time: 0,
-                    element: input
-                });
             });
         } else {
             this.#log(LogLevel.TRACE, 'Input was provided as an object; setting inputs by key.');
@@ -107,10 +103,6 @@ export class Circuit extends CircuitLoggable {
 
                 if (this.#inputs[key]) {
                     this.#inputs[key].setValue(value);
-                    eventQueue.push({
-                        time: 0,
-                        element: this.#inputs[key]
-                    });
 
                     didSetLabel = true;
                     this.#log(LogLevel.TRACE, `Set input: ${key}`);
@@ -119,10 +111,6 @@ export class Circuit extends CircuitLoggable {
 
                 if (this.#outputs[key]) {
                     this.#outputs[key].setValue(value);
-                    eventQueue.push({
-                        time: 0,
-                        element: this.#outputs[key]
-                    });
 
                     didSetLabel = true;
                     this.#log(LogLevel.TRACE, `Set output: ${key}`);
@@ -133,6 +121,17 @@ export class Circuit extends CircuitLoggable {
                 }
             }
         }
+
+        this.#log(LogLevel.TRACE, `Adding elements to event queue...`);
+        // Simply push all of the elements into the queue. This will cause non-interactive
+        // elements such as constant values and power/ground to propagate their outputs.
+        // Other than a little more initial compute, this should have no side effects.
+        this.#elements.forEach(e => {
+            eventQueue.push({
+                time: 0,
+                element: e
+            });
+        });
 
         this.#log(LogLevel.TRACE, `Starting simulation event loop...`);
         let steps = 0;
