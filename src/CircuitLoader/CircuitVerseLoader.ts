@@ -14,6 +14,10 @@ import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { LogLevel } from "../CircuitLogger";
 import { Splitter } from "../CircuitElement/Splitter";
+import { Power } from "../CircuitElement/Power";
+import { Ground } from "../CircuitElement/Ground";
+import { Constant } from "../CircuitElement/Constant";
+import { BitString } from "../BitString";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -21,6 +25,7 @@ type CircuitContext = {
   project: CircuitProject;
 };
 
+// TODO: Consistent formatting of the keys on this object.
 const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   AndGate: ({ nodes, data }) =>
     new AndGate(
@@ -63,6 +68,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     data.label,
     [nodes[data.customData.nodes.output1]]
   ),
+  // Treat a button just like a regular input.
+  'Button': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]]
+  ),
   'Output': ({ nodes, data }) => new Output(
     data.index,
     data.label,
@@ -79,6 +90,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     data.customData.constructorParamaters[2],
     nodes[data.customData.nodes.inp1],
     data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd])
+  ),
+  'Power': ({nodes, data}) => new Power(nodes[data.customData.notes.output1]),
+  'Ground': ({nodes, data}) => new Ground(nodes[data.customData.notes.output1]),
+  'ConstantVal': ({nodes, data}) => new Constant(
+    nodes[data.customData.nodes.output1], 
+    new BitString(data.customData.constructorParamaters[2], data.customData.constructorParamaters[1])
   )
 };
 
