@@ -22,7 +22,7 @@ test('Connections', () => {
 
     bus2.connectElement(gate);
 
-    expect(() => bus2.connect(bus3)).toThrow('Cannot connect circuit nodes after elements');
+    expect(() => bus2.connect(bus3)).toThrow('Cannot connect');
 
     expect(bus1.getConnections().length).toBe(0);
     expect(bus2.getConnections().length).toBe(1);

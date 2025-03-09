@@ -11,5 +11,4 @@ export class Power extends CircuitElement {
         this.getOutputs().forEach(o => o.setValue(BitString.high(o.getValue().getWidth())));
         return 0; // TODO: Custom propagation delay.
     }
-    
 }

@@ -18,6 +18,8 @@ import { Power } from "../CircuitElement/Power";
 import { Ground } from "../CircuitElement/Ground";
 import { Constant } from "../CircuitElement/Constant";
 import { BitString } from "../BitString";
+import { Random } from "../CircuitElement/Random";
+import { Counter } from "../CircuitElement/Counter";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -74,6 +76,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     data.label,
     [nodes[data.customData.nodes.output1]]
   ),
+  // Treat a stepper just like a regular input.
+  'Stepper': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]]
+  ),
   'Output': ({ nodes, data }) => new Output(
     data.index,
     data.label,
@@ -96,6 +104,18 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   'ConstantVal': ({nodes, data}) => new Constant(
     nodes[data.customData.nodes.output1], 
     new BitString(data.customData.constructorParamaters[2], data.customData.constructorParamaters[1])
+  ),
+  'Random': ({nodes, data}) => new Random(
+    nodes[data.customData.nodes.maxValue],
+    nodes[data.customData.nodes.clockInp],
+    nodes[data.customData.nodes.output]
+  ),
+  'Counter': ({nodes, data}) => new Counter(
+    nodes[data.customData.nodes.maxValue],
+    nodes[data.customData.nodes.clock],
+    nodes[data.customData.nodes.reset],
+    nodes[data.customData.nodes.output],
+    nodes[data.customData.nodes.zero]
   )
 };
 

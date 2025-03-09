@@ -40,7 +40,7 @@ export class Splitter extends CircuitElement {
 
         if (!this.#prevInput || !this.#prevOutputs) {
             this.#prevInput = input;
-        this.#prevOutputs = outputs;
+            this.#prevOutputs = outputs;
         }
 
         if (!input.equals(this.#prevInput) && this.#bitStringsEqual(this.#prevOutputs, outputs)) {

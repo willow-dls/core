@@ -67,6 +67,10 @@ export class BitString {
         return new BitString('0'.repeat(width));
     }
 
+    static rand(width: number = 1) {
+        return new BitString('0'.repeat(width).split('').map(c => Math.random() < 0.5 ? '1' : '0').join());
+    }
+
     #str: BinaryString;
 
     constructor(str: string, width: number = 0) {
@@ -220,6 +224,22 @@ export class BitString {
             str = new BitString(str);
         }
         return str.#str == this.#str;
+    }
+
+    greaterThan(str: BitString | string): boolean {
+        if (typeof str === 'string') {
+            str = new BitString(str);
+        }
+
+        return this.sub(str).msb(1).equals('0');
+    }
+
+    lessThan(str: BitString | string): boolean {
+        if (typeof str === 'string') {
+            str = new BitString(str);
+        }
+
+        return this.sub(str).msb(1).equals('1');
     }
 
     truncate(length: number, upper: boolean = false): BitString {

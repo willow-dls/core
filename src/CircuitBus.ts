@@ -14,7 +14,7 @@ export class CircuitBus {
 
     connect(node: CircuitBus): void {
         if (this.#elements.length > 0) {
-            throw new Error("Cannot connect circuit nodes after elements have been added.");
+            throw new Error("Cannot connect a circuit bus after elements have been added.");
         }
         this.#connections.push(node);
     }
