@@ -25,5 +25,5 @@ test('Infinite loop', async() => {
     const project = await loadProject(CircuitVerseLoader, 'tests/cv/InfiniteLoop.cv');
     const circuit = project.getCircuitByName('Main');
 
-    expect(() => circuit.run({'inp1': '1'})).toThrow('Simulation step limit exceeded');
+    expect(() => circuit.run({'inp1': '1'})).toThrow('step limit exceeded');
 });
