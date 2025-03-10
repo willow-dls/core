@@ -1,21 +1,28 @@
+import { BitString } from "../BitString";
 import { CircuitElement } from "../CircuitElement";
+import { CircuitBus } from "../CircuitBus";
 
 export class Multiplexer extends CircuitElement {
-  #inputA: number;
-  #inputB: number;
-  #signal: number;
+  #numInputs: number;
 
-  constructor(signal: number, inputA: number, inputB: number) {
-    super();
-    this.#inputA = inputA;
-    this.#inputB = inputB;
-    this.#signal = signal;
+  constructor(inputs: CircuitBus[], outputs: CircuitBus[]) {
+    super("Multiplexer", inputs, outputs);
+
+    this.#numInputs = this.getInputs().length;
   }
 
   resolve(): number {
-    return (
-      Number(this.#inputA && !this.#signal) ||
-      Number(this.#inputB && this.#signal)
-    );
+    const inputs = this.getInputs();
+    const [output] = this.getOutputs();
+
+    const controlSignal = Number(inputs[this.#numInputs].getValue());
+
+    if (controlSignal < 0 || controlSignal >= this.#numInputs) {
+      output.setValue(BitString.low());
+    } else {
+      output.setValue(inputs[controlSignal].getValue());
+    }
+
+    return 10;
   }
 }

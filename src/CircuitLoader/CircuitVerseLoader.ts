@@ -13,6 +13,7 @@ import { NotGate } from "../CircuitElement/NotGate";
 import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { LogLevel } from "../CircuitLogger";
+import { Multiplexer } from "../CircuitElement/Multiplexer";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -56,7 +57,11 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       data.customData.nodes.inp.map((i: number) => nodes[i]),
       [nodes[data.customData.nodes.output1]],
     ),
-
+  Multiplexer: ({ nodes, data }) => 
+    new Multiplexer(
+      data.customData.nodes.inp.map((i: number) => nodes[i]),
+      [nodes[data.customData.nodes.output1]]
+    ),
   'Input': ({ nodes, data }) => new Input(
     data.index,
     data.label,
