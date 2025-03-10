@@ -3,24 +3,24 @@ import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
 
 export class Multiplexer extends CircuitElement {
-  #numInputs: number;
+  #controlSignal;
 
-  constructor(inputs: CircuitBus[], outputs: CircuitBus[]) {
+  constructor(inputs: CircuitBus[], outputs: CircuitBus[], controlSignal: CircuitBus) {
     super("Multiplexer", inputs, outputs);
 
-    this.#numInputs = this.getInputs().length;
+    this.#controlSignal = controlSignal;
   }
 
   resolve(): number {
     const inputs = this.getInputs();
     const [output] = this.getOutputs();
 
-    const controlSignal = Number(inputs[this.#numInputs].getValue());
+    const controlSignalVal = Number(this.#controlSignal.getValue()) 
 
-    if (controlSignal < 0 || controlSignal >= this.#numInputs) {
+    if (controlSignalVal < 0 || controlSignalVal >= inputs.length) {
       output.setValue(BitString.low());
     } else {
-      output.setValue(inputs[controlSignal].getValue());
+      output.setValue(inputs[controlSignalVal].getValue());
     }
 
     return 10;
