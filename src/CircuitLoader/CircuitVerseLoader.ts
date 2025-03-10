@@ -60,7 +60,8 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   Multiplexer: ({ nodes, data }) => 
     new Multiplexer(
       data.customData.nodes.inp.map((i: number) => nodes[i]),
-      [nodes[data.customData.nodes.output1]]
+      [nodes[data.customData.nodes.output1]],
+      data.customData.nodes.controlInputSignal
     ),
   'Input': ({ nodes, data }) => new Input(
     data.index,
