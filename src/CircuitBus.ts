@@ -1,20 +1,15 @@
+import { BitString } from "./BitString";
 import { CircuitElement } from "./CircuitElement";
 
 export class CircuitBus {
-    #bitWidth: number;
     #connections: CircuitBus[];
     #elements: CircuitElement[];
-    #value: number;
+    #value: BitString;
 
     constructor(bitWidth: number, ...connections: CircuitBus[]) {
-        this.#bitWidth = bitWidth;
         this.#connections = connections;
-        this.#value = 0;
+        this.#value = new BitString('0', bitWidth);
         this.#elements = [];
-    }
-
-    getBitWidth(): number {
-        return this.#bitWidth;
     }
 
     connect(node: CircuitBus): void {
@@ -41,9 +36,13 @@ export class CircuitBus {
         return this.#elements;
     }
 
-    setValue(value: number): void {
-        if (value == this.#value) {
+    setValue(value: BitString): void {
+        if (value.equals(this.#value)) {
             return;
+        }
+
+        if (value.getWidth() !== this.#value.getWidth()) {
+            throw new Error(`Bus error: Attempting to set ${value.getWidth()}-bit value on ${this.#value.getWidth()}-bit bus.`);
         }
         
         this.#value = value;
@@ -51,7 +50,7 @@ export class CircuitBus {
         this.#connections.forEach(c => c.setValue(value));
     }
 
-    getValue(): number {
+    getValue(): BitString {
         return this.#value;
     }
 }
