@@ -99,8 +99,8 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.inp1],
     data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd])
   ),
-  'Power': ({nodes, data}) => new Power(nodes[data.customData.notes.output1]),
-  'Ground': ({nodes, data}) => new Ground(nodes[data.customData.notes.output1]),
+  'Power': ({nodes, data}) => new Power(nodes[data.customData.nodes.output1]),
+  'Ground': ({nodes, data}) => new Ground(nodes[data.customData.nodes.output1]),
   'ConstantVal': ({nodes, data}) => new Constant(
     nodes[data.customData.nodes.output1], 
     new BitString(data.customData.constructorParamaters[2], data.customData.constructorParamaters[1])

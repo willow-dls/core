@@ -1,0 +1,367 @@
+{
+    "name": "SimpleInputs",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "n50kk4ucJpke0ZBOoWTY",
+    "focussedCircuit": 68855442656,
+    "orderedTabs": [
+        "68855442656"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 120,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [
+                {
+                    "x": 30,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        2
+                    ]
+                },
+                {
+                    "x": 30,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        3
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        0
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        1
+                    ]
+                },
+                {
+                    "x": 0,
+                    "y": 10,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        5
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        4
+                    ]
+                },
+                {
+                    "x": 0,
+                    "y": -10,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        7
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        6
+                    ]
+                },
+                {
+                    "x": 40,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        9
+                    ]
+                },
+                {
+                    "x": 40,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        8
+                    ]
+                }
+            ],
+            "id": 68855442656,
+            "name": "Main",
+            "Output": [
+                {
+                    "x": 750,
+                    "y": 220,
+                    "objectType": "Output",
+                    "label": "Button1Output",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 2
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 20,
+                                "id": "vHmiviptH0AWhhMEKxNJ"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 750,
+                    "y": 250,
+                    "objectType": "Output",
+                    "label": "Button2Output",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 3
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 40,
+                                "id": "P9aSAjofqgyA3lPGZbqr"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 750,
+                    "y": 290,
+                    "objectType": "Output",
+                    "label": "PowerOutput",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 5
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 60,
+                                "id": "q0rewytWvcHHfDIwkWlt"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 750,
+                    "y": 310,
+                    "objectType": "Output",
+                    "label": "GroundOutput",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 7
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 80,
+                                "id": "lrDXc41GiWC5VfPJuCLM"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 780,
+                    "y": 350,
+                    "objectType": "Output",
+                    "label": "ConstantOutput",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 9
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            4,
+                            {
+                                "x": 100,
+                                "y": 100,
+                                "id": "7PqfpXcwEJaRWPsIviBk"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "Power": [
+                {
+                    "x": 680,
+                    "y": 280,
+                    "objectType": "Power",
+                    "label": "Power",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 4
+                        },
+                        "constructorParamaters": [
+                            1
+                        ]
+                    }
+                }
+            ],
+            "Ground": [
+                {
+                    "x": 680,
+                    "y": 320,
+                    "objectType": "Ground",
+                    "label": "Ground",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 6
+                        },
+                        "constructorParamaters": [
+                            1
+                        ]
+                    }
+                }
+            ],
+            "ConstantVal": [
+                {
+                    "x": 680,
+                    "y": 350,
+                    "objectType": "ConstantVal",
+                    "label": "Constant",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 8
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4,
+                            "1011"
+                        ]
+                    }
+                }
+            ],
+            "Button": [
+                {
+                    "x": 680,
+                    "y": 220,
+                    "objectType": "Button",
+                    "label": "Button1",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 0
+                        },
+                        "values": {
+                            "state": 0
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1
+                        ]
+                    },
+                    "subcircuitMetadata": {
+                        "showInSubcircuit": false,
+                        "showLabelInSubcircuit": true,
+                        "labelDirection": "LEFT",
+                        "x": 0,
+                        "y": 0
+                    }
+                },
+                {
+                    "x": 680,
+                    "y": 250,
+                    "objectType": "Button",
+                    "label": "Button2",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 1
+                        },
+                        "values": {
+                            "state": 0
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1
+                        ]
+                    },
+                    "subcircuitMetadata": {
+                        "showInSubcircuit": false,
+                        "showLabelInSubcircuit": true,
+                        "labelDirection": "LEFT",
+                        "x": 0,
+                        "y": 0
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": []
+        }
+    ]
+}
