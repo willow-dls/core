@@ -1007,7 +1007,7 @@
                     "x": 560,
                     "y": 300,
                     "objectType": "Stepper",
-                    "label": "",
+                    "label": "stp",
                     "direction": "RIGHT",
                     "labelDirection": "LEFT",
                     "propagationDelay": 10,

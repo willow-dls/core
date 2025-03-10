@@ -4,6 +4,9 @@ import { AndGate } from "../CircuitElement/AndGate";
 import { Input } from "../CircuitElement/Input";
 import { NorGate } from "../CircuitElement/NorGate";
 import { Output } from "../CircuitElement/Output";
+import { Power } from "../CircuitElement/Power";
+import { Ground } from "../CircuitElement/Ground";
+import { Clock } from "../CircuitElement/Clock";
 import { SubCircuit } from "../CircuitElement/SubCircuit";
 import { CircuitLoader } from "../CircuitLoader";
 import { CircuitBus } from "../CircuitBus";
@@ -80,17 +83,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     data.label,
     [nodes[data.customData.nodes.output1]]
   ),
-  'Power': ({ nodes, data }) => new Input(
-    data.index,
-    data.label,
+  'Power': ({ nodes, data }) => new Power(
     [nodes[data.customData.nodes.output1]],
-    new BitString('1')
   ),
-  'Ground': ({ nodes, data }) => new Input(
-    data.index,
+  'Ground': ({ nodes, data }) => new Ground(
     data.label,
     [nodes[data.customData.nodes.output1]],
-    new BitString('0')
   ),
   'ConstantVal': ({ nodes, data }) => new Input(
     data.index,
@@ -103,6 +101,15 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     data.label,
     [nodes[data.customData.nodes.output1]]
   ),
+
+  'Clock': ({ nodes, data }) => {
+    var input = new CircuitBus(1);
+    input.connect(nodes[data.customData.nodes.output1[0]]);
+    return new Clock(
+    input,
+    [nodes[data.customData.nodes.output1]]
+    )
+  }
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
@@ -116,6 +123,7 @@ export class CircuitVerseLoader extends CircuitLoader {
 
     this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
+    var clockTime = data.timePeriod;
     // Each scope is a circuit
     for (const scopeInd in data.scopes) {
       const scope = data.scopes[scopeInd];
