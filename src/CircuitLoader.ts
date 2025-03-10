@@ -1,6 +1,7 @@
 import { Stream } from "node:stream";
 import fs from "node:fs";
 import { CircuitProject } from "./CircuitProject";
+import { CircuitLoggable, CircuitLogger } from "./CircuitLogger";
 
 async function readStream(stream: Stream): Promise<string> {
     const chunks: Buffer<any>[] = [];
@@ -24,13 +25,19 @@ async function loadFileOrStream(file: string | Stream): Promise<object> {
     return readStream(stream).then((data) => JSON.parse(data))
 }
 
-export interface CircuitLoader {
-    load(data: any): CircuitProject;
+export abstract class CircuitLoader extends CircuitLoggable {
+    constructor(subsystem: string = 'Loader') {
+        super(subsystem);
+    }
+
+    abstract load(data: any): CircuitProject;
 }
 
-export async function loadProject(loader: new () => CircuitLoader, data: Stream | string): Promise<CircuitProject> {
+export async function loadProject(loader: new () => CircuitLoader, data: Stream | string, logger?: CircuitLogger): Promise<CircuitProject> {
     const stream = loadFileOrStream(data);
     const circuitLoader = new loader();
+    if (logger) {
+        circuitLoader.attachLogger(logger);
+    }
     return stream.then((json) => circuitLoader.load(json));
 }
-
