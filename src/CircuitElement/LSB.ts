@@ -22,6 +22,8 @@ export class LSB extends CircuitElement {
     outputs[0].setValue(new BitString(String(lsb)));
 
     // Set the ENABLE output if it exists
+    // TODO: Verify if this is correct, the
+    //  ENABLE output didn't make much sense to me
     if (outputs.length > 1) {
       outputs[1].setValue(new BitString(String(1)));
     }
