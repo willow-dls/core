@@ -2,6 +2,7 @@ import { Circuit } from "../Circuit";
 import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
 import { LogLevel } from "../CircuitLogger";
+import { Clock } from "./Clock";
 
 export class SubCircuit extends CircuitElement {
     #circuit: Circuit;
@@ -17,7 +18,7 @@ export class SubCircuit extends CircuitElement {
         const inputs = this.getInputs();
         const outputs = this.getOutputs();
 
-        const result = this.#circuit.run(inputs.map(node => node.getValue()));
+        const result = this.#circuit.resolve(inputs.map(node => node.getValue()));
         
         result.outputs.forEach((value, index) => {
             outputs[index].setValue(value);
@@ -26,5 +27,9 @@ export class SubCircuit extends CircuitElement {
         this.log(LogLevel.DEBUG, `Subcircuit complete: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`, result);
 
         return result.propagationDelay;
+    }
+
+    getClocks(): Clock[] {
+        return this.#circuit.getClocks();
     }
 }

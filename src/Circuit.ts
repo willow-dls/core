@@ -1,7 +1,9 @@
 import { BitString } from "./BitString";
 import { CircuitElement } from "./CircuitElement";
+import { Clock } from "./CircuitElement/Clock";
 import { Input } from "./CircuitElement/Input";
 import { Output } from "./CircuitElement/Output";
+import { SubCircuit } from "./CircuitElement/SubCircuit";
 import { CircuitLoggable, LogLevel } from "./CircuitLogger";
 
 type QueueEntry = {
@@ -20,6 +22,7 @@ export class Circuit extends CircuitLoggable {
     #inputs: Record<string, Input>;
     #outputs: Record<string, Output>;
     #elements: CircuitElement[];
+    #clocks: Clock[];
 
     #id: string;
     #name: string;
@@ -32,6 +35,8 @@ export class Circuit extends CircuitLoggable {
 
         this.#name = name;
         this.#id = id;
+
+        this.#clocks = [];
 
         elements.forEach(e => {
             if (e instanceof Input) {
@@ -47,6 +52,23 @@ export class Circuit extends CircuitLoggable {
                 }
                 this.#outputs[e.getLabel()] = e;
             }
+
+            if (e instanceof Clock && !this.#clocks.includes(e)) {
+                this.#clocks.push(e);
+            }
+
+            // Recursively get all clock elements. Subcircuits should in theory
+            // simply take a clock bus as an input; there should be no reason to
+            // have a clock in a subcircuit. Nonetheless, it is *technically*
+            // allowed so we must ensure subcircuit clocks are also ticked with this
+            // circuit's clock.
+            if (e instanceof SubCircuit) [
+                e.getClocks().forEach(c => {
+                    if (!this.#clocks.includes(c)) {
+                        this.#clocks.push(c);
+                    }
+                })
+            ]
 
             this.propagateLoggersTo(e);
         });
@@ -65,61 +87,118 @@ export class Circuit extends CircuitLoggable {
         return parseInt(this.#id);
     }
 
+    getClocks(): Clock[] {
+        return this.#clocks;
+    }
+
     #log(level: LogLevel, msg: string, data?: any) {
         super.log(level, `[id: '${this.getId()}', name: '${this.getName()}']: ${msg}`, data);
     }
 
-    run<T extends CircuitRunType>(inputs: T, haltCond?: (inputs: Record<string, Input>, outputs: Record<string, Output>) => boolean): CircuitRunResult<T> {
-        this.#log(LogLevel.INFO, 'Beginning simulation with inputs:', { inputs: inputs });
+    run<T extends CircuitRunType>(
+        inputs: T,
+        haltCond?: (clockHigh: boolean, clockCycles: number, output: CircuitRunResult<T>) => boolean,
+        clockFrequency: number = 500
+    ): CircuitRunResult<T> {
+
+        this.#log(LogLevel.INFO, `Beginning simulation with inputs:`, inputs);
+
+        // There are no clocks; just tick once and return the results.
+        if (!this.#clocks.length) {
+            this.#log(LogLevel.DEBUG, 'No clock elements in this circuit; simply resolving.');
+            return this.resolve(inputs);
+        }
+
+        if (!haltCond) {
+            this.#log(LogLevel.WARN, 'Clock elements present but no halt condition provided; this simulation will run forever.');
+        }
+
+        let init: boolean = true;
+        let result: CircuitRunResult<T>;
+
+        let clockHigh: boolean = false;
+        let clockCycles: number = 0;
+
+        do {
+            this.#clocks.forEach(c => c.tick());
+            result = this.resolve(init ? inputs : undefined);
+
+            this.#log(LogLevel.DEBUG, `[cycle = ${clockCycles}, high = ${clockHigh}] Propagation delay: ${result.propagationDelay}`, result.outputs);
+
+            if (clockFrequency && result.propagationDelay > clockFrequency / 2) {
+                this.#log(LogLevel.WARN, `Circuit propogation delay longer than clock frequency: results cannot be trusted.`);
+            }
+
+            clockHigh = this.#clocks[0].getOutputs()[0].getValue().equals(BitString.high());
+            init = false;
+            
+            if (!clockHigh) {
+                clockCycles++;
+            }
+        } while (!(haltCond && haltCond(clockHigh, clockCycles, result)));
+
+        this.#log(LogLevel.INFO, `Completed simulation with outputs:`, result.outputs);
+
+        return result;
+    }
+
+    resolve<T extends CircuitRunType>(inputs?: T): CircuitRunResult<T> {
+        this.#log(LogLevel.INFO, 'Resolving circuit...');
         const eventQueue: QueueEntry[] = [];
 
-        this.#log(LogLevel.TRACE, 'Resetting all elements...');
-        this.#elements.forEach(e => e.reset());
+        if (inputs) {
+            this.#log(LogLevel.TRACE, 'Resetting all elements...');
+            this.#elements.forEach(e => e.reset());
 
-        this.#log(LogLevel.DEBUG, 'Setting inputs...');
-        if (Array.isArray(inputs)) {
-            this.#log(LogLevel.TRACE, 'Input was provided as array; setting inputs by index.');
-            Object.values(this.#inputs).forEach(input => {
-                let value = inputs[input.getIndex()];
+            this.#log(LogLevel.INFO, `Circuit received inputs:`, { inputs: inputs });
 
-                if (typeof value === 'string') {
-                    value = new BitString(value);
-                }
+            this.#log(LogLevel.DEBUG, 'Propagating inputs...');
+            if (Array.isArray(inputs)) {
+                this.#log(LogLevel.TRACE, 'Input was provided as array; setting inputs by index.');
+                Object.values(this.#inputs).forEach(input => {
+                    let value = inputs[input.getIndex()];
 
-                input.setValue(value);
-            });
-        } else {
-            this.#log(LogLevel.TRACE, 'Input was provided as an object; setting inputs by key.');
-            const inputLabels = Object.keys(inputs);
-            for (const i in inputLabels) {
-                let didSetLabel = false;
+                    if (typeof value === 'string') {
+                        value = new BitString(value);
+                    }
 
-                const key = inputLabels[i];
-                let value = inputs[key];
+                    input.setValue(value);
+                });
+            } else {
+                this.#log(LogLevel.TRACE, 'Input was provided as an object; setting inputs by key.');
+                const inputLabels = Object.keys(inputs);
+                for (const i in inputLabels) {
+                    let didSetLabel = false;
 
-                if (typeof value === 'string') {
-                    value = new BitString(value);
-                }
+                    const key = inputLabels[i];
+                    let value = inputs[key];
 
-                if (this.#inputs[key]) {
-                    this.#inputs[key].setValue(value);
+                    if (typeof value === 'string') {
+                        value = new BitString(value);
+                    }
 
-                    didSetLabel = true;
-                    this.#log(LogLevel.TRACE, `Set input: ${key}`);
+                    if (this.#inputs[key]) {
+                        this.#inputs[key].setValue(value);
 
-                }
+                        didSetLabel = true;
+                        this.#log(LogLevel.TRACE, `Set input: ${key}`);
 
-                if (this.#outputs[key]) {
-                    this.#outputs[key].setValue(value);
+                    }
 
-                    didSetLabel = true;
-                    this.#log(LogLevel.TRACE, `Set output: ${key}`);
-                }
+                    if (this.#outputs[key]) {
+                        this.#outputs[key].setValue(value);
 
-                if (!didSetLabel) {
-                    throw new Error(`No inputs or outputs with the given label: ${key}`);
+                        didSetLabel = true;
+                        this.#log(LogLevel.TRACE, `Set output: ${key}`);
+                    }
+
+                    if (!didSetLabel) {
+                        throw new Error(`No inputs or outputs with the given label: ${key}`);
+                    }
                 }
             }
+        } else {
+            this.#log(LogLevel.TRACE, 'No inputs provided; preserving previous state.');
         }
 
         this.#log(LogLevel.TRACE, `Adding elements to event queue...`);
@@ -133,7 +212,7 @@ export class Circuit extends CircuitLoggable {
             });
         });
 
-        this.#log(LogLevel.TRACE, `Starting simulation event loop...`);
+        this.#log(LogLevel.TRACE, `Starting event loop...`);
         let steps = 0;
         let time = 0;
 
@@ -169,28 +248,17 @@ export class Circuit extends CircuitLoggable {
                 });
             }
 
-            // If the halt condition is satisfied in this step of the simulation,
-            // break out of the event loop early, even if there are more inputs to
-            // process.
-            //
-            // Note that a premature halt of the simulation which is earlier than expected
-            // is a bug in the circuit, not the simulation.
-            if (haltCond && haltCond(this.#inputs, this.#outputs)) {
-                this.#log(LogLevel.DEBUG, `Halt condition satisfied; breaking simulation loop.`);
-                break;
-            }
-
             eventQueue.sort((a, b) => a.time - b.time);
             steps++;
             this.#log(LogLevel.TRACE, `Event Queue:`, eventQueue.map(e => `${e.element.constructor.name}[id=${e.element.getId()}]`));
 
 
             if (steps > 1000000) {
-                throw new Error('Simulation step limit exceeded; check for loops in circuit.');
+                throw new Error('Resolution step limit exceeded; check for loops in circuit.');
             }
         }
 
-        this.#log(LogLevel.TRACE, "Simulation completed. Collecting outputs...");
+        this.#log(LogLevel.TRACE, "Resolution completed. Collecting outputs...");
         let output;
 
         // Return circuit outputs
@@ -219,7 +287,7 @@ export class Circuit extends CircuitLoggable {
             };
         }
 
-        this.#log(LogLevel.INFO, `Ending simulation with outputs:`, output);
+        this.#log(LogLevel.INFO, `Resolved circuit with outputs:`, output);
 
         // @ts-ignore
         return output;
