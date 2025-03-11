@@ -7,7 +7,6 @@ export class LSB extends CircuitElement {
 
   constructor(inputs: CircuitBus[], outputs: CircuitBus[]) {
     super("LSB", inputs, outputs);
-    this.#bitstring = this.getInputs()[0].getValue();
   }
 
   resolve(): number {
