@@ -109,7 +109,7 @@ export abstract class CircuitLoggable {
     }
 
     propagateLoggersTo(loggable: CircuitLoggable): void {
-        loggable.#loggers = new Set(this.#loggers);
+        this.#loggers.forEach(l => loggable.attachLogger(l));
         this.#children.add(loggable);
     }
 

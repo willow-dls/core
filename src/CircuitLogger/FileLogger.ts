@@ -24,4 +24,8 @@ export class FileLogger extends CircuitLogger {
             });
         }
     }
+
+    close() {
+        this.#file.close();
+    }
 }
