@@ -13,6 +13,7 @@ import { NotGate } from "../CircuitElement/NotGate";
 import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { LogLevel } from "../CircuitLogger";
+import { LSB } from "../CircuitElement/LSB";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -56,7 +57,10 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       data.customData.nodes.inp.map((i: number) => nodes[i]),
       [nodes[data.customData.nodes.output1]],
     ),
-
+  LSB: ({ nodes, data }) => new LSB(
+    [nodes[data.customData.nodes.inp1]],
+    [nodes[data.customData.nodes.output1], nodes[data.customData.nodes.enable]],
+  ),
   'Input': ({ nodes, data }) => new Input(
     data.index,
     data.label,
