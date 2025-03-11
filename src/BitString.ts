@@ -68,7 +68,7 @@ export class BitString {
     }
 
     static rand(width: number = 1) {
-        return new BitString('0'.repeat(width).split('').map(c => Math.random() < 0.5 ? '1' : '0').join());
+        return new BitString('0'.repeat(width).split('').map(c => Math.random() < 0.5 ? '1' : '0').join(''));
     }
 
     #str: BinaryString;
@@ -122,8 +122,9 @@ export class BitString {
             '111': ['1', '1'],
         };
 
-        for (let i = 0; i < result.length; i++) {
-            const key: string = `${carry}${this.#str[i]}${str.#str[i]}`;
+        for (let i = result.length - 1; i >= 0; i--) {
+            
+            const key: string = `${this.#str[i]}${str.#str[i]}${carry}`;
             const r: Bit[] = map[key];
 
             result[i] = r[0];

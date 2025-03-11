@@ -200,7 +200,7 @@ test('Add width mismatch', () => {
 
     expect(() => one.add(two)).toThrow('width mismatch');
     
-    expect(one.add('011').toString()).toBe('000');
+    expect(one.add('011').toString()).toBe('101');
 });
 
 // Converts from hex strings to binary internally, then back.
@@ -266,3 +266,8 @@ test('pad()', () => {
     expect(str.pad(4).toString()).toBe('0110');
     expect(str.pad(8).toString()).toBe('00000110');
 });
+
+test(`0001 + 0001 => 0010`, () => {
+    const one = new BitString('1', 4);
+    expect(one.add(one).toString()).toBe('0010');
+})

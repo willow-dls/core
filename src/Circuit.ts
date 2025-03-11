@@ -123,7 +123,7 @@ export class Circuit extends CircuitLoggable {
             this.#clocks.forEach(c => c.tick());
             result = this.resolve(init ? inputs : undefined);
 
-            this.#log(LogLevel.DEBUG, `[cycle = ${clockCycles}, high = ${clockHigh}] Propagation delay: ${result.propagationDelay}`, result.outputs);
+            this.#log(LogLevel.INFO, `[cycle = ${clockCycles}, high = ${clockHigh}] Propagation delay: ${result.propagationDelay}`, result.outputs);
 
             if (clockFrequency && result.propagationDelay > clockFrequency / 2) {
                 this.#log(LogLevel.WARN, `Circuit propogation delay longer than clock frequency: results cannot be trusted.`);
@@ -136,6 +136,8 @@ export class Circuit extends CircuitLoggable {
                 clockCycles++;
             }
         } while (!(haltCond && haltCond(clockHigh, clockCycles, result)));
+
+        this.#log(LogLevel.INFO, `Halt condition satisfied after ${clockCycles} cycles. Clock ended ${clockHigh ? 'high' : 'low'}.`);
 
         this.#log(LogLevel.INFO, `Completed simulation with outputs:`, result.outputs);
 

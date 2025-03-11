@@ -20,6 +20,7 @@ import { Constant } from "../CircuitElement/Constant";
 import { BitString } from "../BitString";
 import { Random } from "../CircuitElement/Random";
 import { Counter } from "../CircuitElement/Counter";
+import { Clock } from "../CircuitElement/Clock";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -116,7 +117,8 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.reset],
     nodes[data.customData.nodes.output],
     nodes[data.customData.nodes.zero]
-  )
+  ),
+  'Clock': ({nodes, data}) => new Clock(nodes[data.customData.nodes.output1])
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
