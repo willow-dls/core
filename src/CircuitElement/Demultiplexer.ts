@@ -10,7 +10,7 @@ export class Demultiplexer extends CircuitElement {
     outputs: CircuitBus[],
     controlSignal: CircuitBus,
   ) {
-    super("Demultiplexer", inputs, outputs);
+    super("DemultiplexerElement", inputs, outputs);
 
     this.#controlSignal = controlSignal;
   }
@@ -19,8 +19,10 @@ export class Demultiplexer extends CircuitElement {
     const inputs = this.getInputs();
     const outputs = this.getOutputs();
 
+    const outputWidth = inputs[0].getValue().getWidth();
+
     outputs.forEach((output) => {
-      output.setValue(new BitString("0"));
+      output.setValue(BitString.low(outputWidth));
     });
 
     const controlSignalVal = Number(this.#controlSignal.getValue());

@@ -70,9 +70,9 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     ),
   Demultiplexer: ({ nodes, data }) =>
     new Demultiplexer(
-      data.customData.nodes.inp.map((i: number) => nodes[i]),
-      [nodes[data.customData.nodes.output1]],
-      data.customData.nodes.controlInputSignal,
+      [nodes[data.customData.nodes.input]],
+      data.customData.nodes.output1.map((i: number) => nodes[i]),
+      nodes[data.customData.nodes.controlSignalInput],
     ),
 };
 
