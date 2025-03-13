@@ -10,14 +10,14 @@ beforeAll(async () => {
     lsb = project.getCircuitByName('LSB');
 });
 
-test("High Input", () => {
+test("Index 0 Output", () => {
     const inputs = {
-        InputA: new BitString("1"),
+        InputA: new BitString("0001", 4),
     };
 
     const outputs = {
-        OutputA: new BitString("0"),
-        OutputB: new BitString("1")
+        OutputA: new BitString("0000"),
+        OutputB: new BitString("1", 1)
     };
 
     const results = lsb.run(inputs);
@@ -25,14 +25,60 @@ test("High Input", () => {
     expect(results.outputs).toStrictEqual(outputs);
 });
 
-test("Low Input", () => {
+test("Index 1 Output", () => {
     const inputs = {
-        InputA: new BitString("0")
+        InputA: new BitString("0010", 4),
     };
 
     const outputs = {
-        OutputA: new BitString("0"),
-        OutputB: new BitString("0")
+        OutputA: new BitString("0001", 4),
+        OutputB: new BitString("1", 1)
+    };
+
+    const results = lsb.run(inputs);
+
+    expect(results.outputs).toStrictEqual(outputs);
+});
+
+test("Index 2 Output", () => {
+    const inputs = {
+        InputA: new BitString("0100", 4),
+    };
+
+    const outputs = {
+        OutputA: new BitString("0010", 4),
+        OutputB: new BitString("1", 1)
+    };
+
+    const results = lsb.run(inputs);
+
+    expect(results.outputs).toStrictEqual(outputs);
+});
+
+test("Index 3 Output", () => {
+    const inputs = {
+        InputA: new BitString("1000", 4),
+    };
+
+    const outputs = {
+        OutputA: new BitString("0011"),
+        OutputB: new BitString("1", 1)
+    };
+
+    const results = lsb.run(inputs);
+
+    expect(results.outputs).toStrictEqual(outputs);
+});
+
+
+test("No Input", () => {
+    const inputs = {
+        InputA: new BitString("0000", 4)
+    };
+
+    const outputs = {
+        OutputA: new BitString("0000", 4),
+        OutputB: new BitString("0", 1)
     };
 
     const results = lsb.run(inputs);
