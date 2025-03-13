@@ -17,8 +17,8 @@ test("Index 0 Output", () => {
 
     const results = lsb.run(inputs);
 
-    expect(results.outputs.OutputA.equals("0000")).toBe(true);
-    expect(results.outputs.OutputB.equals("1")).toBe(true);
+    expect(results.outputs.OutputA.toString()).toStrictEqual("0000");
+    expect(results.outputs.OutputB.toString()).toStrictEqual("1");
 });
 
 test("Index 1 Output", () => {
@@ -28,8 +28,8 @@ test("Index 1 Output", () => {
 
     const results = lsb.run(inputs);
 
-    expect(results.outputs.OutputA.equals("0001")).toBe(true);
-    expect(results.outputs.OutputB.equals("1")).toBe(true);
+    expect(results.outputs.OutputA.toString()).toStrictEqual("0001");
+    expect(results.outputs.OutputB.toString()).toStrictEqual("1");
 });
 
 test("Index 2 Output", () => {
@@ -39,8 +39,8 @@ test("Index 2 Output", () => {
 
     const results = lsb.run(inputs);
 
-    expect(results.outputs.OutputA.equals("0010")).toBe(true);
-    expect(results.outputs.OutputB.equals("1")).toBe(true);
+    expect(results.outputs.OutputA.toString()).toStrictEqual("0010");
+    expect(results.outputs.OutputB.toString()).toStrictEqual("1");
 });
 
 test("Index 3 Output", () => {
@@ -50,8 +50,8 @@ test("Index 3 Output", () => {
 
     const results = lsb.run(inputs);
 
-    expect(results.outputs.OutputA.equals("0011")).toBe(true);
-    expect(results.outputs.OutputB.equals("1")).toBe(true);
+    expect(results.outputs.OutputA.toString()).toStrictEqual("0011");
+    expect(results.outputs.OutputB.toString()).toStrictEqual("1");
 });
 
 
@@ -62,6 +62,6 @@ test("No Input", () => {
 
     const results = lsb.run(inputs);
 
-    expect(results.outputs.OutputA.equals("0000")).toBe(true);
-    expect(results.outputs.OutputB.equals("0")).toBe(true);
+    expect(results.outputs.OutputA.toString()).toBe("0000");
+    expect(results.outputs.OutputB.toString()).toBe("0");
 })
