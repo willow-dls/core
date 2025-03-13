@@ -15,14 +15,10 @@ test("Index 0 Output", () => {
         InputA: new BitString("0001", 4),
     };
 
-    const outputs = {
-        OutputA: new BitString("0000"),
-        OutputB: new BitString("1", 1)
-    };
-
     const results = lsb.run(inputs);
 
-    expect(results.outputs).toStrictEqual(outputs);
+    expect(results.outputs.OutputA.equals("0000")).toBe(true);
+    expect(results.outputs.OutputB.equals("1")).toBe(true);
 });
 
 test("Index 1 Output", () => {
@@ -30,14 +26,10 @@ test("Index 1 Output", () => {
         InputA: new BitString("0010", 4),
     };
 
-    const outputs = {
-        OutputA: new BitString("0001", 4),
-        OutputB: new BitString("1", 1)
-    };
-
     const results = lsb.run(inputs);
 
-    expect(results.outputs).toStrictEqual(outputs);
+    expect(results.outputs.OutputA.equals("0001")).toBe(true);
+    expect(results.outputs.OutputB.equals("1")).toBe(true);
 });
 
 test("Index 2 Output", () => {
@@ -45,14 +37,10 @@ test("Index 2 Output", () => {
         InputA: new BitString("0100", 4),
     };
 
-    const outputs = {
-        OutputA: new BitString("0010", 4),
-        OutputB: new BitString("1", 1)
-    };
-
     const results = lsb.run(inputs);
 
-    expect(results.outputs).toStrictEqual(outputs);
+    expect(results.outputs.OutputA.equals("0010")).toBe(true);
+    expect(results.outputs.OutputB.equals("1")).toBe(true);
 });
 
 test("Index 3 Output", () => {
@@ -60,14 +48,10 @@ test("Index 3 Output", () => {
         InputA: new BitString("1000", 4),
     };
 
-    const outputs = {
-        OutputA: new BitString("0011"),
-        OutputB: new BitString("1", 1)
-    };
-
     const results = lsb.run(inputs);
 
-    expect(results.outputs).toStrictEqual(outputs);
+    expect(results.outputs.OutputA.equals("0011")).toBe(true);
+    expect(results.outputs.OutputB.equals("1")).toBe(true);
 });
 
 
@@ -76,12 +60,8 @@ test("No Input", () => {
         InputA: new BitString("0000", 4)
     };
 
-    const outputs = {
-        OutputA: new BitString("0000", 4),
-        OutputB: new BitString("0", 1)
-    };
-
     const results = lsb.run(inputs);
 
-    expect(results.outputs).toStrictEqual(outputs);
+    expect(results.outputs.OutputA.equals("0000")).toBe(true);
+    expect(results.outputs.OutputB.equals("0")).toBe(true);
 })

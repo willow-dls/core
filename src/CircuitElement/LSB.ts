@@ -16,10 +16,9 @@ export class LSB extends CircuitElement {
     const inputString = inputs[0].getValue().toString();
     const inputWidth = inputs[0].getValue().getWidth();
 
-    for (let i = inputWidth - 1; i >= 0; i--) {
-      console.log(inputString[i])
+    for (let i = 0; i < inputString.length; i++) {
       if (inputString[i] == '1') {
-        outputs[0].setValue(new BitString(i.toString(2), inputWidth));
+        outputs[0].setValue(new BitString((inputString.length - i - 1).toString(2), inputWidth));
 
         // Set ENABLE to HIGH if an LSB was found
         outputs[1].setValue(new BitString("1", this.ENABLE_WIDTH));
