@@ -14,8 +14,6 @@ export class LSB extends CircuitElement {
 
     const inputString = inputs[0].getValue().toString();
 
-    console.log(inputString)
-
     for (let i = inputString.length - 1; i > 0; i++) {
       if (inputString[i] == '1') {
         outputs[0].setValue(new BitString(String(i)));

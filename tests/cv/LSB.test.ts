@@ -22,5 +22,20 @@ test("High Input", () => {
 
     const results = lsb.run(inputs);
 
-    expect(results).toStrictEqual(outputs)
+    expect(results.outputs).toStrictEqual(outputs);
+});
+
+test("Low Input", () => {
+    const inputs = {
+        InputA: new BitString("0")
+    };
+
+    const outputs = {
+        OutputA: new BitString("0"),
+        OutputB: new BitString("0")
+    };
+
+    const results = lsb.run(inputs);
+
+    expect(results.outputs).toStrictEqual(outputs);
 })
