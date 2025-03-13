@@ -16,10 +16,10 @@ export class LSB extends CircuitElement {
     const inputString = inputs[0].getValue().toString();
     const inputWidth = inputs[0].getValue().getWidth();
 
-    for (let i = 0; i < inputString.length; i++) {
+    for (let i = 0; i < inputWidth; i++) {
       if (inputString[i] == '1') {
-        outputs[0].setValue(new BitString((inputString.length - i - 1).toString(2), inputWidth));
-
+        outputs[0].setValue(new BitString((inputWidth- i - 1).toString(2), inputWidth));
+        
         // Set ENABLE to HIGH if an LSB was found
         outputs[1].setValue(new BitString("1", this.ENABLE_WIDTH));
 
@@ -27,8 +27,8 @@ export class LSB extends CircuitElement {
       }
     }
 
-    outputs[0].setValue(new BitString("0", inputWidth));
-    outputs[1].setValue(new BitString("0", this.ENABLE_WIDTH));
+    outputs[0].setValue(BitString.low(inputWidth));
+    outputs[1].setValue(BitString.low(this.ENABLE_WIDTH));
 
     return 10;
   }
