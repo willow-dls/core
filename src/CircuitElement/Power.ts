@@ -8,7 +8,7 @@ export class Power extends CircuitElement {
     }
 
     resolve(): number {
-        this.getOutputs().forEach(o => o.setValue(BitString.high(o.getValue().getWidth())));
-        return 0; // TODO: Custom propagation delay.
+        this.getOutputs().forEach(o => o.setValue(BitString.high(o.getWidth())));
+        return this.getPropagationDelay();
     }
 }

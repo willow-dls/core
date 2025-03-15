@@ -6,17 +6,102 @@ import { LogLevel } from "../CircuitLogger";
 export class Splitter extends CircuitElement {
     #split: number[];
     #prevInput: BitString | null;
-    #prevOutputs: BitString[] | null;
+    #prevOutputs: (BitString | null)[] | null;
+    #lastOp: string | null;
 
-    #bitStringsEqual(a: BitString[], b: BitString[]): boolean {
+    #bitStringsEqual(a: (BitString | null)[], b: (BitString | null)[]): boolean {
         if (a === b) return true;
         if (a == null || b == null) return false;
         if (a.length !== b.length) return false;
 
         for (var i = 0; i < a.length; ++i) {
-            if (!a[i].equals(b[i])) return false;
+            if (a[i] == b[i]) {
+                continue;
+            }
+
+            if (a[i] == null || b[i] == null) {
+                return false;
+            }
+
+            // Can't be null because they're not the same and neither are
+            // null.
+            if (!(a[i] as BitString).equals(b[i])) return false;
         }
         return true;
+    }
+
+    #nullOutputs(a: (BitString | null)[]): boolean {
+        for (const x of a) {
+            if (x == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    #earliestOutput(): number {
+        let o = -1;
+        for (const x of super.getOutputs().slice(1)) {
+            if (x == null) {
+                continue;
+            }
+
+            o = Math.min(o, x.getLastUpdate());
+        }
+
+        return o;
+    }
+
+    #propOut(input: BitString) {
+        this.log(LogLevel.TRACE, 'Splitting input into outputs...');
+        let off = 0;
+
+        for (const s in this.#split) {
+            let i = this.#split.length - 1 - parseInt(s);
+
+            const split = this.#split[i];
+            const output = super.getOutputs().slice(1)[i];
+
+            this.log(LogLevel.TRACE, `Computing ${input}[${off}:${off + split}]...`);
+            const value = input.substring(off, off + split);
+            this.log(LogLevel.TRACE, `Got value: ${value}`);
+
+            output.setValue(value);
+
+            off += split;
+        }
+
+        this.#lastOp = 'propOut';
+    }
+
+    #propIn() {
+        this.log(LogLevel.TRACE, 'Combining outputs into input...');
+        let newOut = '';
+
+        for (let s in this.#split) {
+            let i = this.#split.length - 1 - parseInt(s);
+            const split = this.#split[i];
+            const output = super.getOutputs().slice(1)[i]
+            const val = output.getValue();
+
+            if (output.getWidth() != split) {
+                throw new Error(`SplitterElement bus width error: Received ${output.getWidth()}-bit value on ${split}-bit bus.`);
+            }
+
+            newOut += val?.toString() ?? BitString.low(output.getWidth());
+        }
+
+        this.log(LogLevel.TRACE, `Propagating '${newOut}' to input.`);
+        this.getInputs()[0].setValue(new BitString(newOut));
+
+        this.#lastOp = 'propIn';
+
+    }
+
+    #getValues(): [BitString | null, (BitString | null)[]] {
+        const input: BitString | null = this.getInputs()[0].getValue();
+        const outputs: (BitString | null)[] = super.getOutputs().slice(1).map(o => o.getValue());
+        return [input, outputs];
     }
 
     constructor(split: number[], input: CircuitBus, outputs: CircuitBus[]) {
@@ -32,61 +117,87 @@ export class Splitter extends CircuitElement {
         this.#split = split;
         this.#prevInput = null;
         this.#prevOutputs = null;
+        this.#lastOp = null;
     }
 
     resolve(): number {
-        const input: BitString = this.getInputs()[0].getValue();
-        const outputs: BitString[] = this.getOutputs().slice(1).map(o => o.getValue());
+        this.log(LogLevel.TRACE, `Resolving splitter...`);
+        const [input, outputs] = this.#getValues();
 
-        if (!this.#prevInput || !this.#prevOutputs) {
-            this.#prevInput = input;
-            this.#prevOutputs = outputs;
-        }
+        // if (!this.#prevInput || !this.#prevOutputs) {
+        //     this.#prevInput = input;
+        //     this.#prevOutputs = outputs;
+        // }
 
-        if (!input.equals(this.#prevInput) && this.#bitStringsEqual(this.#prevOutputs, outputs)) {
-            this.log(LogLevel.TRACE, 'Input changed and outputs have not; splitting input into outputs...');
-            let off = 0;
-
-            for (const i in this.#split) {
-                const split = this.#split[i];
-                const output = this.getOutputs().slice(1)[i];
-
-                this.log(LogLevel.TRACE, `Computing ${input}[${off}:${off + split}]...`);
-                const value = input.substring(off, off + split);
-                this.log(LogLevel.TRACE, `Got value: ${value}`);
-
-                output.setValue(value);
-
-                off += split;
+        if (!input) {
+            if (!this.#nullOutputs(outputs)) {
+                this.log(LogLevel.TRACE, `No input, but all outputs are present.`);
+                this.#propIn();
+            } else {
+                this.log(LogLevel.TRACE, `No input value and there are missing output values.`);
+                this.log(LogLevel.TRACE, `Doing nothing.`);
             }
-        } else if (input.equals(this.#prevInput) && !this.#bitStringsEqual(this.#prevOutputs, outputs)) {
-            this.log(LogLevel.TRACE, 'Outputs have changed and input has not; combining outputs into input...');
-            let newOut = '';
+        } else {
+            if (this.#nullOutputs(outputs)) {
+                this.log(LogLevel.TRACE, `Input provided, and some outputs are missing.`);
+                this.#propOut(input);
+            } else {
+                this.log(LogLevel.TRACE, `Both input and all outputs are present, seeing what changed...`);
 
-            for (const i in this.#split) {
-                const split = this.#split[i];
-                const output = this.getOutputs().slice(1)[i].getValue();
+                // const inputChanged = !input.equals(this.#prevInput);
+                // const outputsChanged = !this.#bitStringsEqual(this.#prevOutputs ?? [], outputs);
 
-                if (output.getWidth() != split) {
-                    throw new Error(`SplitterElement bus width error: Received ${output.getWidth()}-bit value on ${split}-bit bus.`);
+                // if (inputChanged && outputsChanged) {
+                //     if (!input.equals(outputs.join(''))) {
+                //         throw new Error(`Splitter contention: Both inputs and outputs were set and have changed: ${input} != ${this.#prevInput} && ${JSON.stringify(outputs)} != ${JSON.stringify(this.#prevOutputs)}`);
+                //     } else {
+                //         // Do nothing.
+                //         // Both inputs and outputs changed, but in a consistent manner which doesn't
+                //         // cause contention.
+                //     }
+                // } else {
+                //     if (inputChanged) {
+                //         this.#propOut(input);
+                //     } else if (outputsChanged) {
+                //         this.#propIn();
+                //     } else {
+                //         // Do nothing.
+                //         // Neither the input nor the output changed.
+                //     }
+                // }
+
+                const inputUpdate = this.getInputs()[0].getLastUpdate();
+                const outputUpdate = this.#earliestOutput();
+
+                const inputChanged = !input.equals(this.#prevInput);
+                const outputsChanged = !this.#bitStringsEqual(this.#prevOutputs ?? [], outputs);
+
+                this.log(LogLevel.TRACE, `Inputs changed: ${inputChanged}, last update = ${inputUpdate}`);
+                this.log(LogLevel.TRACE, `Outputs changed: ${outputsChanged}, last update = ${outputUpdate}`);
+
+                if (inputChanged && inputUpdate < outputUpdate) {
+                    this.#propOut(input);
+                } else if (outputsChanged && outputUpdate < inputUpdate) {
+                    this.#propIn();
+                } else {
+                    if (inputUpdate == outputUpdate && !input.equals(outputs.join(''))) {
+                        throw new Error(`Splitter contention: Both inputs and outputs were set and have changed at the same time: ${input} != ${this.#prevInput} && ${JSON.stringify(outputs)} != ${JSON.stringify(this.#prevOutputs)}`);
+                    } else {
+                        // Do nothing.
+                        // Neither the input nor the output changed, or they changed at the
+                        // same time and are consistent.
+                    }
                 }
 
-                newOut += output.toString();
+                [this.#prevInput, this.#prevOutputs] = this.#getValues();
+
             }
 
-            this.log(LogLevel.TRACE, `Propagating '${newOut}' to input.`);
-            this.getInputs()[0].setValue(new BitString(newOut));
-        } else if (input.equals(this.#prevInput) && this.#bitStringsEqual(this.#prevOutputs, outputs)) {
-            this.log(LogLevel.TRACE, 'Neither the input nor the outputs have changed; doing nothing...');
-        } else {
-            throw new Error(`SplitterElement contention: Both input and output changed, unable to resolve: '${this.#prevInput}' != '${input}' && ${this.#prevOutputs} != ${outputs}`);
+
         }
+        
 
-        this.#prevInput = input;
-        this.#prevOutputs = outputs;
-
-        // TODO: handle custom propagation delays.
-        return 10;
+        return this.getPropagationDelay();
     }
 
     reset() {
@@ -94,5 +205,14 @@ export class Splitter extends CircuitElement {
 
         this.#prevInput = null;
         this.#prevOutputs = null;
+        this.#lastOp = null;
+    }
+
+    getOutputs(): CircuitBus[] {
+        if (this.#lastOp == 'propIn') {
+            return [this.getInputs()[0]];
+        } else {
+            return super.getOutputs().slice(1);
+        } 
     }
 }

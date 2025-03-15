@@ -15,7 +15,7 @@ export class Clock extends CircuitElement {
         const [output] = this.getOutputs();
         output.setValue(this.#value);
         
-        return 10; // TODO: Custom propagation delay.
+        return this.getPropagationDelay();
     }
 
     setHigh(): void {

@@ -8,8 +8,8 @@ export class Ground extends CircuitElement {
     }
 
     resolve(): number {
-        this.getOutputs().forEach(o => o.setValue(BitString.low(o.getValue().getWidth())));
-        return 0; // TODO: Custom propagation delay.
+        this.getOutputs().forEach(o => o.setValue(BitString.low()));
+        return this.getPropagationDelay();
     }
     
 }

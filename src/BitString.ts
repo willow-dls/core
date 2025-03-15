@@ -220,14 +220,22 @@ export class BitString {
         return parseInt(this.#str, 2);
     }
 
-    equals(str: BitString | string): boolean {
+    equals(str: BitString | string | null): boolean {
+        if (!str) {
+            return false;
+        }
+
         if (typeof str === 'string') {
             str = new BitString(str);
         }
         return str.#str == this.#str;
     }
 
-    greaterThan(str: BitString | string): boolean {
+    greaterThan(str: BitString | string | null): boolean {
+        if (!str) {
+            return false;
+        }
+
         if (typeof str === 'string') {
             str = new BitString(str);
         }

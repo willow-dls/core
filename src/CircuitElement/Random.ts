@@ -25,21 +25,21 @@ export class Random extends CircuitElement {
         // My hunch is that their code is doing a check similar to this one to know when to
         // roll the counter over without checking the clock. So we do this before we check the
         // clock.
-        if (output.getValue().greaterThan(maxValue.getValue())) {
-            output.setValue(BitString.low(output.getValue().getWidth()));
+        if (output.getValue()?.greaterThan(maxValue.getValue())) {
+            output.setValue(BitString.low());
         }
 
         // Now we check the clock to know if we need to increment the output line.
         // We only increment the output value on the rising edge of the clock; that is,
         // the clock was previously low and now it is high.
-        if (this.#lastClock.equals('0') && clock.getValue().equals('1')) {
+        if (this.#lastClock?.equals('0') && clock.getValue()?.equals('1')) {
             let rand;
 
             do {
                 // TODO: Could potentially be very inefficient to compute random
                 // numbers this way, but it was easy. Should optimize this at some
                 // point though.
-                rand = BitString.rand(output.getValue().getWidth());
+                rand = BitString.rand(output.getWidth());
             } while (rand.greaterThan(maxValue.getValue()));
             
             output.setValue(rand);
@@ -48,7 +48,7 @@ export class Random extends CircuitElement {
         // Save the last clock value.
         this.#lastClock = clock.getValue();
 
-        return 10; // TODO: Custom propagation delay.
+        return this.getPropagationDelay();
     }
 
     reset(): void {

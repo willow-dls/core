@@ -82,6 +82,10 @@ export abstract class CircuitLogger {
         msg: string, 
         data?: any
     ): void;
+
+    close(): void {
+
+    }
 }
 
 export abstract class CircuitLoggable {

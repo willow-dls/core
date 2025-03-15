@@ -1,4 +1,3 @@
-// TODO: Properly test BitString
 import { BitString } from "../src/BitString"
 
 test('constructor truncate', () => {

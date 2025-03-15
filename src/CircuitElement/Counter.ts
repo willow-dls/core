@@ -24,7 +24,7 @@ export class Counter extends CircuitElement {
             clock: clock.getValue(),
             reset: reset.getValue(),
             output: output.getValue(),
-            zero: output.getValue()
+            zero: zero.getValue()
         });
 
         if (!this.#lastClock) {
@@ -33,23 +33,23 @@ export class Counter extends CircuitElement {
         }
 
         // If reset is high, zero the output
-        if (reset.getValue().equals('1')) {
+        if (reset.getValue()?.equals('1')) {
             this.log(LogLevel.TRACE, `Reset is high, zeroing output...`);
-            output.setValue(BitString.low(output.getValue().getWidth()));
+            output.setValue(BitString.low());
         }
 
         // Now we check the clock to know if we need to increment the output line.
         // We only increment the output value on the rising edge of the clock; that is,
         // the clock was previously low and now it is high.
-        if (this.#lastClock.equals('0') && clock.getValue().equals('1')) {
+        if (this.#lastClock.equals('0') && clock.getValue()?.equals('1')) {
             // If the current value is greater than the max value, reset to zero
-            if (output.getValue().greaterThan(maxValue.getValue())) {
+            if (output.getValue()?.greaterThan(maxValue.getValue())) {
                 this.log(LogLevel.TRACE, `Counter value exceeded max value, zeroing...`);
-                output.setValue(BitString.low(output.getValue().getWidth()));
+                output.setValue(BitString.low());
                 zero.setValue(BitString.high());
             } else {
-                const one = new BitString('1', output.getValue().getWidth());
-                const current = output.getValue();
+                const one = new BitString('1', output.getWidth());
+                const current = output.getValue() ?? BitString.low(output.getWidth());
     
                 this.log(LogLevel.TRACE, `Rising edge of clock: ${current} + ${one} => ${current.add(one)}`);
     
@@ -63,13 +63,13 @@ export class Counter extends CircuitElement {
         // Save the last clock value.
         this.#lastClock = clock.getValue();
 
-        return 10; // TODO: Custom propagation delay.
+        return this.getPropagationDelay();
     }
 
     reset(): void {
         super.reset();
 
         this.#lastClock = null;
-        this.getOutputs().forEach(o => o.setValue(BitString.low(o.getValue().getWidth())));
+        this.getOutputs().forEach(o => o.setValue(BitString.low()));
     }
 }

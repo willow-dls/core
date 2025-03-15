@@ -12,7 +12,7 @@ export class Constant extends CircuitElement {
 
     resolve(): number {
         this.getOutputs().forEach(o => o.setValue(this.#value));
-        return 0; // TODO: Custom propagation delays.
+        return this.getPropagationDelay();
     }
 
 }

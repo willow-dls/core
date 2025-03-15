@@ -5,6 +5,9 @@ export abstract class CircuitElement extends CircuitLoggable {
     #inputs: CircuitBus[];
     #outputs: CircuitBus[];
 
+    #propagationDelay: number;
+    #label: string | null;
+
     constructor(
         subsystem: string = 'Element',
         inputs: CircuitBus[], 
@@ -16,6 +19,9 @@ export abstract class CircuitElement extends CircuitLoggable {
 
         this.#inputs.forEach(i => i.connectElement(this));
         this.#outputs.forEach(i => i.connectElement(this));
+
+        this.#propagationDelay = 0;
+        this.#label = null;
     }
 
     abstract resolve(): number;
@@ -36,5 +42,29 @@ export abstract class CircuitElement extends CircuitLoggable {
         // (For example, the Splitter element, which must retain a history
         // of its inputs and outputs to know which direction to propagate,
         // since it is bi-directional.)
+        this.getInputs().forEach(i => i.setValue(null, -1));
+        this.getOutputs().forEach(o => o.setValue(null, -1));
+    }
+
+    setPropagationDelay(delay: number): CircuitElement {
+        this.#propagationDelay = delay;
+        return this;
+    }
+
+    setLabel(label: string): CircuitElement {
+        this.#label = label;
+        return this;
+    }
+
+    protected getPropagationDelay(): number {
+        return this.#propagationDelay;
+    }
+
+    getLabel(): string | null {
+        return this.#label;
+    }
+
+    toString() {
+        return `${this.constructor.name}[id=${this.getId()}]${ this.#label ? `('${this.#label}')` : ''}`;
     }
 }

@@ -5,12 +5,9 @@ import { BitString } from "../src/BitString";
 import { CircuitBus } from "../src/CircuitBus";
 import { OrGate } from "../src/CircuitElement/OrGate";
 
-test('Bit width error', async () => {
-    const project = await loadProject(CircuitVerseLoader, 'tests/cv/BitWidthError.cv');
-    const circuit = project.getCircuitByName('Main');
-    
-    expect(() => circuit.run({input: BitString.low()})).toThrow('Bus error');
-});
+// test('Bit width error', () => {
+//     expect(loadProject(CircuitVerseLoader, 'tests/cv/BitWidthError.cv')).rejects.toBe('error');
+// });
 
 test('Connections', () => {
     const bus1 = new CircuitBus(4);

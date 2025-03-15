@@ -11,7 +11,7 @@ type QueueEntry = {
     element: CircuitElement
 };
 
-export type CircuitRunType = Record<string, BitString | string> | (BitString | string)[];
+export type CircuitRunType = Record<string, BitString | string> | (BitString | string | null)[];
 export type CircuitRunResult<T extends CircuitRunType> = {
     outputs: T,
     propagationDelay: number;
@@ -121,6 +121,8 @@ export class Circuit extends CircuitLoggable {
 
         do {
             this.#clocks.forEach(c => c.tick());
+            this.#log(LogLevel.INFO, `[cycle = ${clockCycles}, high = ${clockHigh}] Resolving circuit for this cycle.`);
+
             result = this.resolve(init ? inputs : undefined);
 
             this.#log(LogLevel.INFO, `[cycle = ${clockCycles}, high = ${clockHigh}] Propagation delay: ${result.propagationDelay}`, result.outputs);
@@ -129,7 +131,7 @@ export class Circuit extends CircuitLoggable {
                 this.#log(LogLevel.WARN, `Circuit propogation delay longer than clock frequency: results cannot be trusted.`);
             }
 
-            clockHigh = this.#clocks[0].getOutputs()[0].getValue().equals(BitString.high());
+            clockHigh = BitString.high().equals(this.#clocks[0].getOutputs()[0].getValue());
             init = false;
             
             if (!clockHigh) {
@@ -149,10 +151,10 @@ export class Circuit extends CircuitLoggable {
         const eventQueue: QueueEntry[] = [];
 
         if (inputs) {
+            this.#log(LogLevel.INFO, `Circuit received inputs:`, { inputs: inputs });
+
             this.#log(LogLevel.TRACE, 'Resetting all elements...');
             this.#elements.forEach(e => e.reset());
-
-            this.#log(LogLevel.INFO, `Circuit received inputs:`, { inputs: inputs });
 
             this.#log(LogLevel.DEBUG, 'Propagating inputs...');
             if (Array.isArray(inputs)) {
@@ -164,7 +166,9 @@ export class Circuit extends CircuitLoggable {
                         value = new BitString(value);
                     }
 
-                    input.setValue(value);
+                    if (value) {
+                        input.setValue(value);
+                    }
                 });
             } else {
                 this.#log(LogLevel.TRACE, 'Input was provided as an object; setting inputs by key.');
@@ -192,6 +196,11 @@ export class Circuit extends CircuitLoggable {
 
                         didSetLabel = true;
                         this.#log(LogLevel.TRACE, `Set output: ${key}`);
+
+                        eventQueue.push({
+                            time: 0,
+                            element: this.#outputs[key]
+                        });
                     }
 
                     if (!didSetLabel) {
@@ -208,10 +217,12 @@ export class Circuit extends CircuitLoggable {
         // elements such as constant values and power/ground to propagate their outputs.
         // Other than a little more initial compute, this should have no side effects.
         this.#elements.forEach(e => {
-            eventQueue.push({
-                time: 0,
-                element: e
-            });
+            if (!(e instanceof Output)) {
+                eventQueue.push({
+                    time: 0,
+                    element: e
+                });
+            }
         });
 
         this.#log(LogLevel.TRACE, `Starting event loop...`);
@@ -221,7 +232,7 @@ export class Circuit extends CircuitLoggable {
         let entry: QueueEntry | undefined = undefined;
         while (entry = eventQueue.shift()) {
             time = entry.time;
-            this.#log(LogLevel.DEBUG, `[Step: ${steps + 1}, Time: ${time}] Resolving element: ${entry.element.constructor.name}[id=${entry.element.getId()}]`);
+            this.#log(LogLevel.DEBUG, `[Step: ${steps + 1}, Time: ${time}] Resolving element: ${entry.element}`);
 
             const currentOutputs = entry.element.getOutputs().map(o => o.getValue());
             const propDelay = entry.element.resolve();
@@ -234,25 +245,63 @@ export class Circuit extends CircuitLoggable {
 
             const propTo = entry.element
                 .getOutputs()
-                .filter((o, i) => entry?.element instanceof Input || !o.getValue().equals(currentOutputs[i]))
-                .map(o => o.getElements())
-                .flat();
+                .filter((o, i) => entry?.element instanceof Input 
+                || (o.getValue() == null && currentOutputs[i] != null) 
+                || (o.getValue() != null && !(o.getValue() as BitString).equals(currentOutputs[i])))
+                .map(o => (o.setLastUpdate((entry as QueueEntry).time), o.getElements()))
+                .flat()
+                // Ensure that whatever the current element would propagate to actually has the element as an
+                // input; some elements (the Splitter) may misbehave and attempt to propagate things to elements
+                // which are attached upstream. This prevents those from being re-resolved which results in resolving
+                // the current element again, causing an infinite loop.
+                .filter(e => e.getInputs().map(i => i.getElements()).flat().includes((entry as QueueEntry).element));
+            
+            // const wouldPropTo = entry.element
+            //     .getOutputs()
+            //     .map(o => o.getElements())
+            //     .flat()
+            //     .filter(o => !propTo.includes(o));
 
             for (const el of propTo) {
                 if (el == entry.element) {
                     continue;
                 }
 
-                this.#log(LogLevel.TRACE, `Propagating to element: ${el.constructor.name}[id=${el.getId()}]`);
+                const entryInd = eventQueue.map(e => e.element).indexOf(el);
+                if (entryInd != -1) {
+                    this.#log(LogLevel.TRACE, `Already in event queue: ${el}`);
+
+                    if (propDelay) {
+                        this.#log(LogLevel.TRACE, `Delaying resolution until t = ${time + propDelay}`);
+                        eventQueue[entryInd].time = time + propDelay;
+                    }
+
+                    continue;
+                }
+
+                this.#log(LogLevel.TRACE, `Propagating to element: ${el}]`);
                 eventQueue.push({
-                    time: entry.time + propDelay,
+                    time: time + propDelay,
                     element: el
                 });
             }
 
+            // // If the element has a propagation delay, we need to ensure that we delay the
+            // // evaluation of all the elements it *would* have propagated to if the value
+            // // had changed, if any are in the queue. This is to simulate an actual propagation,
+            // // without actually re-resolving the inputs now.
+            // if (propDelay) {
+            //     for (const el of wouldPropTo) {
+            //         const entryInd = eventQueue.map(e => e.element).indexOf(el);
+            //         if (entryInd != -1) {
+            //             eventQueue[entryInd].time = time + propDelay;
+            //         }
+            //     }
+            // }
+
             eventQueue.sort((a, b) => a.time - b.time);
             steps++;
-            this.#log(LogLevel.TRACE, `Event Queue:`, eventQueue.map(e => `${e.element.constructor.name}[id=${e.element.getId()}]`));
+            this.#log(LogLevel.TRACE, `Event Queue:`, eventQueue.map(e => `[t = ${e.time}] ${e.element}`));
 
 
             if (steps > 1000000) {
@@ -276,7 +325,7 @@ export class Circuit extends CircuitLoggable {
             };
         } else {
             this.#log(LogLevel.TRACE, 'Building output as object.');
-            const outputs: Record<string, BitString> = {};
+            const outputs: Record<string, BitString | null> = {};
 
             for (const key of Object.keys(this.#outputs)) {
                 outputs[key] = this.#outputs[key].getValue();

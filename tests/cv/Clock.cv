@@ -1,0 +1,354 @@
+{
+    "name": "Clock",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "s1SRV1BgEIiFYJVvHw39",
+    "focussedCircuit": 49833961696,
+    "orderedTabs": [
+        "49833961696"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 100,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        11
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        12
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        11
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        12
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        7
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        9
+                    ]
+                },
+                {
+                    "x": -10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        10
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        4
+                    ]
+                },
+                {
+                    "x": -10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        13
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        5
+                    ]
+                },
+                {
+                    "x": 770,
+                    "y": 310,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        6,
+                        11
+                    ]
+                },
+                {
+                    "x": 770,
+                    "y": 330,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        2,
+                        0,
+                        10
+                    ]
+                },
+                {
+                    "x": 770,
+                    "y": 350,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        3,
+                        1,
+                        13
+                    ]
+                },
+                {
+                    "x": 770,
+                    "y": 370,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        12,
+                        8
+                    ]
+                }
+            ],
+            "id": 49833961696,
+            "name": "Main",
+            "Output": [
+                {
+                    "x": 830,
+                    "y": 330,
+                    "objectType": "Output",
+                    "label": "",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 2
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 20,
+                                "id": "V41UpWnI7u5Dg4Il1HI7"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 830,
+                    "y": 350,
+                    "objectType": "Output",
+                    "label": "",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 3
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 40,
+                                "id": "oU4Av0BfIQIg41qz18Fi"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 830,
+                    "y": 310,
+                    "objectType": "Output",
+                    "label": "",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 4
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 60,
+                                "id": "Wuh6tBx3cFEPDZ8XVOrN"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 830,
+                    "y": 370,
+                    "objectType": "Output",
+                    "label": "",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 5
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 80,
+                                "id": "drICdb80MbvZGayzi36N"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "NotGate": [
+                {
+                    "x": 790,
+                    "y": 310,
+                    "objectType": "NotGate",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1
+                        ],
+                        "nodes": {
+                            "output1": 7,
+                            "inp1": 6
+                        }
+                    }
+                },
+                {
+                    "x": 790,
+                    "y": 370,
+                    "objectType": "NotGate",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1
+                        ],
+                        "nodes": {
+                            "output1": 9,
+                            "inp1": 8
+                        }
+                    }
+                }
+            ],
+            "Clock": [
+                {
+                    "x": 750,
+                    "y": 330,
+                    "objectType": "Clock",
+                    "label": "NormalClock",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 0
+                        },
+                        "constructorParamaters": [
+                            "RIGHT"
+                        ]
+                    }
+                },
+                {
+                    "x": 750,
+                    "y": 350,
+                    "objectType": "Clock",
+                    "label": "ReversedClock",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 1
+                        },
+                        "constructorParamaters": [
+                            "RIGHT"
+                        ]
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": [
+                10,
+                11,
+                12,
+                13
+            ]
+        }
+    ]
+}

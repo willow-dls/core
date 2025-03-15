@@ -1,0 +1,226 @@
+{
+    "name": "Splitter",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "J28CNBg1pjDt2uZkhIKl",
+    "focussedCircuit": 73403850237,
+    "orderedTabs": [
+        "73403850237"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 40,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [
+                {
+                    "x": 40,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        1
+                    ]
+                },
+                {
+                    "x": 840,
+                    "y": 250,
+                    "type": 2,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        0,
+                        3
+                    ]
+                },
+                {
+                    "x": 840,
+                    "y": 360,
+                    "type": 2,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        7
+                    ]
+                },
+                {
+                    "x": -10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        1,
+                        5
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": -10,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": []
+                },
+                {
+                    "x": -10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        3,
+                        7
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": -10,
+                    "type": 0,
+                    "bitWidth": 2,
+                    "label": "",
+                    "connections": []
+                },
+                {
+                    "x": -10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        5,
+                        2
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": -10,
+                    "type": 0,
+                    "bitWidth": 3,
+                    "label": "",
+                    "connections": []
+                }
+            ],
+            "id": 73403850237,
+            "name": "Main",
+            "Input": [
+                {
+                    "x": 780,
+                    "y": 250,
+                    "objectType": "Input",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 0
+                        },
+                        "values": {
+                            "state": 0
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4,
+                            {
+                                "x": 0,
+                                "y": 20,
+                                "id": "KHVyzg2tPGMgZfP72Jg8"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "Splitter": [
+                {
+                    "x": 850,
+                    "y": 270,
+                    "objectType": "Splitter",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4,
+                            [
+                                1
+                            ]
+                        ],
+                        "nodes": {
+                            "outputs": [
+                                4
+                            ],
+                            "inp1": 3
+                        }
+                    }
+                },
+                {
+                    "x": 850,
+                    "y": 300,
+                    "objectType": "Splitter",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4,
+                            [
+                                2
+                            ]
+                        ],
+                        "nodes": {
+                            "outputs": [
+                                6
+                            ],
+                            "inp1": 5
+                        }
+                    }
+                },
+                {
+                    "x": 850,
+                    "y": 330,
+                    "objectType": "Splitter",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4,
+                            [
+                                3
+                            ]
+                        ],
+                        "nodes": {
+                            "outputs": [
+                                8
+                            ],
+                            "inp1": 7
+                        }
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": [
+                1,
+                2
+            ]
+        }
+    ]
+}

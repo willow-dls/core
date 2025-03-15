@@ -4,6 +4,14 @@ import { createWriteStream, WriteStream } from "node:fs";
 
 export class FileLogger extends CircuitLogger {
     #file: WriteStream;
+    #isClosed: boolean = false;
+
+    #write(data: string) {
+        // if (!this.#file.write(data)) {
+        //     this.#file.once('drain', () => this.#write(data));
+        // }
+        this.#file.write(data);
+    }
 
     constructor(file: string | WriteStream) {
         super();
@@ -13,19 +21,49 @@ export class FileLogger extends CircuitLogger {
         } else {
             this.#file = createWriteStream(file);
         }
+
+        process.once('uncaughtException', async (err) => {
+            this.#file.on('close', () => {
+                throw err;
+            });
+
+            await this.close();
+        });
+
+        process.once('unhandledRejection', async (reason, promise) => {
+            await this.close();
+        });
+
+        process.on('exit', async (code) => {
+            await this.close();
+        });
     }
 
     output(count: number, timestamp: Date, level: LogLevel, subsystem: string, msg: string, data?: any): void {
         const header = `[${timestamp.toLocaleString()}] ${logLevelString[level]}[${count}] ${subsystem}: `;
-        this.#file.write(`${header}${msg}\n`);
+        this.#write(`${header}${msg}\n`);
         if (data) {
             Object.keys(data).forEach((key) => {
-                this.#file.write(`${' '.repeat(header.length)}${key}: ${JSON.stringify(data[key])}\n`);
+                this.#write(`${' '.repeat(header.length)}${key}: ${JSON.stringify(data[key])}\n`);
             });
         }
     }
 
-    close() {
-        this.#file.close();
+    async close(): Promise<void> {
+        if (!this.#isClosed) {
+            this.#isClosed = true;
+            return new Promise<void>((resolve, reject) => {
+                this.#file.end(() => {
+                    this.#file.close((err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                    
+                });
+            });
+        }
     }
 }
