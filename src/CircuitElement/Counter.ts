@@ -18,7 +18,7 @@ export class Counter extends CircuitElement {
         const [maxValue, clock, reset] = this.getInputs();
         const [output, zero] = this.getOutputs();
 
-        this.log(LogLevel.TRACE, `resolve():`, {
+        this.log(LogLevel.TRACE, `Before resolve():`, {
             maxValue: maxValue.getValue(),
             lastClock: this.#lastClock,
             clock: clock.getValue(),
@@ -28,7 +28,7 @@ export class Counter extends CircuitElement {
         });
 
         if (!this.#lastClock) {
-            this.log(LogLevel.TRACE, 'No previous clock value, setting to current.');
+            this.log(LogLevel.TRACE, 'No previous clock value, assuming it was low.');
             this.#lastClock = BitString.low();
         }
 
@@ -63,6 +63,15 @@ export class Counter extends CircuitElement {
         // Save the last clock value.
         this.#lastClock = clock.getValue();
 
+        this.log(LogLevel.TRACE, `After resolve():`, {
+            maxValue: maxValue.getValue(),
+            lastClock: this.#lastClock,
+            clock: clock.getValue(),
+            reset: reset.getValue(),
+            output: output.getValue(),
+            zero: zero.getValue()
+        });
+
         return this.getPropagationDelay();
     }
 
@@ -70,6 +79,9 @@ export class Counter extends CircuitElement {
         super.reset();
 
         this.#lastClock = null;
-        this.getOutputs().forEach(o => o.setValue(BitString.low()));
+        
+        const [output] = this.getOutputs();
+        output.setValue(BitString.low());
+        //this.getOutputs().forEach(o => o.setValue(BitString.low()));
     }
 }

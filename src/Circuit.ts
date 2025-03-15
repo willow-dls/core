@@ -263,9 +263,9 @@ export class Circuit extends CircuitLoggable {
             //     .filter(o => !propTo.includes(o));
 
             for (const el of propTo) {
-                if (el == entry.element) {
-                    continue;
-                }
+                // if (el == entry.element) {
+                //     continue;
+                // }
 
                 const entryInd = eventQueue.map(e => e.element).indexOf(el);
                 if (entryInd != -1) {

@@ -1,6 +1,8 @@
 import { loadProject } from "../src/CircuitLoader";
 import { CircuitVerseLoader } from "../src/CircuitLoader/CircuitVerseLoader";
 import { BitString } from "../src/BitString";
+import { FileLogger } from "../src/CircuitLogger/FileLogger";
+import { LogLevel } from "../src/CircuitLogger";
 
 test('Multiple inputs with the same label', async () => {
     expect(async () => {
@@ -22,6 +24,10 @@ test('Bad inputs and outputs', async() => {
 });
 
 test('Infinite loop', async() => {
+
+    // const logger = new FileLogger('Circuit.log');
+    // logger.setLevel(LogLevel.TRACE);
+
     const project = await loadProject(CircuitVerseLoader, 'tests/cv/InfiniteLoop.cv');
     const circuit = project.getCircuitByName('Main');
 

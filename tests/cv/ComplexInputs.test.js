@@ -8,10 +8,10 @@ import { FileLogger } from '../../src/CircuitLogger/FileLogger';
 let circuit;
 
 beforeAll(async () => {
-    const logger = new FileLogger('complex-inputs.log');
-    logger.setLevel(LogLevel.TRACE);
-    logger.setSubsystems(/^Circuit$/, /^CounterElement$/);
-    const project = await loadProject(CircuitVerseLoader, 'tests/cv/ComplexInputs.cv', logger);
+    // const logger = new FileLogger('complex-inputs.log');
+    // logger.setLevel(LogLevel.TRACE);
+    // logger.setSubsystems(/^Circuit$/, /^CounterElement$/);
+    const project = await loadProject(CircuitVerseLoader, 'tests/cv/ComplexInputs.cv');
     circuit = project.getCircuitByName('Main');
 });
 
