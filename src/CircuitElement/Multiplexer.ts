@@ -16,10 +16,10 @@ export class Multiplexer extends CircuitElement {
     const inputs = this.getInputs();
     const [output] = this.getOutputs();
 
-    const controlSignalVal = Number(this.#controlSignal.getValue());
+    const controlSignalVal = this.#controlSignal.getValue().toUnsigned();
 
-    if (controlSignalVal < 0 || controlSignalVal >= inputs.length) {
-      output.setValue(BitString.low());
+    if (controlSignalVal >= inputs.length) {
+      throw new Error(`Multiplexer control signal is set to '${controlSignalVal}', but only has ${inputs.length} inputs.`);
     } else {
       output.setValue(inputs[controlSignalVal].getValue());
     }
