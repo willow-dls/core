@@ -14,8 +14,16 @@ export class LSB extends CircuitElement {
     const [input] = this.getInputs();
     const [output, enable] = this.getOutputs();
 
-    const inputString = input.getValue().toString();
-    const inputWidth = input.getValue().getWidth();
+    const inputValue = input.getValue();
+
+    if (!inputValue) {
+      output.setValue(BitString.low());
+      enable.setValue(BitString.low());
+      return this.getPropagationDelay();
+    }
+
+    const inputString = inputValue.toString();
+    const inputWidth = inputValue.getWidth();
 
     this.log(LogLevel.TRACE, `Input: [width=${inputWidth}] '${inputString}'`);
 
@@ -28,7 +36,7 @@ export class LSB extends CircuitElement {
         // Set ENABLE to HIGH if an LSB was found
         enable.setValue(new BitString("1", this.ENABLE_WIDTH));
 
-        return 10;
+        return this.getPropagationDelay();
       }
     }
 
@@ -36,6 +44,6 @@ export class LSB extends CircuitElement {
     output.setValue(BitString.low(inputWidth));
     enable.setValue(BitString.low(this.ENABLE_WIDTH));
 
-    return 10;
+    return this.getPropagationDelay();
   }
 }
