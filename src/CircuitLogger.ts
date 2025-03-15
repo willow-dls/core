@@ -123,8 +123,8 @@ export abstract class CircuitLoggable {
      * 
      * @returns A unique ID among all loggable objects.
      */
-    getId(): number {
-        return this.#id;
+    getId(): string {
+        return this.#id.toString();
     }
 
     protected log(level: LogLevel, msg: string, data?: any): void {

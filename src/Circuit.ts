@@ -80,11 +80,8 @@ export class Circuit extends CircuitLoggable {
         return this.#name;
     }
 
-    getId(): number {
-        // TODO: We should intake an integer instead of parsing the
-        // string ID here, particularly because this method could potentially
-        // get called a lot.
-        return parseInt(this.#id);
+    getId(): string {
+        return this.#id;
     }
 
     getClocks(): Clock[] {
