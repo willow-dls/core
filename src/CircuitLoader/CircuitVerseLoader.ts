@@ -23,6 +23,9 @@ import { Counter } from "../CircuitElement/Counter";
 import { Clock } from "../CircuitElement/Clock";
 import { TriState } from "../CircuitElement/TriState";
 import { OrGate } from "../CircuitElement/OrGate";
+import { Demultiplexer } from "../CircuitElement/Demultiplexer";
+import { Multiplexer } from "../CircuitElement/Multiplexer";
+import { LSB } from "../CircuitElement/LSB";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -67,7 +70,23 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       data.customData.nodes.inp.map((i: number) => nodes[i]),
       [nodes[data.customData.nodes.output1]],
     ),
-
+  Demultiplexer: ({ nodes, data }) =>
+    new Demultiplexer(
+      [nodes[data.customData.nodes.input]],
+      data.customData.nodes.output1.map((i: number) => nodes[i]),
+      nodes[data.customData.nodes.controlSignalInput],
+    ),
+  Multiplexer: ({ nodes, data }) => 
+    new Multiplexer(
+      data.customData.nodes.inp.map((i: number) => nodes[i]),
+      [nodes[data.customData.nodes.output1]],
+      nodes[data.customData.nodes.controlSignalInput]
+    ),
+  LSB: ({ nodes, data }) => new LSB(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.enable],
+  ),
   'Input': ({ nodes, data }) => new Input(
     data.index,
     data.label,
@@ -130,7 +149,7 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
 
 export class CircuitVerseLoader extends CircuitLoader {
   constructor() {
-    super('CircuitVerseLoader');
+    super("CircuitVerseLoader");
   }
 
   load(data: any): CircuitProject {
@@ -152,7 +171,10 @@ export class CircuitVerseLoader extends CircuitLoader {
         const scopeNode = scope.allNodes[nodeInd];
         const node = new CircuitBus(scopeNode.bitWidth);
         nodes.push(node);
-        this.log(LogLevel.TRACE, `Created bus with width ${scopeNode.bitWidth}`);
+        this.log(
+          LogLevel.TRACE,
+          `Created bus with width ${scopeNode.bitWidth}`,
+        );
       }
 
       // Second pass over nodes to add connections now that all nodes
@@ -174,23 +196,26 @@ export class CircuitVerseLoader extends CircuitLoader {
       // a blacklist of all the keys that we know aren't circuit element
       // arrays, and don't process those.
       const blacklistKeys = [
-        'layout',
-        'verilogMetadata',
-        'allNodes',
-        'id',
-        'name',
-        'restrictedCircuitElementsUsed',
-        'nodes'
+        "layout",
+        "verilogMetadata",
+        "allNodes",
+        "id",
+        "name",
+        "restrictedCircuitElementsUsed",
+        "nodes",
       ];
 
-      this.log(LogLevel.TRACE, 'Collecting scope elements...');
+      this.log(LogLevel.TRACE, "Collecting scope elements...");
       const elementArray = Object.keys(scope)
-        .filter(k => !blacklistKeys.includes(k))
-        .map(k => scope[k].map((e: any, ind: number) => {
-          e.objectType = k;
-          e.index = ind;
-          return e;
-        })).flat();
+        .filter((k) => !blacklistKeys.includes(k))
+        .map((k) =>
+          scope[k].map((e: any, ind: number) => {
+            e.objectType = k;
+            e.index = ind;
+            return e;
+          }),
+        )
+        .flat();
 
       const id = scope.id;
       const name = scope.name;
@@ -203,7 +228,9 @@ export class CircuitVerseLoader extends CircuitLoader {
         this.log(LogLevel.TRACE, `Creating element of type '${type}'...`, elementData)
 
         if (!createElement[type]) {
-          throw new Error(`Circuit '${name}' (${id}) uses unsupported element: ${type}.`);
+          throw new Error(
+            `Circuit '${name}' (${id}) uses unsupported element: ${type}.`,
+          );
         }
 
         const newElement = createElement[type]({
@@ -220,7 +247,10 @@ export class CircuitVerseLoader extends CircuitLoader {
       }
 
       // The final circuit for this scope.
-      this.log(LogLevel.TRACE, 'Constructing circuit and adding it to the project...');
+      this.log(
+        LogLevel.TRACE,
+        "Constructing circuit and adding it to the project...",
+      );
       const circuit = new Circuit(id, name, elements);
       project.addCircuit(circuit);
     }
