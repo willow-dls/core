@@ -14,6 +14,8 @@ import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { LogLevel } from "../CircuitLogger";
 import { Demultiplexer } from "../CircuitElement/Demultiplexer";
+import { Multiplexer } from "../CircuitElement/Multiplexer";
+import { LSB } from "../CircuitElement/LSB";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -57,23 +59,38 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       data.customData.nodes.inp.map((i: number) => nodes[i]),
       [nodes[data.customData.nodes.output1]],
     ),
-
-  Input: ({ nodes, data }) =>
-    new Input(data.index, data.label, [nodes[data.customData.nodes.output1]]),
-  Output: ({ nodes, data }) =>
-    new Output(data.index, data.label, nodes[data.customData.nodes.inp1]),
-  SubCircuit: ({ nodes, data, project }) =>
-    new SubCircuit(
-      project.getCircuitById(data.id),
-      data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
-      data.outputNodes.map((nodeInd: number) => nodes[nodeInd]),
-    ),
   Demultiplexer: ({ nodes, data }) =>
     new Demultiplexer(
       [nodes[data.customData.nodes.input]],
       data.customData.nodes.output1.map((i: number) => nodes[i]),
       nodes[data.customData.nodes.controlSignalInput],
     ),
+  Multiplexer: ({ nodes, data }) => 
+    new Multiplexer(
+      data.customData.nodes.inp.map((i: number) => nodes[i]),
+      [nodes[data.customData.nodes.output1]],
+      nodes[data.customData.nodes.controlSignalInput]
+    ),
+  LSB: ({ nodes, data }) => new LSB(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.enable],
+  ),
+  'Input': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]]
+  ),
+  'Output': ({ nodes, data }) => new Output(
+    data.index,
+    data.label,
+    nodes[data.customData.nodes.inp1]
+  ),
+  'SubCircuit': ({ nodes, data, project }) => new SubCircuit(
+    project.getCircuitById(data.id),
+    data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
+    data.outputNodes.map((nodeInd: number) => nodes[nodeInd])
+  )
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
