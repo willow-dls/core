@@ -58,8 +58,9 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       [nodes[data.customData.nodes.output1]],
     ),
   LSB: ({ nodes, data }) => new LSB(
-    [nodes[data.customData.nodes.inp1]],
-    [nodes[data.customData.nodes.output1], nodes[data.customData.nodes.enable]],
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.enable],
   ),
   'Input': ({ nodes, data }) => new Input(
     data.index,

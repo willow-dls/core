@@ -11,7 +11,7 @@ export class Output extends CircuitElement {
         super('OutputElement', [input], []);
         this.#index = index;
         this.#label = label;
-        this.#value = new BitString('0');
+        this.#value = new BitString('0', input.getValue().getWidth());
     }
 
     getIndex(): number {
