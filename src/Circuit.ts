@@ -255,18 +255,8 @@ export class Circuit extends CircuitLoggable {
                 // which are attached upstream. This prevents those from being re-resolved which results in resolving
                 // the current element again, causing an infinite loop.
                 .filter(e => e.getInputs().map(i => i.getElements()).flat().includes((entry as QueueEntry).element));
-            
-            // const wouldPropTo = entry.element
-            //     .getOutputs()
-            //     .map(o => o.getElements())
-            //     .flat()
-            //     .filter(o => !propTo.includes(o));
 
             for (const el of propTo) {
-                // if (el == entry.element) {
-                //     continue;
-                // }
-
                 const entryInd = eventQueue.map(e => e.element).indexOf(el);
                 if (entryInd != -1) {
                     this.#log(LogLevel.TRACE, `Already in event queue: ${el}`);
@@ -285,19 +275,6 @@ export class Circuit extends CircuitLoggable {
                     element: el
                 });
             }
-
-            // // If the element has a propagation delay, we need to ensure that we delay the
-            // // evaluation of all the elements it *would* have propagated to if the value
-            // // had changed, if any are in the queue. This is to simulate an actual propagation,
-            // // without actually re-resolving the inputs now.
-            // if (propDelay) {
-            //     for (const el of wouldPropTo) {
-            //         const entryInd = eventQueue.map(e => e.element).indexOf(el);
-            //         if (entryInd != -1) {
-            //             eventQueue[entryInd].time = time + propDelay;
-            //         }
-            //     }
-            // }
 
             eventQueue.sort((a, b) => a.time - b.time);
             steps++;

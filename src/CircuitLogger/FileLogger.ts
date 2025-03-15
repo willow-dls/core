@@ -7,9 +7,6 @@ export class FileLogger extends CircuitLogger {
     #isClosed: boolean = false;
 
     #write(data: string) {
-        // if (!this.#file.write(data)) {
-        //     this.#file.once('drain', () => this.#write(data));
-        // }
         this.#file.write(data);
     }
 

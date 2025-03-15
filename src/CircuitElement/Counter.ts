@@ -13,7 +13,6 @@ export class Counter extends CircuitElement {
     }
 
     // resolve() is called whenever an input changes, either the maxValue, clock, or reset line.
-
     resolve(): number {
         const [maxValue, clock, reset] = this.getInputs();
         const [output, zero] = this.getOutputs();

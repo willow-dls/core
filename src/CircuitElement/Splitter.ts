@@ -144,28 +144,6 @@ export class Splitter extends CircuitElement {
             } else {
                 this.log(LogLevel.TRACE, `Both input and all outputs are present, seeing what changed...`);
 
-                // const inputChanged = !input.equals(this.#prevInput);
-                // const outputsChanged = !this.#bitStringsEqual(this.#prevOutputs ?? [], outputs);
-
-                // if (inputChanged && outputsChanged) {
-                //     if (!input.equals(outputs.join(''))) {
-                //         throw new Error(`Splitter contention: Both inputs and outputs were set and have changed: ${input} != ${this.#prevInput} && ${JSON.stringify(outputs)} != ${JSON.stringify(this.#prevOutputs)}`);
-                //     } else {
-                //         // Do nothing.
-                //         // Both inputs and outputs changed, but in a consistent manner which doesn't
-                //         // cause contention.
-                //     }
-                // } else {
-                //     if (inputChanged) {
-                //         this.#propOut(input);
-                //     } else if (outputsChanged) {
-                //         this.#propIn();
-                //     } else {
-                //         // Do nothing.
-                //         // Neither the input nor the output changed.
-                //     }
-                // }
-
                 const inputUpdate = this.getInputs()[0].getLastUpdate();
                 const outputUpdate = this.#earliestOutput();
 

@@ -11,5 +11,4 @@ export class Ground extends CircuitElement {
         this.getOutputs().forEach(o => o.setValue(BitString.low()));
         return this.getPropagationDelay();
     }
-    
 }
