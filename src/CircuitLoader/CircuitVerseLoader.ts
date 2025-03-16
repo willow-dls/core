@@ -16,6 +16,7 @@ import { LogLevel } from "../CircuitLogger";
 import { Demultiplexer } from "../CircuitElement/Demultiplexer";
 import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { LSB } from "../CircuitElement/LSB";
+import { BitSelector } from "../CircuitElement/BitSelector";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -90,7 +91,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     project.getCircuitById(data.id),
     data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
     data.outputNodes.map((nodeInd: number) => nodes[nodeInd])
-  )
+  ),
+  BitSelector: ({ nodes, data }) => new BitSelector(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.bitSelectorInp],
+  ),
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
