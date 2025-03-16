@@ -43,3 +43,25 @@ test("Should return 0", () => {
 
     expect(results.outputs.Output.toString()).toStrictEqual("0");
 })
+
+test("Should not equal 1", () => {
+    const inputs = {
+        Input: "0001",
+        Selector: "01"
+    };
+
+    const results = bitSelector.run(inputs);
+
+    expect(results.outputs.Output.toString()).not.toStrictEqual("1");
+})
+
+test("Should equal 0", () => {
+    const inputs = {
+        Input: "1011",
+        Selector: "10"
+    };
+
+    const results = bitSelector.run(inputs);
+
+    expect(results.outputs.Output.toString()).toStrictEqual("0");
+})
