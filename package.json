@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "jest --coverage",
-    "build": "tsc"
+    "build": "tsc",
+    "cvdl" : "ts-node Tools/CVDownloader/CVDownload.ts"
   },
   "repository": {
     "type": "git",
