@@ -27,6 +27,7 @@ import { Demultiplexer } from "../CircuitElement/Demultiplexer";
 import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { LSB } from "../CircuitElement/LSB";
 import { BitSelector } from "../CircuitElement/BitSelector";
+import { MSB } from "../CircuitElement/MSB";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -84,6 +85,11 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       nodes[data.customData.nodes.controlSignalInput]
     ),
   LSB: ({ nodes, data }) => new LSB(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.enable],
+  ),
+  MSB: ({ nodes, data }) => new MSB(
     nodes[data.customData.nodes.inp1],
     nodes[data.customData.nodes.output1],
     nodes[data.customData.nodes.enable],
