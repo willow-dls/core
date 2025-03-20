@@ -13,14 +13,20 @@ export class BitSelector extends CircuitElement {
     const [input, bitSelector] = this.getInputs();
     const [output] = this.getOutputs();
 
-    const bitSelectorIndx = bitSelector.getValue().toUnsigned();
     const inputValue = input.getValue();
+    const bitSelectorValue = bitSelector.getValue();
+
+    if (!bitSelectorValue || !inputValue) {
+      return this.getPropagationDelay();
+    }
+
+    const bitSelectorIndx = bitSelectorValue.toUnsigned();
     const inputWidth = inputValue.getWidth()
 
     output.setValue(new BitString(inputValue.toString()[Math.abs(bitSelectorIndx - inputWidth + 1)]));
 
     this.log(LogLevel.TRACE, `Input: [width=${inputWidth}] '${inputValue.toString()}'`);
 
-    return 10;
+    return this.getPropagationDelay();
   }
 }

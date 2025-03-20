@@ -6,8 +6,8 @@ import { CircuitVerseLoader } from "../../src/CircuitLoader/CircuitVerseLoader";
 let msb: Circuit;
 
 beforeAll(async () => {
-    const project = await loadProject(CircuitVerseLoader, 'tests/cv/LSB.cv');
-    msb = project.getCircuitByName('LSB');
+    const project = await loadProject(CircuitVerseLoader, 'tests/cv/MSB.cv');
+    msb = project.getCircuitByName('MSB');
 });
 
 test("No MSB", () => {
@@ -34,7 +34,7 @@ test("All indices filled", () => {
 
 test("Index 3 Output", () => {
     const inputs = {
-        InputA: new BitString("1001", 4),
+        InputA: new BitString("1000", 4),
     };
 
     const results = msb.run(inputs);

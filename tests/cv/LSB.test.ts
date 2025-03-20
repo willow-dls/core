@@ -12,7 +12,7 @@ beforeAll(async () => {
 
 test("Index 0 Output", () => {
     const inputs = {
-        InputA: new BitString("0001", 4),
+        InputA: new BitString("1001", 4),
     };
 
     const results = lsb.run(inputs);

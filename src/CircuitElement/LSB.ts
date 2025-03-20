@@ -27,7 +27,7 @@ export class LSB extends CircuitElement {
 
     this.log(LogLevel.TRACE, `Input: [width=${inputWidth}] '${inputString}'`);
 
-    for (let i = 0; i < inputWidth; i++) {
+    for (let i = inputWidth - 1; i >= 0; i--) {
       if (inputString[i] == '1') {
         const lsb = new BitString((inputWidth- i - 1).toString(2), inputWidth);
         this.log(LogLevel.TRACE, `LSB found at index: '${lsb}'`);
