@@ -1,10 +1,14 @@
 import {loadProject} from '../../src/CircuitLoader';
 
 import {CircuitVerseLoader} from '../../src/CircuitLoader/CircuitVerseLoader';
+import { LogLevel } from '../../src/CircuitLogger';
+import { FileLogger } from '../../src/CircuitLogger/FileLogger';
 
+// let logger = new FileLogger('simple.log');
 let project;
 
 beforeAll(async () => {
+    // logger.setLevel(LogLevel.TRACE).setSubsystems(/^Circuit$/);
     project = await loadProject(CircuitVerseLoader, 'tests/cv/Simple.cv');
 });
 

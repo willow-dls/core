@@ -16,7 +16,13 @@ export class Multiplexer extends CircuitElement {
     const inputs = this.getInputs();
     const [output] = this.getOutputs();
 
-    const controlSignalVal = this.#controlSignal.getValue().toUnsigned();
+    const controlValue = this.#controlSignal.getValue();
+
+    if (!controlValue) {
+      return this.getPropagationDelay();
+    }
+
+    const controlSignalVal = controlValue.toUnsigned();
 
     if (controlSignalVal >= inputs.length) {
       throw new Error(`Multiplexer control signal is set to '${controlSignalVal}', but only has ${inputs.length} inputs.`);
@@ -24,6 +30,6 @@ export class Multiplexer extends CircuitElement {
       output.setValue(inputs[controlSignalVal].getValue());
     }
 
-    return 10;
+    return this.getPropagationDelay();
   }
 }

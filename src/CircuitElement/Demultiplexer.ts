@@ -19,16 +19,23 @@ export class Demultiplexer extends CircuitElement {
     const inputs = this.getInputs();
     const outputs = this.getOutputs();
 
-    const outputWidth = inputs[0].getValue().getWidth();
+    const inputValue = inputs[0].getValue();
+    const controlValue = this.#controlSignal.getValue();
+
+    if (!inputValue || !controlValue) {
+      return this.getPropagationDelay();
+    }
+
+    const outputWidth = inputValue.getWidth();
 
     outputs.forEach((output) => {
       output.setValue(BitString.low(outputWidth));
     });
 
-    const controlSignalVal =this.#controlSignal.getValue().toUnsigned();
+    const controlSignalVal =controlValue.toUnsigned();
 
     outputs[controlSignalVal].setValue(inputs[0].getValue());
 
-    return 10;
+    return this.getPropagationDelay();
   }
 }

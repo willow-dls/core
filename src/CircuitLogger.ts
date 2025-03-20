@@ -82,6 +82,10 @@ export abstract class CircuitLogger {
         msg: string, 
         data?: any
     ): void;
+
+    close(): void {
+
+    }
 }
 
 export abstract class CircuitLoggable {
@@ -89,8 +93,13 @@ export abstract class CircuitLoggable {
     #loggers: Set<CircuitLogger> = new Set([]);
     #children: Set<CircuitLoggable> = new Set([]);
 
+    #id: number;
+
+    static #counter: number = 0;
+
     constructor(subsystem: string) {
         this.#subsystem = subsystem;
+        this.#id = CircuitLoggable.#counter++;
     }
 
     attachLogger(logger: CircuitLogger): void {
@@ -104,8 +113,18 @@ export abstract class CircuitLoggable {
     }
 
     propagateLoggersTo(loggable: CircuitLoggable): void {
-        loggable.#loggers = new Set(this.#loggers);
+        this.#loggers.forEach(l => loggable.attachLogger(l));
         this.#children.add(loggable);
+    }
+
+    /**
+     * Everything that is loggable gets a unique ID, which can help identify instances
+     * of objects in logs when many such instances exist.
+     * 
+     * @returns A unique ID among all loggable objects.
+     */
+    getId(): string {
+        return this.#id.toString();
     }
 
     protected log(level: LogLevel, msg: string, data?: any): void {

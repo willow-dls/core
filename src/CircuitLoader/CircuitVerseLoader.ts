@@ -13,9 +13,21 @@ import { NotGate } from "../CircuitElement/NotGate";
 import { XnorGate } from "../CircuitElement/XnorGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { LogLevel } from "../CircuitLogger";
+import { Splitter } from "../CircuitElement/Splitter";
+import { Power } from "../CircuitElement/Power";
+import { Ground } from "../CircuitElement/Ground";
+import { Constant } from "../CircuitElement/Constant";
+import { BitString } from "../BitString";
+import { Random } from "../CircuitElement/Random";
+import { Counter } from "../CircuitElement/Counter";
+import { Clock } from "../CircuitElement/Clock";
+import { TriState } from "../CircuitElement/TriState";
+import { OrGate } from "../CircuitElement/OrGate";
 import { Demultiplexer } from "../CircuitElement/Demultiplexer";
 import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { LSB } from "../CircuitElement/LSB";
+import { BitSelector } from "../CircuitElement/BitSelector";
+import { MSB } from "../CircuitElement/MSB";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -23,6 +35,7 @@ type CircuitContext = {
   project: CircuitProject;
 };
 
+// TODO: Consistent formatting of the keys on this object.
 const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   AndGate: ({ nodes, data }) =>
     new AndGate(
@@ -40,7 +53,7 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       [nodes[data.customData.nodes.output1]],
     ),
   OrGate: ({ nodes, data }) =>
-    new NorGate(
+    new OrGate(
       data.customData.nodes.inp.map((i: number) => nodes[i]),
       [nodes[data.customData.nodes.output1]],
     ),
@@ -76,7 +89,24 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.output1],
     nodes[data.customData.nodes.enable],
   ),
+  MSB: ({ nodes, data }) => new MSB(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.enable],
+  ),
   'Input': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]]
+  ),
+  // Treat a button just like a regular input.
+  'Button': ({ nodes, data }) => new Input(
+    data.index,
+    data.label,
+    [nodes[data.customData.nodes.output1]]
+  ),
+  // Treat a stepper just like a regular input.
+  'Stepper': ({ nodes, data }) => new Input(
     data.index,
     data.label,
     [nodes[data.customData.nodes.output1]]
@@ -90,7 +120,43 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     project.getCircuitById(data.id),
     data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
     data.outputNodes.map((nodeInd: number) => nodes[nodeInd])
-  )
+  ),
+  'Splitter': ({ nodes, data }) => new Splitter(
+    // No, this is not a typo in our code, their data file actually has "constructorParamaters"
+    // instead of the proper spelling "constructorParameters"...
+    data.customData.constructorParamaters[2],
+    nodes[data.customData.nodes.inp1],
+    data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd])
+  ),
+  'Power': ({ nodes, data }) => new Power(nodes[data.customData.nodes.output1]),
+  'Ground': ({ nodes, data }) => new Ground(nodes[data.customData.nodes.output1]),
+  'ConstantVal': ({ nodes, data }) => new Constant(
+    nodes[data.customData.nodes.output1],
+    new BitString(data.customData.constructorParamaters[2], data.customData.constructorParamaters[1])
+  ),
+  'Random': ({ nodes, data }) => new Random(
+    nodes[data.customData.nodes.maxValue],
+    nodes[data.customData.nodes.clockInp],
+    nodes[data.customData.nodes.output]
+  ),
+  'Counter': ({ nodes, data }) => new Counter(
+    nodes[data.customData.nodes.maxValue],
+    nodes[data.customData.nodes.clock],
+    nodes[data.customData.nodes.reset],
+    nodes[data.customData.nodes.output],
+    nodes[data.customData.nodes.zero]
+  ),
+  'Clock': ({ nodes, data }) => new Clock(nodes[data.customData.nodes.output1]),
+  'TriState': ({ nodes, data }) => new TriState(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.state],
+    nodes[data.customData.nodes.output1]
+  ),
+  BitSelector: ({ nodes, data }) => new BitSelector(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.bitSelectorInp],
+  ),
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
@@ -171,11 +237,7 @@ export class CircuitVerseLoader extends CircuitLoader {
         const elementData = elementArray[i];
         const type = elementData.objectType;
 
-        this.log(
-          LogLevel.DEBUG,
-          `Creating element of type '${type}'...`,
-          elementData,
-        );
+        this.log(LogLevel.TRACE, `Creating element of type '${type}'...`, elementData)
 
         if (!createElement[type]) {
           throw new Error(
@@ -183,13 +245,17 @@ export class CircuitVerseLoader extends CircuitLoader {
           );
         }
 
-        elements.push(
-          createElement[type]({
-            project: project,
-            nodes: nodes,
-            data: elementData,
-          }),
-        );
+        const newElement = createElement[type]({
+          project: project,
+          nodes: nodes,
+          data: elementData
+        }).setLabel(elementData.label)
+          .setPropagationDelay(elementData.propagationDelay ?? 0);
+
+        //console.log(LogLevel.DEBUG, `Creating element of type '${type}' with label '${data.label}'...`, elementData)
+
+
+        elements.push(newElement);
       }
 
       // The final circuit for this scope.

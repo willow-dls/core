@@ -67,6 +67,10 @@ export class BitString {
         return new BitString('0'.repeat(width));
     }
 
+    static rand(width: number = 1) {
+        return new BitString('0'.repeat(width).split('').map(c => Math.random() < 0.5 ? '1' : '0').join(''));
+    }
+
     #str: BinaryString;
 
     constructor(str: string, width: number = 0) {
@@ -118,8 +122,9 @@ export class BitString {
             '111': ['1', '1'],
         };
 
-        for (let i = 0; i < result.length; i++) {
-            const key: string = `${carry}${this.#str[i]}${str.#str[i]}`;
+        for (let i = result.length - 1; i >= 0; i--) {
+            
+            const key: string = `${this.#str[i]}${str.#str[i]}${carry}`;
             const r: Bit[] = map[key];
 
             result[i] = r[0];
@@ -215,11 +220,35 @@ export class BitString {
         return parseInt(this.#str, 2);
     }
 
-    equals(str: BitString | string): boolean {
+    equals(str: BitString | string | null): boolean {
+        if (!str) {
+            return false;
+        }
+
         if (typeof str === 'string') {
             str = new BitString(str);
         }
         return str.#str == this.#str;
+    }
+
+    greaterThan(str: BitString | string | null): boolean {
+        if (!str) {
+            return false;
+        }
+
+        if (typeof str === 'string') {
+            str = new BitString(str);
+        }
+
+        return this.sub(str).msb(1).equals('0');
+    }
+
+    lessThan(str: BitString | string): boolean {
+        if (typeof str === 'string') {
+            str = new BitString(str);
+        }
+
+        return this.sub(str).msb(1).equals('1');
     }
 
     truncate(length: number, upper: boolean = false): BitString {
@@ -243,5 +272,17 @@ export class BitString {
         }
 
         return new BitString(this.#str.toString().padStart(width, '0'));
+    }
+
+    substring(start: number, end?: number): BitString {
+        return new BitString(this.#str.substring(start, end));
+    }
+
+    msb(n: number): BitString {
+        return this.substring(0, n);
+    }
+
+    lsb(n: number): BitString {
+        return this.substring(this.getWidth() - n);
     }
 }

@@ -3,11 +3,11 @@ import { CircuitBus } from "../CircuitBus";
 import { BitString } from "../BitString";
 import { LogLevel } from "../CircuitLogger";
 
-export class LSB extends CircuitElement {
+export class MSB extends CircuitElement {
   readonly ENABLE_WIDTH: number = 1;
 
   constructor(input: CircuitBus, output: CircuitBus, enable: CircuitBus) {
-    super("LSBElement", [input], [output, enable]);
+    super("MSBElement", [input], [output, enable]);
   }
 
   resolve(): number {
@@ -23,24 +23,24 @@ export class LSB extends CircuitElement {
     }
 
     const inputString = inputValue.toString();
-    const inputWidth = inputValue.getWidth();
+    const inputWidth = input.getWidth();
 
     this.log(LogLevel.TRACE, `Input: [width=${inputWidth}] '${inputString}'`);
 
-    for (let i = inputWidth - 1; i >= 0; i--) {
+    for (let i = 0; i < inputWidth; i++) {
       if (inputString[i] == '1') {
-        const lsb = new BitString((inputWidth- i - 1).toString(2), inputWidth);
-        this.log(LogLevel.TRACE, `LSB found at index: '${lsb}'`);
-        output.setValue(lsb);
+        const msb = new BitString((inputWidth- i - 1).toString(2), inputWidth);
+        this.log(LogLevel.TRACE, `MSB found at index: '${msb}'`);
+        output.setValue(msb);
         
-        // Set ENABLE to HIGH if an LSB was found
+        // Set ENABLE to HIGH if an MSB was found
         enable.setValue(new BitString("1", this.ENABLE_WIDTH));
 
         return this.getPropagationDelay();
       }
     }
 
-    this.log(LogLevel.TRACE, `No LSB found.`);
+    this.log(LogLevel.TRACE, `No MSB found.`);
     output.setValue(BitString.low(inputWidth));
     enable.setValue(BitString.low(this.ENABLE_WIDTH));
 

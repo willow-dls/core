@@ -7,7 +7,7 @@ export class Input extends CircuitElement {
     #label: string;
     #value: BitString;
 
-    constructor(index: number, label: string, outputs: CircuitBus[], initialValue: BitString = new BitString('0')) {
+    constructor(index: number, label: string, outputs: CircuitBus[], initialValue: BitString = BitString.low()) {
         super('InputElement', [], outputs);
         this.#index = index;
         this.#value = initialValue;
@@ -29,6 +29,6 @@ export class Input extends CircuitElement {
     resolve(): number {
         const outputs = this.getOutputs();
         outputs.forEach(o => o.setValue(this.#value));
-        return 0;
+        return this.getPropagationDelay();
     }
 }
