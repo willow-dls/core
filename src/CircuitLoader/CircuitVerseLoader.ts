@@ -26,6 +26,7 @@ import { OrGate } from "../CircuitElement/OrGate";
 import { Demultiplexer } from "../CircuitElement/Demultiplexer";
 import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { LSB } from "../CircuitElement/LSB";
+import { BitSelector } from "../CircuitElement/BitSelector";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -144,7 +145,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.inp1],
     nodes[data.customData.nodes.state],
     nodes[data.customData.nodes.output1]
-  )
+  ),
+  BitSelector: ({ nodes, data }) => new BitSelector(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1],
+    nodes[data.customData.nodes.bitSelectorInp],
+  ),
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
