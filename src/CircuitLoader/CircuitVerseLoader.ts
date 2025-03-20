@@ -28,6 +28,9 @@ import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { LSB } from "../CircuitElement/LSB";
 import { BitSelector } from "../CircuitElement/BitSelector";
 import { MSB } from "../CircuitElement/MSB";
+import { DFlipFlop } from "../CircuitElement/DFlipFlop";
+import { TFlipFlop } from "../CircuitElement/TFlipFlop";
+import { DLatch } from "../CircuitElement/DLatch";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -157,6 +160,30 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.output1],
     nodes[data.customData.nodes.bitSelectorInp],
   ),
+  DflipFlop: ({nodes, data}) => new DFlipFlop(
+    nodes[data.customData.nodes.clockInp],
+    nodes[data.customData.nodes.dInp],
+    nodes[data.customData.nodes.qOutput],
+    nodes[data.customData.nodes.qInvOutput],
+    nodes[data.customData.nodes.reset],
+    nodes[data.customData.nodes.preset],
+    nodes[data.customData.nodes.en]
+  ),
+  TflipFlop: ({nodes, data}) => new TFlipFlop(
+    nodes[data.customData.nodes.clockInp],
+    nodes[data.customData.nodes.dInp],
+    nodes[data.customData.nodes.qOutput],
+    nodes[data.customData.nodes.qInvOutput],
+    nodes[data.customData.nodes.reset],
+    nodes[data.customData.nodes.preset],
+    nodes[data.customData.nodes.en]
+  ),
+  Dlatch: ({nodes, data}) => new DLatch(
+    nodes[data.customData.nodes.clockInp],
+    nodes[data.customData.nodes.dInp],
+    nodes[data.customData.nodes.qOutput],
+    nodes[data.customData.nodes.qInvOutput]
+  )
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
