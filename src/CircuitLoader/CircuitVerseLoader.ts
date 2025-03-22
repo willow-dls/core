@@ -263,6 +263,11 @@ export class CircuitVerseLoader extends CircuitLoader {
         "name",
         "restrictedCircuitElementsUsed",
         "nodes",
+        // Annotation elements which are visual only.
+        "Text",
+        "Rectangle",
+        "Arrow",
+        "ImageAnnotation"
       ];
 
       this.log(LogLevel.TRACE, "Collecting scope elements...");

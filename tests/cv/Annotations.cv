@@ -1,0 +1,100 @@
+{
+    "name": "Annotations",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "2LR3M273WZTV2Lyd9Mdk",
+    "focussedCircuit": 74845956346,
+    "orderedTabs": [
+        "74845956346"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 40,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [],
+            "id": 74845956346,
+            "name": "Main",
+            "Text": [
+                {
+                    "x": 740,
+                    "y": 460,
+                    "objectType": "Text",
+                    "label": "This is a Text Box",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "This is a Text Box",
+                            14
+                        ]
+                    }
+                }
+            ],
+            "Rectangle": [
+                {
+                    "x": 700,
+                    "y": 230,
+                    "objectType": "Rectangle",
+                    "label": "Rectangle Annotation",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            15,
+                            20
+                        ]
+                    }
+                }
+            ],
+            "Arrow": [
+                {
+                    "x": 640,
+                    "y": 420,
+                    "objectType": "Arrow",
+                    "label": "Arrow Annotation",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT"
+                        ]
+                    }
+                }
+            ],
+            "ImageAnnotation": [
+                {
+                    "x": 1070,
+                    "y": 340,
+                    "objectType": "ImageAnnotation",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            15,
+                            20,
+                            ""
+                        ]
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": []
+        }
+    ]
+}
