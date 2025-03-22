@@ -1,4 +1,3 @@
-import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { SequentialElement } from "./SequentialElement";
 

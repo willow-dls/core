@@ -31,6 +31,7 @@ import { MSB } from "../CircuitElement/MSB";
 import { DFlipFlop } from "../CircuitElement/DFlipFlop";
 import { TFlipFlop } from "../CircuitElement/TFlipFlop";
 import { DLatch } from "../CircuitElement/DLatch";
+import { JKFlipFlop } from "../CircuitElement/JKFlipFlop";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -183,6 +184,16 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.dInp],
     nodes[data.customData.nodes.qOutput],
     nodes[data.customData.nodes.qInvOutput]
+  ),
+  JKflipFlop: ({nodes, data}) => new JKFlipFlop(
+    nodes[data.customData.nodes.clockInp],
+    nodes[data.customData.nodes.J],
+    nodes[data.customData.nodes.K],
+    nodes[data.customData.nodes.qOutput],
+    nodes[data.customData.nodes.qInvOutput],
+    nodes[data.customData.nodes.reset],
+    nodes[data.customData.nodes.preset],
+    nodes[data.customData.nodes.en]
   )
 };
 
