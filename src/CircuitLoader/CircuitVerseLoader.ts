@@ -36,6 +36,7 @@ import { SRFlipFlop } from "../CircuitElement/SRFlipFlop";
 import { TwosCompliment } from "../CircuitElement/TwosCompliment";
 import { Adder } from "../CircuitElement/Adder";
 import { BufferGate } from "../CircuitElement/BufferGate";
+import { ControlledInverter } from "../CircuitElement/ControlledInverter";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -222,6 +223,11 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.carryIn],
     nodes[data.customData.nodes.sum],
     nodes[data.customData.nodes.carryOut]
+  ),
+  ControlledInverter: ({nodes, data}) => new ControlledInverter(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.state],
+    nodes[data.customData.nodes.output1]
   )
 };
 
