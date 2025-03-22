@@ -33,6 +33,7 @@ import { TFlipFlop } from "../CircuitElement/TFlipFlop";
 import { DLatch } from "../CircuitElement/DLatch";
 import { JKFlipFlop } from "../CircuitElement/JKFlipFlop";
 import { SRFlipFlop } from "../CircuitElement/SRFlipFlop";
+import { TwosCompliment } from "../CircuitElement/TwosCompliment";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -204,6 +205,10 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customNodes.nodes.reset],
     nodes[data.customData.nodes.preset],
     nodes[data.customData.nodes.en]
+  ),
+  TwoCompliment: ({nodes, data}) => new TwosCompliment(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.output1]
   )
 };
 
