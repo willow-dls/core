@@ -35,6 +35,7 @@ import { JKFlipFlop } from "../CircuitElement/JKFlipFlop";
 import { SRFlipFlop } from "../CircuitElement/SRFlipFlop";
 import { TwosCompliment } from "../CircuitElement/TwosCompliment";
 import { Adder } from "../CircuitElement/Adder";
+import { BufferGate } from "../CircuitElement/BufferGate";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -69,6 +70,10 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       [nodes[data.customData.nodes.inp1]],
       [nodes[data.customData.nodes.output1]],
     ),
+  Buffer: ({nodes, data}) => new BufferGate(
+    [nodes[data.customData.nodes.inp1]],
+    [nodes[data.customData.nodes.output1]]
+  ),
   XnorGate: ({ nodes, data }) =>
     new XnorGate(
       data.customData.nodes.inp.map((i: number) => nodes[i]),
