@@ -32,6 +32,7 @@ import { DFlipFlop } from "../CircuitElement/DFlipFlop";
 import { TFlipFlop } from "../CircuitElement/TFlipFlop";
 import { DLatch } from "../CircuitElement/DLatch";
 import { JKFlipFlop } from "../CircuitElement/JKFlipFlop";
+import { SRFlipFlop } from "../CircuitElement/SRFlipFlop";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -192,6 +193,15 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.qOutput],
     nodes[data.customData.nodes.qInvOutput],
     nodes[data.customData.nodes.reset],
+    nodes[data.customData.nodes.preset],
+    nodes[data.customData.nodes.en]
+  ),
+  SRflipFlop: ({nodes, data}) => new SRFlipFlop(
+    nodes[data.customData.nodes.S],
+    nodes[data.customData.nodes.R],
+    nodes[data.customData.nodes.qOutput],
+    nodes[data.customData.nodes.qInvOutput],
+    nodes[data.customNodes.nodes.reset],
     nodes[data.customData.nodes.preset],
     nodes[data.customData.nodes.en]
   )
