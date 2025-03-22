@@ -37,6 +37,7 @@ import { TwosCompliment } from "../CircuitElement/TwosCompliment";
 import { Adder } from "../CircuitElement/Adder";
 import { BufferGate } from "../CircuitElement/BufferGate";
 import { ControlledInverter } from "../CircuitElement/ControlledInverter";
+import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -228,6 +229,13 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.inp1],
     nodes[data.customData.nodes.state],
     nodes[data.customData.nodes.output1]
+  ),
+  ALU: ({nodes, data}) => new CircuitVerseALU(
+    nodes[data.customData.nodes.inp1],
+    nodes[data.customData.nodes.inp2],
+    nodes[data.customData.nodes.controlSignalInput],
+    nodes[data.customData.nodes.output],
+    nodes[data.customData.nodes.carryOut]
   )
 };
 
