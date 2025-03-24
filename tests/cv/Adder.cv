@@ -1,0 +1,358 @@
+{
+    "name": "Adder",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "QilvmL6oFGarylkkD4lL",
+    "focussedCircuit": 94763344950,
+    "orderedTabs": [
+        "94763344950"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 80,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [
+                {
+                    "x": -20,
+                    "y": -10,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "A",
+                    "connections": [
+                        5
+                    ]
+                },
+                {
+                    "x": -20,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "B",
+                    "connections": [
+                        8
+                    ]
+                },
+                {
+                    "x": -20,
+                    "y": 10,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "Cin",
+                    "connections": [
+                        11
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 4,
+                    "label": "Sum",
+                    "connections": [
+                        12
+                    ]
+                },
+                {
+                    "x": 20,
+                    "y": 10,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "Cout",
+                    "connections": [
+                        15
+                    ]
+                },
+                {
+                    "x": 40,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        0
+                    ]
+                },
+                {
+                    "x": 40,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        7
+                    ]
+                },
+                {
+                    "x": 800,
+                    "y": 360,
+                    "type": 2,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        6,
+                        8
+                    ]
+                },
+                {
+                    "x": 800,
+                    "y": 350,
+                    "type": 2,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        7,
+                        1
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        10
+                    ]
+                },
+                {
+                    "x": 810,
+                    "y": 380,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        9,
+                        11
+                    ]
+                },
+                {
+                    "x": 810,
+                    "y": 360,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        10,
+                        2
+                    ]
+                },
+                {
+                    "x": 40,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "",
+                    "connections": [
+                        3
+                    ]
+                },
+                {
+                    "x": 10,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        14
+                    ]
+                },
+                {
+                    "x": 870,
+                    "y": 370,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        13,
+                        15
+                    ]
+                },
+                {
+                    "x": 870,
+                    "y": 360,
+                    "type": 2,
+                    "bitWidth": 1,
+                    "label": "",
+                    "connections": [
+                        14,
+                        4
+                    ]
+                }
+            ],
+            "id": 94763344950,
+            "name": "Main",
+            "Input": [
+                {
+                    "x": 750,
+                    "y": 340,
+                    "objectType": "Input",
+                    "label": "A",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 5
+                        },
+                        "values": {
+                            "state": 12
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4,
+                            {
+                                "x": 0,
+                                "y": 20,
+                                "id": "xRu1BlatC5x3Bhlb6bfO"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 750,
+                    "y": 360,
+                    "objectType": "Input",
+                    "label": "B",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 6
+                        },
+                        "values": {
+                            "state": 6
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4,
+                            {
+                                "x": 0,
+                                "y": 40,
+                                "id": "Js1YHQ19S18mW9CnNGqs"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 780,
+                    "y": 380,
+                    "objectType": "Input",
+                    "label": "CarryIn",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "output1": 9
+                        },
+                        "values": {
+                            "state": 1
+                        },
+                        "constructorParamaters": [
+                            "RIGHT",
+                            1,
+                            {
+                                "x": 0,
+                                "y": 60,
+                                "id": "VMdamdeKVydrJjzLsycm"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "Output": [
+                {
+                    "x": 920,
+                    "y": 350,
+                    "objectType": "Output",
+                    "label": "Sum",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 12
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            4,
+                            {
+                                "x": 100,
+                                "y": 20,
+                                "id": "3gjH5CW5IbVG2vQuhfQ7"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "x": 890,
+                    "y": 370,
+                    "objectType": "Output",
+                    "label": "CarryOut",
+                    "direction": "LEFT",
+                    "labelDirection": "RIGHT",
+                    "propagationDelay": 0,
+                    "customData": {
+                        "nodes": {
+                            "inp1": 13
+                        },
+                        "constructorParamaters": [
+                            "LEFT",
+                            1,
+                            {
+                                "x": 100,
+                                "y": 40,
+                                "id": "1rJ6CXDGxb3CV5Ctg2QC"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "Adder": [
+                {
+                    "x": 840,
+                    "y": 350,
+                    "objectType": "Adder",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            4
+                        ],
+                        "nodes": {
+                            "inpA": 0,
+                            "inpB": 1,
+                            "carryIn": 2,
+                            "carryOut": 4,
+                            "sum": 3
+                        }
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": [
+                7,
+                8,
+                10,
+                11,
+                14,
+                15
+            ]
+        }
+    ]
+}
