@@ -102,7 +102,7 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.enable],
   ),
   'Decoder': ({ nodes, data }) => new Decoder(
-    data.customData.nodes.input.map((i: number) => nodes[i]),
+    nodes[data.customData.nodes.input],
     data.customData.nodes.output1.map((i: number) => nodes[i]),
   ),
   'Input': ({ nodes, data }) => new Input(

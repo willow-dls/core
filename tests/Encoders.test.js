@@ -19,7 +19,7 @@ beforeAll(async () => {
 const table1_in = [
     ['0', '0', '0', '0'],
     ['0', '0', '0', '1'],
-    ['0', '0', '1', '0']
+    ['0', '0', '1', '0'],
     ['0', '0', '1', '1'],
     ['0', '1', '0', '0'],
     ['0', '1', '0', '1'],
@@ -71,7 +71,6 @@ const table2_out = [
 
 for (let i = 0; i < table1_in.length; i++) {
     test(`Priority Encoder ${i}`, async() => {
-    
         const inputs = {
             inp0: new BitString(table1_in[i][3]),
             inp1: new BitString(table1_in[i][2]),
@@ -84,7 +83,6 @@ for (let i = 0; i < table1_in.length; i++) {
             out0: new BitString(table1_out[i][1]),
             out1: new BitString(table1_out[i][0])
         }
-        
         
         const results = circuit_Encoder.run(inputs)
 

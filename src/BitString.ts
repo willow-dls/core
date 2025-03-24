@@ -74,6 +74,10 @@ export class BitString {
     #str: BinaryString;
 
     constructor(str: string, width: number = 0) {
+        if (!str) {
+            throw new Error('Bit string cannot be null or undefined.');
+        }
+        
         if (isBinaryString(str)) {
             this.#str = str;
         } else if (isHexString(str)) {
