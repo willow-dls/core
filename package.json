@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "jest --coverage",
-    "build": "tsc"
+    "build": "tsc",
+    "format": "prettier . --write"
   },
   "repository": {
     "type": "git",
