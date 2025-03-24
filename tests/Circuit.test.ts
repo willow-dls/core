@@ -1,8 +1,9 @@
+import {expect, beforeAll, test} from '@jest/globals';
+
 import { loadProject } from "../src/CircuitLoader";
 import { CircuitVerseLoader } from "../src/CircuitLoader/CircuitVerseLoader";
-import { BitString } from "../src/BitString";
-import { FileLogger } from "../src/CircuitLogger/FileLogger";
-import { LogLevel } from "../src/CircuitLogger";
+import { BitString } from '../src/BitString';
+
 
 test("Multiple inputs with the same label", async () => {
   expect(async () => {
@@ -20,7 +21,7 @@ test("Bad inputs and outputs", async () => {
   const project = await loadProject(CircuitVerseLoader, "tests/cv/Simple.cv");
   const circuit = project.getCircuitByName("Combinatorial");
 
-  expect(() => circuit.run({ randomInput: null })).toThrow(
+  expect(() => circuit.run({ randomInput: BitString.low() })).toThrow(
     "No inputs or outputs with the given label",
   );
 });

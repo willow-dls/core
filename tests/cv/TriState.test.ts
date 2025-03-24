@@ -1,9 +1,8 @@
+import {expect, beforeAll, test} from '@jest/globals';
+
 import { BitString } from "../../src/BitString";
 import { loadProject } from "../../src/CircuitLoader";
 import { CircuitVerseLoader } from "../../src/CircuitLoader/CircuitVerseLoader";
-import { LogLevel } from "../../src/CircuitLogger";
-import { FileLogger } from "../../src/CircuitLogger/FileLogger";
-import { ConsoleLogger } from "../../src/CircuitLogger/ConsoleLogger";
 
 // const logger = new FileLogger('tristate.log');
 let circuit;
@@ -31,8 +30,8 @@ const table = [
 
 for (const entry of table) {
   const inputs = {
-    Input: new BitString(entry[0]),
-    Enable: new BitString(entry[1]),
+    Input: entry[0] ? new BitString(entry[0]) : null,
+    Enable: entry[1] ? new BitString(entry[1]) : null,
   };
 
   const outputs = {

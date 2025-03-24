@@ -1,6 +1,6 @@
-import { BitString } from "../../src/BitString";
+import {expect, beforeAll, test} from '@jest/globals';
+
 import { Circuit } from "../../src/Circuit";
-import { BitSelector } from "../../src/CircuitElement/BitSelector";
 import { loadProject } from "../../src/CircuitLoader";
 import { CircuitVerseLoader } from "../../src/CircuitLoader/CircuitVerseLoader";
 

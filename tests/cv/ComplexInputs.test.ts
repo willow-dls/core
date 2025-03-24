@@ -1,9 +1,9 @@
+import {expect, beforeAll, test} from '@jest/globals';
+
 import { BitString } from "../../src/BitString";
 import { loadProject } from "../../src/CircuitLoader";
 
 import { CircuitVerseLoader } from "../../src/CircuitLoader/CircuitVerseLoader";
-import { LogLevel } from "../../src/CircuitLogger";
-import { FileLogger } from "../../src/CircuitLogger/FileLogger";
 
 let circuit;
 

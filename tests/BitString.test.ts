@@ -1,3 +1,5 @@
+import {expect, beforeAll, test} from '@jest/globals';
+
 import { BitString } from "../src/BitString";
 
 test("constructor truncate", () => {

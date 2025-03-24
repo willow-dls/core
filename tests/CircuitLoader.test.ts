@@ -1,3 +1,5 @@
+import {expect, beforeAll, test} from '@jest/globals';
+
 import { loadProject } from "../src/CircuitLoader";
 import { CircuitVerseLoader } from "../src/CircuitLoader/CircuitVerseLoader";
 import fs from "node:fs";

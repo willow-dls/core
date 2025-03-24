@@ -1,5 +1,6 @@
-import { loadProject } from "../../src/CircuitLoader";
+import {expect, beforeAll, test} from '@jest/globals';
 
+import { loadProject } from "../../src/CircuitLoader";
 import { CircuitVerseLoader } from "../../src/CircuitLoader/CircuitVerseLoader";
 
 let circuit;
