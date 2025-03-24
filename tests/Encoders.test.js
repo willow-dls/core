@@ -5,7 +5,8 @@ import { CircuitVerseLoader } from "../src/CircuitLoader/CircuitVerseLoader";
 
 
 
-let circuit;
+let circuit_Encoder;
+let circuit_Decoder;
 
 beforeAll(async () => {
     const project = await loadProject(CircuitVerseLoader, 'tests/cv/Encoders.cv');
@@ -15,7 +16,7 @@ beforeAll(async () => {
 });
 
 
-const table1 = [
+const table1_in = [
     ['0', '0', '0', '0'],
     ['0', '0', '0', '1'],
     ['0', '0', '1', '0']
@@ -34,25 +35,80 @@ const table1 = [
     ['1', '1', '1', '1'],
 ];
 
-const table2 = [
+const table1_out = [
+    ['0', '0'],
     ['0', '0'],
     ['0', '1'],
+    ['0', '1'],
     ['1', '0'],
+    ['1', '0'],
+    ['1', '0'],
+    ['1', '0'],
+    ['1', '1'],
+    ['1', '1'],
+    ['1', '1'],
+    ['1', '1'],
+    ['1', '1'],
+    ['1', '1'],
+    ['1', '1'],
     ['1', '1'],
 ]
 
-for (const entry of table) {
-    const inputs = {
-        Input: new BitString(entry[0]),
-        Enable: new BitString(entry[1]),
-    };
+const table2_in = [
+    ['00'],
+    ['01'],
+    ['10'],
+    ['11'],
+]
+const table2_out = [
+    ['0', '0', '0', '1'],
+    ['0', '0', '1', '0'],
+    ['0', '1', '0', '0'],
+    ['1', '0', '0', '0'],
+]
 
-    const outputs = {
-        Output: entry[2] != null ? new BitString(entry[2]) : null,
-    };
 
-    // test(`[Input = ${inputs.Input}, Enable = ${inputs.Enable}] => [Output = ${outputs.Output}]`, () => {
-    //     const results = circuit.run(inputs);
-    //     expect(results.outputs).toStrictEqual(outputs);
-    // });
+
+for (let i = 0; i < table1_in.length; i++) {
+    test('Priority Encoder' + i.toString, async() => {
+    
+        const inputs = {
+            inp0: new BitString(table1_in[i][3]),
+            inp1: new BitString(table1_in[i][2]),
+            inp2: new BitString(table1_in[i][1]),
+            inp3: new BitString(table1_in[i][0]),
+        };
+    
+        const outputs = {
+            out0: new BitString(table1_out[i][1]),
+            out1: new BitString(table1_out[i][0])
+        }
+        
+        
+        const results = circuit_Encoder.run(inputs)
+
+        expect(results.outputs).toStrictEqual(outputs);
+    });
 }
+
+for (let i = 0; i < table2.length; i++) {
+    test('Decoder' + i.toString, async() => {
+    
+        const inputs = {
+            inp0: new BitString(table2[i]),
+        };
+    
+        const outputs = {
+            out0: new BitString(table1_out[i][3]),
+            out1: new BitString(table1_out[i][2]),
+            out2: new BitString(table1_out[i][1]),
+            out3: new BitString(table1_out[i][0]),
+        }
+        
+        
+        const results = circuit_Decoder.run(inputs)
+
+        expect(results.outputs).toStrictEqual(outputs);
+    });
+}
+
