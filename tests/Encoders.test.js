@@ -70,13 +70,14 @@ const table2_out = [
 
 
 for (let i = 0; i < table1_in.length; i++) {
-    test('Priority Encoder' + i.toString, async() => {
+    test(`Priority Encoder ${i}`, async() => {
     
         const inputs = {
             inp0: new BitString(table1_in[i][3]),
             inp1: new BitString(table1_in[i][2]),
             inp2: new BitString(table1_in[i][1]),
             inp3: new BitString(table1_in[i][0]),
+            enable: new BitString(BitString.high())
         };
     
         const outputs = {
@@ -91,18 +92,18 @@ for (let i = 0; i < table1_in.length; i++) {
     });
 }
 
-for (let i = 0; i < table2.length; i++) {
-    test('Decoder' + i.toString, async() => {
+for (let i = 0; i < table2_in.length; i++) {
+    test(`Decoder test ${i}`, () => {
     
         const inputs = {
-            inp0: new BitString(table2[i]),
+            inp1: new BitString(table2_in[i]),
         };
     
         const outputs = {
-            out0: new BitString(table1_out[i][3]),
-            out1: new BitString(table1_out[i][2]),
-            out2: new BitString(table1_out[i][1]),
-            out3: new BitString(table1_out[i][0]),
+            out0: new BitString(table2_out[i][3]),
+            out1: new BitString(table2_out[i][2]),
+            out2: new BitString(table2_out[i][1]),
+            out3: new BitString(table2_out[i][0]),
         }
         
         
