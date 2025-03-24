@@ -32,7 +32,7 @@ export class Demultiplexer extends CircuitElement {
       output.setValue(BitString.low(outputWidth));
     });
 
-    const controlSignalVal =controlValue.toUnsigned();
+    const controlSignalVal = controlValue.toUnsigned();
 
     outputs[controlSignalVal].setValue(inputs[0].getValue());
 

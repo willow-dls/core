@@ -6,7 +6,11 @@ import { Circuit } from "../Circuit";
 export class Multiplexer extends CircuitElement {
   #controlSignal: CircuitBus;
 
-  constructor(inputs: CircuitBus[], outputs: CircuitBus[], controlSignal: CircuitBus) {
+  constructor(
+    inputs: CircuitBus[],
+    outputs: CircuitBus[],
+    controlSignal: CircuitBus,
+  ) {
     super("MultiplexerElement", inputs, outputs);
 
     this.#controlSignal = controlSignal;
@@ -25,7 +29,9 @@ export class Multiplexer extends CircuitElement {
     const controlSignalVal = controlValue.toUnsigned();
 
     if (controlSignalVal >= inputs.length) {
-      throw new Error(`Multiplexer control signal is set to '${controlSignalVal}', but only has ${inputs.length} inputs.`);
+      throw new Error(
+        `Multiplexer control signal is set to '${controlSignalVal}', but only has ${inputs.length} inputs.`,
+      );
     } else {
       output.setValue(inputs[controlSignalVal].getValue());
     }

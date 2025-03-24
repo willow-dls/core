@@ -18,9 +18,7 @@
     "url": "https://github.com/gvsucis/w25-simutest/issues"
   },
   "homepage": "https://github.com/gvsucis/w25-simutest#readme",
-  "dependencies": {
-
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@babel/preset-env": "^7.26.7",

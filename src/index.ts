@@ -5,12 +5,9 @@ import { loadProject } from "./CircuitLoader";
 import { CircuitVerseLoader } from "./CircuitLoader/CircuitVerseLoader";
 
 export {
-    loadProject,
-    CircuitVerseLoader,
-
-    CircuitProject,
-    Circuit,
-    
-    CircuitLogger
+  loadProject,
+  CircuitVerseLoader,
+  CircuitProject,
+  Circuit,
+  CircuitLogger,
 };
-
