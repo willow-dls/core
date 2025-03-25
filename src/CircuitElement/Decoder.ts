@@ -16,29 +16,25 @@ export class Decoder extends CircuitElement {
     const inputValue = input.getValue();
 
     if (!inputValue) {
-        for(let i = 0; i < output.length; i++){
-            output[i].setValue(BitString.low());
-        }
-        return this.getPropagationDelay();
+      for (let i = 0; i < output.length; i++) {
+        output[i].setValue(BitString.low());
+      }
+      return this.getPropagationDelay();
     }
 
     const inputString = inputValue.toString();
-    const inputWidth = input.getWidth()
+    const inputWidth = input.getWidth();
     const inputNum = inputValue.toUnsigned();
     this.log(LogLevel.TRACE, `Input: [width=${inputWidth}] '${inputString}'`);
 
-    for(let i = 0; i < output.length; i++){
-        if(i == inputNum){
-            output[i].setValue(BitString.high());
-        }
-        else{
-            output[i].setValue(BitString.low());
-        }
-        
+    for (let i = 0; i < output.length; i++) {
+      if (i == inputNum) {
+        output[i].setValue(BitString.high());
+      } else {
+        output[i].setValue(BitString.low());
+      }
     }
-        return this.getPropagationDelay();
-      
-    
+    return this.getPropagationDelay();
 
     // this.log(LogLevel.TRACE, `No Priority Encoder found.`);
     // for(let i = 0; i < output.length; i++){
