@@ -1,9 +1,8 @@
-import {expect, beforeAll, test} from '@jest/globals';
+import { expect, beforeAll, test } from "@jest/globals";
 
 import { loadProject } from "../src/CircuitLoader";
 import { CircuitVerseLoader } from "../src/CircuitLoader/CircuitVerseLoader";
-import { BitString } from '../src/BitString';
-
+import { BitString } from "../src/BitString";
 
 test("Multiple inputs with the same label", async () => {
   expect(async () => {

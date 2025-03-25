@@ -1,4 +1,4 @@
-import {expect, beforeAll, test} from '@jest/globals';
+import { expect, beforeAll, test } from "@jest/globals";
 
 import { CircuitBus } from "../src/CircuitBus";
 import { OrGate } from "../src/CircuitElement/OrGate";

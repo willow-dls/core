@@ -1,4 +1,4 @@
-import {expect, beforeAll, test} from '@jest/globals';
+import { expect, beforeAll, test } from "@jest/globals";
 
 import { BitString } from "../../src/BitString";
 import { Circuit } from "../../src/Circuit";
