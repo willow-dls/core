@@ -1,5 +1,5 @@
 import { CircuitProject } from "./CircuitProject";
-import { Circuit } from "./Circuit";
+import { Circuit, CircuitRunType, CircuitRunResult } from "./Circuit";
 import { loadProject } from "./CircuitLoader";
 import { CircuitVerseLoader } from "./CircuitLoader/CircuitVerseLoader";
 
@@ -47,10 +47,11 @@ import { BitString } from "./BitString";
 import { CircuitBus } from "./CircuitBus";
 import { CircuitElement } from "./CircuitElement";
 
-import { CircuitLogger as Abstract_CircuitLogger } from "./CircuitLogger";
-import { CircuitLoader as Abstract_CircuitLoader } from "./CircuitLoader";
+import { CircuitLogger, LogLevel, CircuitLoggable } from "./CircuitLogger";
+import { CircuitLoader } from "./CircuitLoader";
 
-export const CiruitElement = {
+export {
+  // Elements
   Adder,
   AndGate,
   BitSelector,
@@ -87,26 +88,27 @@ export const CiruitElement = {
   TriState,
   TwosCompliment,
   XnorGate,
-  XorGate
-};
+  XorGate,
 
-export const CircuitLoader = {
-  Base: Abstract_CircuitLoader,
+  // Logger
+  CircuitLogger,
+  CircuitLoggable,
+  ConsoleLogger,
+  FileLogger,
+  LogLevel,
+
+  // Loader
+  CircuitLoader,
   loadProject,
   CircuitVerseLoader,
   JLSLoader,
-};
 
-export const CircuitLogger = {
-  Base: Abstract_CircuitLogger,
-  ConsoleLogger,
-  FileLogger
-};
-
-export default {
+  // Base
   BitString,
   Circuit,
   CircuitBus,
   CircuitElement,
-  CircuitProject
+  CircuitProject,
 };
+
+export type { CircuitRunType, CircuitRunResult };
