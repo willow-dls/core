@@ -5,31 +5,38 @@ import { LogLevel } from "../CircuitLogger";
 import { Clock } from "./Clock";
 
 export class SubCircuit extends CircuitElement {
-    #circuit: Circuit;
-    
-    constructor(circuit: Circuit, inputs: CircuitBus[], outputs: CircuitBus[]) {
-        super('SubCircuitElement', inputs, outputs);
-        this.#circuit = circuit;
-    }
+  #circuit: Circuit;
 
-    resolve(): number {
-        this.log(LogLevel.DEBUG, `Executing Subcircuit: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`);
+  constructor(circuit: Circuit, inputs: CircuitBus[], outputs: CircuitBus[]) {
+    super("SubCircuitElement", inputs, outputs);
+    this.#circuit = circuit;
+  }
 
-        const inputs = this.getInputs();
-        const outputs = this.getOutputs();
+  resolve(): number {
+    this.log(
+      LogLevel.DEBUG,
+      `Executing Subcircuit: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`,
+    );
 
-        const result = this.#circuit.resolve(inputs.map(node => node.getValue()));
-        
-        result.outputs.forEach((value, index) => {
-            outputs[index].setValue(value);
-        });
+    const inputs = this.getInputs();
+    const outputs = this.getOutputs();
 
-        this.log(LogLevel.DEBUG, `Subcircuit complete: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`, result);
+    const result = this.#circuit.resolve(inputs.map((node) => node.getValue()));
 
-        return result.propagationDelay;
-    }
+    result.outputs.forEach((value, index) => {
+      outputs[index].setValue(value);
+    });
 
-    getClocks(): Clock[] {
-        return this.#circuit.getClocks();
-    }
+    this.log(
+      LogLevel.DEBUG,
+      `Subcircuit complete: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`,
+      result,
+    );
+
+    return result.propagationDelay;
+  }
+
+  getClocks(): Clock[] {
+    return this.#circuit.getClocks();
+  }
 }

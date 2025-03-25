@@ -28,11 +28,11 @@ export class MSB extends CircuitElement {
     this.log(LogLevel.TRACE, `Input: [width=${inputWidth}] '${inputString}'`);
 
     for (let i = 0; i < inputWidth; i++) {
-      if (inputString[i] == '1') {
-        const msb = new BitString((inputWidth- i - 1).toString(2), inputWidth);
+      if (inputString[i] == "1") {
+        const msb = new BitString((inputWidth - i - 1).toString(2), inputWidth);
         this.log(LogLevel.TRACE, `MSB found at index: '${msb}'`);
         output.setValue(msb);
-        
+
         // Set ENABLE to HIGH if an MSB was found
         enable.setValue(new BitString("1", this.ENABLE_WIDTH));
 

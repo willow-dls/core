@@ -74,10 +74,11 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       [nodes[data.customData.nodes.inp1]],
       [nodes[data.customData.nodes.output1]],
     ),
-  Buffer: ({nodes, data}) => new BufferGate(
-    [nodes[data.customData.nodes.inp1]],
-    [nodes[data.customData.nodes.output1]]
-  ),
+  Buffer: ({ nodes, data }) =>
+    new BufferGate(
+      [nodes[data.customData.nodes.inp1]],
+      [nodes[data.customData.nodes.output1]],
+    ),
   XnorGate: ({ nodes, data }) =>
     new XnorGate(
       data.customData.nodes.inp.map((i: number) => nodes[i]),
@@ -94,11 +95,11 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       data.customData.nodes.output1.map((i: number) => nodes[i]),
       nodes[data.customData.nodes.controlSignalInput],
     ),
-  Multiplexer: ({ nodes, data }) => 
+  Multiplexer: ({ nodes, data }) =>
     new Multiplexer(
       data.customData.nodes.inp.map((i: number) => nodes[i]),
       [nodes[data.customData.nodes.output1]],
-      nodes[data.customData.nodes.controlSignalInput]
+      nodes[data.customData.nodes.controlSignalInput],
     ),
   LSB: ({ nodes, data }) => new LSB(
     nodes[data.customData.nodes.inp1],
@@ -125,129 +126,139 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     [nodes[data.customData.nodes.output1]]
   ),
   // Treat a button just like a regular input.
-  'Button': ({ nodes, data }) => new Input(
-    data.index,
-    data.label,
-    [nodes[data.customData.nodes.output1]]
-  ),
+  Button: ({ nodes, data }) =>
+    new Input(data.index, data.label, [nodes[data.customData.nodes.output1]]),
   // Treat a stepper just like a regular input.
-  'Stepper': ({ nodes, data }) => new Input(
-    data.index,
-    data.label,
-    [nodes[data.customData.nodes.output1]]
-  ),
-  'Output': ({ nodes, data }) => new Output(
-    data.index,
-    data.label,
-    nodes[data.customData.nodes.inp1]
-  ),
-  'SubCircuit': ({ nodes, data, project }) => new SubCircuit(
-    project.getCircuitById(data.id),
-    data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
-    data.outputNodes.map((nodeInd: number) => nodes[nodeInd])
-  ),
-  'Splitter': ({ nodes, data }) => new Splitter(
-    // No, this is not a typo in our code, their data file actually has "constructorParamaters"
-    // instead of the proper spelling "constructorParameters"...
-    data.customData.constructorParamaters[2],
-    nodes[data.customData.nodes.inp1],
-    data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd])
-  ),
-  'Power': ({ nodes, data }) => new Power(nodes[data.customData.nodes.output1]),
-  'Ground': ({ nodes, data }) => new Ground(nodes[data.customData.nodes.output1]),
-  'ConstantVal': ({ nodes, data }) => new Constant(
-    nodes[data.customData.nodes.output1],
-    new BitString(data.customData.constructorParamaters[2], data.customData.constructorParamaters[1])
-  ),
-  'Random': ({ nodes, data }) => new Random(
-    nodes[data.customData.nodes.maxValue],
-    nodes[data.customData.nodes.clockInp],
-    nodes[data.customData.nodes.output]
-  ),
-  'Counter': ({ nodes, data }) => new Counter(
-    nodes[data.customData.nodes.maxValue],
-    nodes[data.customData.nodes.clock],
-    nodes[data.customData.nodes.reset],
-    nodes[data.customData.nodes.output],
-    nodes[data.customData.nodes.zero]
-  ),
-  'Clock': ({ nodes, data }) => new Clock(nodes[data.customData.nodes.output1]),
-  'TriState': ({ nodes, data }) => new TriState(
-    nodes[data.customData.nodes.inp1],
-    nodes[data.customData.nodes.state],
-    nodes[data.customData.nodes.output1]
-  ),
-  BitSelector: ({ nodes, data }) => new BitSelector(
-    nodes[data.customData.nodes.inp1],
-    nodes[data.customData.nodes.output1],
-    nodes[data.customData.nodes.bitSelectorInp],
-  ),
-  DflipFlop: ({nodes, data}) => new DFlipFlop(
-    nodes[data.customData.nodes.clockInp],
-    nodes[data.customData.nodes.dInp],
-    nodes[data.customData.nodes.qOutput],
-    nodes[data.customData.nodes.qInvOutput],
-    nodes[data.customData.nodes.reset],
-    nodes[data.customData.nodes.preset],
-    nodes[data.customData.nodes.en]
-  ),
-  TflipFlop: ({nodes, data}) => new TFlipFlop(
-    nodes[data.customData.nodes.clockInp],
-    nodes[data.customData.nodes.dInp],
-    nodes[data.customData.nodes.qOutput],
-    nodes[data.customData.nodes.qInvOutput],
-    nodes[data.customData.nodes.reset],
-    nodes[data.customData.nodes.preset],
-    nodes[data.customData.nodes.en]
-  ),
-  Dlatch: ({nodes, data}) => new DLatch(
-    nodes[data.customData.nodes.clockInp],
-    nodes[data.customData.nodes.dInp],
-    nodes[data.customData.nodes.qOutput],
-    nodes[data.customData.nodes.qInvOutput]
-  ),
-  JKflipFlop: ({nodes, data}) => new JKFlipFlop(
-    nodes[data.customData.nodes.clockInp],
-    nodes[data.customData.nodes.J],
-    nodes[data.customData.nodes.K],
-    nodes[data.customData.nodes.qOutput],
-    nodes[data.customData.nodes.qInvOutput],
-    nodes[data.customData.nodes.reset],
-    nodes[data.customData.nodes.preset],
-    nodes[data.customData.nodes.en]
-  ),
-  SRflipFlop: ({nodes, data}) => new SRFlipFlop(
-    nodes[data.customData.nodes.S],
-    nodes[data.customData.nodes.R],
-    nodes[data.customData.nodes.qOutput],
-    nodes[data.customData.nodes.qInvOutput],
-    nodes[data.customNodes.nodes.reset],
-    nodes[data.customData.nodes.preset],
-    nodes[data.customData.nodes.en]
-  ),
-  TwoCompliment: ({nodes, data}) => new TwosCompliment(
-    nodes[data.customData.nodes.inp1],
-    nodes[data.customData.nodes.output1]
-  ),
-  Adder: ({nodes, data}) => new Adder(
-    nodes[data.customData.nodes.inpA],
-    nodes[data.customData.nodes.inpB],
-    nodes[data.customData.nodes.carryIn],
-    nodes[data.customData.nodes.sum],
-    nodes[data.customData.nodes.carryOut]
-  ),
-  ControlledInverter: ({nodes, data}) => new ControlledInverter(
-    nodes[data.customData.nodes.inp1],
-    nodes[data.customData.nodes.state],
-    nodes[data.customData.nodes.output1]
-  ),
-  ALU: ({nodes, data}) => new CircuitVerseALU(
-    nodes[data.customData.nodes.inp1],
-    nodes[data.customData.nodes.inp2],
-    nodes[data.customData.nodes.controlSignalInput],
-    nodes[data.customData.nodes.output],
-    nodes[data.customData.nodes.carryOut]
-  )
+  Stepper: ({ nodes, data }) =>
+    new Input(data.index, data.label, [nodes[data.customData.nodes.output1]]),
+  Output: ({ nodes, data }) =>
+    new Output(data.index, data.label, nodes[data.customData.nodes.inp1]),
+  SubCircuit: ({ nodes, data, project }) =>
+    new SubCircuit(
+      project.getCircuitById(data.id),
+      data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
+      data.outputNodes.map((nodeInd: number) => nodes[nodeInd]),
+    ),
+  Splitter: ({ nodes, data }) =>
+    new Splitter(
+      // No, this is not a typo in our code, their data file actually has "constructorParamaters"
+      // instead of the proper spelling "constructorParameters"...
+      data.customData.constructorParamaters[2],
+      nodes[data.customData.nodes.inp1],
+      data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd]),
+    ),
+  Power: ({ nodes, data }) => new Power(nodes[data.customData.nodes.output1]),
+  Ground: ({ nodes, data }) => new Ground(nodes[data.customData.nodes.output1]),
+  ConstantVal: ({ nodes, data }) =>
+    new Constant(
+      nodes[data.customData.nodes.output1],
+      new BitString(
+        data.customData.constructorParamaters[2],
+        data.customData.constructorParamaters[1],
+      ),
+    ),
+  Random: ({ nodes, data }) =>
+    new Random(
+      nodes[data.customData.nodes.maxValue],
+      nodes[data.customData.nodes.clockInp],
+      nodes[data.customData.nodes.output],
+    ),
+  Counter: ({ nodes, data }) =>
+    new Counter(
+      nodes[data.customData.nodes.maxValue],
+      nodes[data.customData.nodes.clock],
+      nodes[data.customData.nodes.reset],
+      nodes[data.customData.nodes.output],
+      nodes[data.customData.nodes.zero],
+    ),
+  Clock: ({ nodes, data }) => new Clock(nodes[data.customData.nodes.output1]),
+  TriState: ({ nodes, data }) =>
+    new TriState(
+      nodes[data.customData.nodes.inp1],
+      nodes[data.customData.nodes.state],
+      nodes[data.customData.nodes.output1],
+    ),
+  BitSelector: ({ nodes, data }) =>
+    new BitSelector(
+      nodes[data.customData.nodes.inp1],
+      nodes[data.customData.nodes.output1],
+      nodes[data.customData.nodes.bitSelectorInp],
+    ),
+  DflipFlop: ({ nodes, data }) =>
+    new DFlipFlop(
+      nodes[data.customData.nodes.clockInp],
+      nodes[data.customData.nodes.dInp],
+      nodes[data.customData.nodes.qOutput],
+      nodes[data.customData.nodes.qInvOutput],
+      nodes[data.customData.nodes.reset],
+      nodes[data.customData.nodes.preset],
+      nodes[data.customData.nodes.en],
+    ),
+  TflipFlop: ({ nodes, data }) =>
+    new TFlipFlop(
+      nodes[data.customData.nodes.clockInp],
+      nodes[data.customData.nodes.dInp],
+      nodes[data.customData.nodes.qOutput],
+      nodes[data.customData.nodes.qInvOutput],
+      nodes[data.customData.nodes.reset],
+      nodes[data.customData.nodes.preset],
+      nodes[data.customData.nodes.en],
+    ),
+  Dlatch: ({ nodes, data }) =>
+    new DLatch(
+      nodes[data.customData.nodes.clockInp],
+      nodes[data.customData.nodes.dInp],
+      nodes[data.customData.nodes.qOutput],
+      nodes[data.customData.nodes.qInvOutput],
+    ),
+  JKflipFlop: ({ nodes, data }) =>
+    new JKFlipFlop(
+      nodes[data.customData.nodes.clockInp],
+      nodes[data.customData.nodes.J],
+      nodes[data.customData.nodes.K],
+      nodes[data.customData.nodes.qOutput],
+      nodes[data.customData.nodes.qInvOutput],
+      nodes[data.customData.nodes.reset],
+      nodes[data.customData.nodes.preset],
+      nodes[data.customData.nodes.en],
+    ),
+  SRflipFlop: ({ nodes, data }) =>
+    new SRFlipFlop(
+      nodes[data.customData.nodes.S],
+      nodes[data.customData.nodes.R],
+      nodes[data.customData.nodes.qOutput],
+      nodes[data.customData.nodes.qInvOutput],
+      nodes[data.customNodes.nodes.reset],
+      nodes[data.customData.nodes.preset],
+      nodes[data.customData.nodes.en],
+    ),
+  TwoCompliment: ({ nodes, data }) =>
+    new TwosCompliment(
+      nodes[data.customData.nodes.inp1],
+      nodes[data.customData.nodes.output1],
+    ),
+  Adder: ({ nodes, data }) =>
+    new Adder(
+      nodes[data.customData.nodes.inpA],
+      nodes[data.customData.nodes.inpB],
+      nodes[data.customData.nodes.carryIn],
+      nodes[data.customData.nodes.sum],
+      nodes[data.customData.nodes.carryOut],
+    ),
+  ControlledInverter: ({ nodes, data }) =>
+    new ControlledInverter(
+      nodes[data.customData.nodes.inp1],
+      nodes[data.customData.nodes.state],
+      nodes[data.customData.nodes.output1],
+    ),
+  ALU: ({ nodes, data }) =>
+    new CircuitVerseALU(
+      nodes[data.customData.nodes.inp1],
+      nodes[data.customData.nodes.inp2],
+      nodes[data.customData.nodes.controlSignalInput],
+      nodes[data.customData.nodes.output],
+      nodes[data.customData.nodes.carryOut],
+    ),
 };
 
 export class CircuitVerseLoader extends CircuitLoader {
@@ -310,7 +321,7 @@ export class CircuitVerseLoader extends CircuitLoader {
         "Text",
         "Rectangle",
         "Arrow",
-        "ImageAnnotation"
+        "ImageAnnotation",
       ];
 
       this.log(LogLevel.TRACE, "Collecting scope elements...");
@@ -333,7 +344,11 @@ export class CircuitVerseLoader extends CircuitLoader {
         const elementData = elementArray[i];
         const type = elementData.objectType;
 
-        this.log(LogLevel.TRACE, `Creating element of type '${type}'...`, elementData)
+        this.log(
+          LogLevel.TRACE,
+          `Creating element of type '${type}'...`,
+          elementData,
+        );
 
         if (!createElement[type]) {
           throw new Error(
@@ -344,12 +359,12 @@ export class CircuitVerseLoader extends CircuitLoader {
         const newElement = createElement[type]({
           project: project,
           nodes: nodes,
-          data: elementData
-        }).setLabel(elementData.label)
+          data: elementData,
+        })
+          .setLabel(elementData.label)
           .setPropagationDelay(elementData.propagationDelay ?? 0);
 
         //console.log(LogLevel.DEBUG, `Creating element of type '${type}' with label '${data.label}'...`, elementData)
-
 
         elements.push(newElement);
       }

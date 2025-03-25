@@ -2,52 +2,52 @@ import { Circuit } from "./Circuit";
 import { CircuitLoggable } from "./CircuitLogger";
 
 export class CircuitProject extends CircuitLoggable {
-    #circuits: Circuit[];
+  #circuits: Circuit[];
 
-    #nameIndex: Record<string, Circuit>;
-    #idIndex: Record<string, Circuit>;
+  #nameIndex: Record<string, Circuit>;
+  #idIndex: Record<string, Circuit>;
 
-    constructor(...ciruits: Circuit[]) {
-        super('Project');
+  constructor(...ciruits: Circuit[]) {
+    super("Project");
 
-        this.#circuits = ciruits;
+    this.#circuits = ciruits;
 
-        this.#nameIndex = {};
-        this.#idIndex = {};
+    this.#nameIndex = {};
+    this.#idIndex = {};
 
-        this.#index();
+    this.#index();
+  }
+
+  #index() {
+    this.#circuits.forEach((circuit) => {
+      this.#nameIndex[circuit.getName()] = circuit;
+      this.#idIndex[circuit.getId()] = circuit;
+      this.propagateLoggersTo(circuit);
+    });
+  }
+
+  getCircuitByName(name: string): Circuit {
+    if (!this.#nameIndex[name]) {
+      throw new Error(`No circuit in this project named: ${name}`);
     }
 
-    #index() {
-        this.#circuits.forEach(circuit => {
-            this.#nameIndex[circuit.getName()] = circuit;
-            this.#idIndex[circuit.getId()] = circuit;
-            this.propagateLoggersTo(circuit);
-        });
+    return this.#nameIndex[name];
+  }
+
+  getCircuitById(id: any): Circuit {
+    if (!this.#idIndex[id]) {
+      throw new Error(`No circuit in this project with ID: ${id}`);
     }
 
-    getCircuitByName(name: string): Circuit {
-        if (!this.#nameIndex[name]) {
-            throw new Error(`No circuit in this project named: ${name}`);
-        }
+    return this.#idIndex[id];
+  }
 
-        return this.#nameIndex[name];
-    }
+  getCircuits(): Circuit[] {
+    return this.#circuits;
+  }
 
-    getCircuitById(id: any): Circuit {
-        if (!this.#idIndex[id]) {
-            throw new Error(`No circuit in this project with ID: ${id}`);
-        }
-
-        return this.#idIndex[id];
-    }
-
-    getCircuits(): Circuit[] {
-        return this.#circuits;
-    }
-
-    addCircuit(circuit: Circuit) {
-        this.#circuits.push(circuit);
-        this.#index();
-    }
+  addCircuit(circuit: Circuit) {
+    this.#circuits.push(circuit);
+    this.#index();
+  }
 }

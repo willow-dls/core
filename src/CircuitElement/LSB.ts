@@ -28,11 +28,11 @@ export class LSB extends CircuitElement {
     this.log(LogLevel.TRACE, `Input: [width=${inputWidth}] '${inputString}'`);
 
     for (let i = inputWidth - 1; i >= 0; i--) {
-      if (inputString[i] == '1') {
-        const lsb = new BitString((inputWidth- i - 1).toString(2), inputWidth);
+      if (inputString[i] == "1") {
+        const lsb = new BitString((inputWidth - i - 1).toString(2), inputWidth);
         this.log(LogLevel.TRACE, `LSB found at index: '${lsb}'`);
         output.setValue(lsb);
-        
+
         // Set ENABLE to HIGH if an LSB was found
         enable.setValue(new BitString("1", this.ENABLE_WIDTH));
 

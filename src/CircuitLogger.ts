@@ -1,133 +1,124 @@
 export enum LogLevel {
-    TRACE,
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL
-};
+  TRACE,
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR,
+  FATAL,
+}
 
 export const logLevelString = [
-    'TRACE',
-    'DEBUG',
-    'INFO',
-    'WARNING',
-    'ERROR',
-    'FATAL'
+  "TRACE",
+  "DEBUG",
+  "INFO",
+  "WARNING",
+  "ERROR",
+  "FATAL",
 ];
 
 export abstract class CircuitLogger {
-    #level: LogLevel = LogLevel.WARN;
-    #subsystems: Set<RegExp> = new Set<RegExp>([]);
-    #count: number = 0;
+  #level: LogLevel = LogLevel.WARN;
+  #subsystems: Set<RegExp> = new Set<RegExp>([]);
+  #count: number = 0;
 
-    setLevel(level: LogLevel): CircuitLogger {
-        this.#level = level;
-        return this;
+  setLevel(level: LogLevel): CircuitLogger {
+    this.#level = level;
+    return this;
+  }
+
+  setSubsystems(...subsystems: RegExp[]): CircuitLogger {
+    this.#subsystems = new Set(subsystems);
+    return this;
+  }
+
+  #subsystemMatches(subsystem: string): boolean {
+    if (!this.#subsystems.size) {
+      return true;
     }
 
-    setSubsystems(...subsystems: RegExp[]): CircuitLogger {
-        this.#subsystems = new Set(subsystems);
-        return this;
+    for (const regex of this.#subsystems) {
+      if (regex.test(subsystem)) {
+        return true;
+      }
     }
 
-    #subsystemMatches(subsystem: string): boolean {
-        if (!this.#subsystems.size) {
-            return true;
-        }
+    return false;
+  }
 
-        for (const regex of this.#subsystems) {
-            if (regex.test(subsystem)) {
-                return true;
-            }
-        }
+  attachTo(loggable: CircuitLoggable): CircuitLogger {
+    loggable.attachLogger(this);
+    return this;
+  }
 
-        return false;
+  detachFrom(loggable: CircuitLoggable): CircuitLogger {
+    loggable.detachLogger(this);
+    return this;
+  }
+
+  log(level: LogLevel, subsystem: string, msg: string, data?: any): void {
+    if (level < this.#level) {
+      return;
     }
 
-    attachTo(loggable: CircuitLoggable): CircuitLogger {
-        loggable.attachLogger(this);
-        return this;
+    if (this.#subsystemMatches(subsystem)) {
+      const timestamp = new Date();
+      this.#count++;
+      this.output(this.#count, timestamp, level, subsystem, msg, data);
     }
+  }
 
-    detachFrom(loggable: CircuitLoggable): CircuitLogger {
-        loggable.detachLogger(this);
-        return this;
-    }
+  abstract output(
+    count: number,
+    timestamp: Date,
+    level: LogLevel,
+    subsystem: string,
+    msg: string,
+    data?: any,
+  ): void;
 
-    log(level: LogLevel, subsystem: string, msg: string, data?: any): void {
-        if (level < this.#level) {
-            return;
-        }
-
-        if (this.#subsystemMatches(subsystem)) {
-            const timestamp = new Date();
-            this.#count++;
-            this.output(
-                this.#count,
-                timestamp,
-                level,
-                subsystem, 
-                msg, 
-                data
-            );
-        }
-    }
-
-    abstract output(
-        count: number,
-        timestamp: Date, 
-        level: LogLevel, 
-        subsystem: string,
-        msg: string, 
-        data?: any
-    ): void;
-
-    close(): void {
-
-    }
+  close(): void {}
 }
 
 export abstract class CircuitLoggable {
-    #subsystem: string;
-    #loggers: Set<CircuitLogger> = new Set([]);
-    #children: Set<CircuitLoggable> = new Set([]);
+  #subsystem: string;
+  #loggers: Set<CircuitLogger> = new Set([]);
+  #children: Set<CircuitLoggable> = new Set([]);
 
-    #id: number;
+  #id: number;
 
-    static #counter: number = 0;
+  static #counter: number = 0;
 
-    constructor(subsystem: string) {
-        this.#subsystem = subsystem;
-        this.#id = CircuitLoggable.#counter++;
-    }
+  constructor(subsystem: string) {
+    this.#subsystem = subsystem;
+    this.#id = CircuitLoggable.#counter++;
+  }
 
-    attachLogger(logger: CircuitLogger): void {
-        this.#loggers.add(logger);
-        this.#children.forEach((child) => child.attachLogger(logger));
-    }
-    
-    detachLogger(logger: CircuitLogger): void {
-        this.#loggers.delete(logger);
-        this.#children.forEach((child) => child.detachLogger(logger));
-    }
+  attachLogger(logger: CircuitLogger): void {
+    this.#loggers.add(logger);
+    this.#children.forEach((child) => child.attachLogger(logger));
+  }
 
-    propagateLoggersTo(loggable: CircuitLoggable): void {
-        this.#loggers.forEach(l => loggable.attachLogger(l));
-        this.#children.add(loggable);
-    }
+  detachLogger(logger: CircuitLogger): void {
+    this.#loggers.delete(logger);
+    this.#children.forEach((child) => child.detachLogger(logger));
+  }
 
-    /**
-     * Everything that is loggable gets a unique ID, which can help identify instances
-     * of objects in logs when many such instances exist.
-     * 
-     * @returns A unique ID among all loggable objects.
-     */
-    getId(): string {
-        return this.#id.toString();
-    }
+  propagateLoggersTo(loggable: CircuitLoggable): void {
+    this.#loggers.forEach((l) => loggable.attachLogger(l));
+    this.#children.add(loggable);
+  }
 
-    protected log(level: LogLevel, msg: string, data?: any): void {
-        this.#loggers.forEach(l => l.log(level, this.#subsystem, msg, data));
-    }
+  /**
+   * Everything that is loggable gets a unique ID, which can help identify instances
+   * of objects in logs when many such instances exist.
+   *
+   * @returns A unique ID among all loggable objects.
+   */
+  getId(): string {
+    return this.#id.toString();
+  }
+
+  protected log(level: LogLevel, msg: string, data?: any): void {
+    this.#loggers.forEach((l) => l.log(level, this.#subsystem, msg, data));
+  }
 }

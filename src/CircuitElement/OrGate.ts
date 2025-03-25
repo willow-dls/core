@@ -1,11 +1,14 @@
 import { BitString } from "../BitString";
 import { LogLevel } from "../CircuitLogger";
-import {Gate} from "./Gate";
+import { Gate } from "./Gate";
 
 export class OrGate extends Gate {
-    evaluate(previousValue: BitString, currentValue: BitString): BitString {
-        const result = previousValue.or(currentValue);
-        this.log(LogLevel.TRACE, `${previousValue} OR ${currentValue} => ${result}`);
-        return result;
-    }
+  evaluate(previousValue: BitString, currentValue: BitString): BitString {
+    const result = previousValue.or(currentValue);
+    this.log(
+      LogLevel.TRACE,
+      `${previousValue} OR ${currentValue} => ${result}`,
+    );
+    return result;
+  }
 }
