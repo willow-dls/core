@@ -28,6 +28,8 @@ import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { LSB } from "../CircuitElement/LSB";
 import { BitSelector } from "../CircuitElement/BitSelector";
 import { MSB } from "../CircuitElement/MSB";
+import { PriorityEncoder } from "../CircuitElement/PriorityEncoder";
+import { Decoder } from "../CircuitElement/Decoder";
 import { DFlipFlop } from "../CircuitElement/DFlipFlop";
 import { TFlipFlop } from "../CircuitElement/TFlipFlop";
 import { DLatch } from "../CircuitElement/DLatch";
@@ -107,6 +109,15 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     nodes[data.customData.nodes.inp1],
     nodes[data.customData.nodes.output1],
     nodes[data.customData.nodes.enable],
+  ),
+  'PriorityEncoder': ({ nodes, data }) => new PriorityEncoder(
+    data.customData.nodes.inp1.map((i: number) => nodes[i]),
+    data.customData.nodes.output1.map((i: number) => nodes[i]),
+    nodes[data.customData.nodes.enable],
+  ),
+  'Decoder': ({ nodes, data }) => new Decoder(
+    nodes[data.customData.nodes.input],
+    data.customData.nodes.output1.map((i: number) => nodes[i]),
   ),
   'Input': ({ nodes, data }) => new Input(
     data.index,
