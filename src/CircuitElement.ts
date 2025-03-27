@@ -1,6 +1,17 @@
 import { CircuitBus } from "./CircuitBus";
 import { CircuitLoggable } from "./CircuitLogger";
 
+/**
+ * A circuit element is a component in a circuit. It represents the fundamental unit of a
+ * circuit and is connected via {@link CircuitBus}s. Elements can be logic gates or more
+ * complex combinatorial elements. They can even represent sequential elements, though
+ * sequential elements are much more complex and require much greater care when implementing.
+ * 
+ * A circuit elements takes its inputs via {@link CircuitBus}es, processes them via the
+ * {@link resolve} function, and outputs the results via its output {@link CircuitBus}es.
+ * This model seems to work well for most elements, but some bi-directional elements require
+ * particularly tricky workarounds, such as {@link Splitter}.
+ */
 export abstract class CircuitElement extends CircuitLoggable {
   #inputs: CircuitBus[];
   #outputs: CircuitBus[];
@@ -8,6 +19,12 @@ export abstract class CircuitElement extends CircuitLoggable {
   #propagationDelay: number;
   #label: string | null;
 
+  /**
+   * Construct 
+   * @param subsystem 
+   * @param inputs 
+   * @param outputs 
+   */
   constructor(
     subsystem: string = "Element",
     inputs: CircuitBus[],
