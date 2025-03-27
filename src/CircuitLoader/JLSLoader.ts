@@ -1,7 +1,7 @@
 import { CircuitLoader } from "../CircuitLoader";
 import { CircuitProject } from "../CircuitProject";
 
-export class JLSCircuitLoader extends CircuitLoader {
+export class JLSLoader extends CircuitLoader {
   constructor() {
     super("JLSCircuitLoader");
   }
