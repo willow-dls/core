@@ -13,7 +13,7 @@ async function readStream(stream: Stream): Promise<string> {
   });
 }
 
-async function loadFileOrStream(file: string | Stream): Promise<object> {
+async function loadFileOrStream(file: string | Stream): Promise<string> {
   let stream;
 
   if (file instanceof Stream) {
@@ -22,7 +22,7 @@ async function loadFileOrStream(file: string | Stream): Promise<object> {
     stream = fs.createReadStream(file);
   }
 
-  return readStream(stream).then((data) => JSON.parse(data));
+  return readStream(stream);
 }
 
 export abstract class CircuitLoader extends CircuitLoggable {

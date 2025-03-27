@@ -273,6 +273,8 @@ export class CircuitVerseLoader extends CircuitLoader {
 
     this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
+    data = JSON.parse(data);
+
     // Each scope is a circuit
     for (const scopeInd in data.scopes) {
       const scope = data.scopes[scopeInd];
