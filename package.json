@@ -1,7 +1,7 @@
 {
-  "name": "simutest",
-  "version": "1.0.0",
-  "description": "Test CircuitVerse circuits with a simple JavaScript API.",
+  "name": "@willow-dls/core",
+  "version": "0.3.2",
+  "description": "Headless digital logic simulator framework written in TypeScript with support for multiple educational circuit logic simulators.",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gvsucis/w25-simutest.git"
+    "url": "git+https://github.com/willow-dls/core.git"
   },
   "author": "Jordan Bancino",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gvsucis/w25-simutest/issues"
+    "url": "https://github.com/willow-dls/core/issues"
   },
-  "homepage": "https://github.com/gvsucis/w25-simutest#readme",
+  "homepage": "https://willow-dls.github.io",
   "devDependencies": {
     "@babel/preset-env": "^7.26.7",
     "@babel/preset-typescript": "^7.26.0",
