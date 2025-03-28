@@ -64,7 +64,7 @@ export const logLevelString = [
 ];
 
 /**
- * A Circuit Logger is a log *sink*. Messages are sent to circuit loggers via 
+ * A Circuit Logger is a log *sink*. Messages are sent to circuit loggers via
  * {@link CircuitLoggable}. Loggers are responsible for storing the messages
  * and outputting them to either another logging framework, or sink them into
  * a file or log server. There are no limitations as to what a logger can do
@@ -199,7 +199,7 @@ export abstract class CircuitLogger {
  * using the {@link log} function and sent to {@link CircuitLogger}s registered with
  * the given loggable. Loggables have a subsystem and an ID which they can
  * use to uniquely identify themselves in the log output.
- * 
+ *
  * This abstract class creates a logging "tree" structure, where a loggable can be
  * composed of child loggables, and when a logger is attached or detached from a
  * loggable, the same operation is applied to all of its children. Child loggables are
@@ -221,7 +221,7 @@ export abstract class CircuitLoggable {
    * is highly recommended that all loggables provide a subsystem tag based
    * at least in part on their class name.
    */
-  constructor(subsystem: string = '(None)') {
+  constructor(subsystem: string = "(None)") {
     this.#subsystem = subsystem;
     this.#id = CircuitLoggable.#counter++;
   }

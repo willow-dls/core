@@ -31,7 +31,7 @@ async function loadFileOrStream(file: string | Stream): Promise<object> {
  * representation to be ran with this engine. This class is the primary mechanism for
  * loading circuits from third-party circuit simulators, and is extended by the circuit
  * loaders supported by this package (see below.)
- * 
+ *
  * Custom implementations can load circuits from anywhere, even remote resources, as long as
  * they return a standard {@link CircuitProject} with properly behaving {@link Circuit}s which
  * accurately represent the original data file. To support a custom data source, simply implement
