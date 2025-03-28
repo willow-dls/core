@@ -5,7 +5,10 @@ import { JLSCircuitLoader } from "../../src/CircuitLoader/JLSLoader";
 let bitSelector: Circuit;
 
 beforeAll(async () => {
-  const project = await loadProject(JLSCircuitLoader, "tests/jls/JLSCircuit");
+  const project = await loadProject(
+    JLSCircuitLoader,
+    "tests/jls/SubcircuitTest",
+  );
   // bitSelector = project.getCircuitByName("BitSelector");
 });
 

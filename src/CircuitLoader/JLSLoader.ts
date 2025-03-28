@@ -5,6 +5,9 @@ import { CircuitElement } from "../CircuitElement";
 import { AndGate } from "../CircuitElement/AndGate";
 import { CircuitBus } from "../CircuitBus";
 import { XorGate } from "../CircuitElement/XorGate";
+import { Input } from "../CircuitElement/Input";
+import { Output } from "../CircuitElement/Output";
+import { SubCircuit } from "../CircuitElement/SubCircuit";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -23,6 +26,16 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       data.customData.nodes.inp.map((i: number) => nodes[i]),
       [nodes[data.customData.nodes.output1]],
     ),
+  InputPin: ({ nodes, data }) =>
+    new Input(data.index, data.label, [nodes[data.customData.nodes.output1]]),
+  OutputPin: ({ nodes, data }) =>
+    new Output(data.index, data.label, nodes[data.customData.nodes.inp1]),
+  SubCircuit: ({ nodes, data, project }) =>
+    new SubCircuit(
+      project.getCircuitById(data.id),
+      data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
+      data.outputNodes.map((nodeInd: number) => nodes[nodeInd]),
+    ),
 };
 
 export class JLSCircuitLoader extends CircuitLoader {
@@ -31,11 +44,11 @@ export class JLSCircuitLoader extends CircuitLoader {
   }
 
   /*
-      TODO: This current solution requires the user to
-        unzip a .jls file and extract the JLSCircuit from inside.
-        *Ideal* end goal would be to handle the unzipping internally for
-        the purposes of testing
-     */
+                                                                                                                                          TODO: This current solution requires the user to
+                                                                                                                                            unzip a .jls file and extract the JLSCircuit from inside.
+                                                                                                                                            *Ideal* end goal would be to handle the unzipping internally for
+                                                                                                                                            the purposes of testing
+                                                                                                                                         */
   load(data: any): CircuitProject {
     const project: CircuitProject = new CircuitProject();
     this.propagateLoggersTo(project);
@@ -48,20 +61,29 @@ export class JLSCircuitLoader extends CircuitLoader {
     // Blacklist elements without nodes or that are visual only
     const blacklistKeys = ["WireEnd"];
 
-    let elementsList: string[] = [];
-    for (let line of lines) {
-      line = line.replace(/[\n\r]+/g, "");
+    let circuitStack: string[] = [];
+    let circuitMap: Record<string, any> = {};
 
-      // Identify new element
-      if (line.startsWith("ELEMENT")) {
-        const lineParts = line.split(" ");
-        if (!blacklistKeys.includes(lineParts[1])) {
-          elementsList.push(lineParts[1]);
+    for (let line of lines) {
+      const lineParts = line.replace(/[\n\r]+/g, "").split(" ");
+
+      if (line.startsWith("CIRCUIT")) {
+        circuitStack.push(lineParts[1]);
+        circuitMap[lineParts[1]] = [];
+      } else if (
+        line.startsWith("ELEMENT") &&
+        !blacklistKeys.includes(lineParts[1])
+      ) {
+        circuitMap[circuitStack[circuitStack.length - 1]].push(lineParts[1]);
+      } else if (line.startsWith("ENDCIRCUIT")) {
+        if (circuitStack.length > 0) {
+          circuitStack.pop();
         }
       }
     }
 
-    console.log(elementsList);
+    console.log(circuitStack);
+    console.log(circuitMap);
 
     return project;
   }
