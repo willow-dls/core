@@ -1,6 +1,6 @@
 import { CircuitProject } from "./CircuitProject";
 import { Circuit, CircuitRunType, CircuitRunResult } from "./Circuit";
-import { loadProject } from "./CircuitLoader";
+import { loadProject, loadCircuit } from "./CircuitLoader";
 import { CircuitVerseLoader } from "./CircuitLoader/CircuitVerseLoader";
 
 import { Adder } from "./CircuitElement/Adder";
@@ -100,6 +100,7 @@ export {
   // Loader
   CircuitLoader,
   loadProject,
+  loadCircuit,
   CircuitVerseLoader,
   JLSLoader,
 
