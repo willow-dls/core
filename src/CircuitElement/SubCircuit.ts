@@ -4,9 +4,21 @@ import { CircuitBus } from "../CircuitBus";
 import { LogLevel } from "../CircuitLogger";
 import { Clock } from "./Clock";
 
+/**
+ * Most circuit simulation libraries support the concept of "subcircuits," which are
+ * a way to embed an entire circuit as an element in another circuit. This class implements
+ * that functionality, allowing an entire {@link Circuit} to be added as an element in another
+ * {@link Circuit}.
+ */
 export class SubCircuit extends CircuitElement {
   #circuit: Circuit;
 
+  /**
+   * Create a new subcircuit.
+   * @param circuit The circuit to convert to a ciruit element.
+   * @param inputs The subcircuit inputs.
+   * @param outputs The subcircuit outputs.
+   */
   constructor(circuit: Circuit, inputs: CircuitBus[], outputs: CircuitBus[]) {
     super("SubCircuitElement", inputs, outputs);
     this.#circuit = circuit;
@@ -36,6 +48,11 @@ export class SubCircuit extends CircuitElement {
     return result.propagationDelay;
   }
 
+  /**
+   * Retrieve an array of all the clocks in this subcircuit, recursively.
+   * @returns All of the clocks in this circuit, so they can be set properly by the
+   * {@link Circuit.run} function.
+   */
   getClocks(): Clock[] {
     return this.#circuit.getClocks();
   }

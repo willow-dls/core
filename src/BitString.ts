@@ -64,13 +64,13 @@ function forBit(
  * performing operations with bit strings. Indeed, most of the functionality
  * of an ALU is actually implemented here, not in a dedicate ALU circuit
  * element, making it easy to implement other types of ALUs with ease.
- * 
+ *
  * The reason this class exists is to bypass entirely the JavaScript `number`
  * data type for sending bits through the circuit simulation, because `number`
  * imposes restrictions on how values can be interpretted, as well as the size
  * of values. `BitString` imposes no such limitations; there is no practical
  * size limit of a bit string.
- * 
+ *
  * Additionally, bit strings are useful for interpretting a collection of bits
  * as either a signed or an unsigned number. Since JavaScript has no concept of
  * an unsigned number, it can be difficult to interpret results. This class
@@ -98,16 +98,16 @@ export class BitString {
   /**
    * Create a random bit string of the specified width, where bits are toggled
    * randomly using `Math.random()`.
-   * 
+   *
    * > [!WARNING]
    * > `Math.random()` is not cryptographically secure. I can't imagine a
    * > scenario in which that would matter to a circuit simulation engine, because
    * > surely you aren't doing cryptography in an educational digital logic simulator,
-   * > right? Nonetheless, keep in mind that the random numbers produced by this 
+   * > right? Nonetheless, keep in mind that the random numbers produced by this
    * > function have all of the same flaws as (or perhaps more flaws than)
    * > `Math.random()`.
-   * @param width 
-   * @returns 
+   * @param width
+   * @returns
    */
   static rand(width: number = 1): BitString {
     return new BitString(
@@ -263,7 +263,7 @@ export class BitString {
 
   /**
    * Compute the two's compliment of the given bit string.
-   * 
+   *
    * > [!NOTE]
    * > The naive algorithm for
    * > implementing two's compliment is to invert all of the bits and then add one.
@@ -271,7 +271,7 @@ export class BitString {
    * > the two's compliment in this manner by using {@link not} and {@link add}.
    * > This may not be the most computationally efficient way to implement
    * > this functionality.
-   * 
+   *
    * @returns A new bit string which is the two's compliment of this bit
    * string.
    */
@@ -284,14 +284,14 @@ export class BitString {
   /**
    * Subtract two bit strings, performing the operationg `A - B` where `A` is
    * the bit string this method is called on, and `B` is the passed parameter.
-   * 
+   *
    * > [!NOTE]
    * > The naive algorithm for implementing subtraction in digital logic is to
    * > add the two's compliment of the second operand. This method implements
    * > subtraction in this manner by using {@link twosCompliment} and {@link add},
    * > which may not be the most computationally efficient way to implement
    * > this functionality.
-   * 
+   *
    * @param str The bit string to subtract from this one.
    * @returns A new bit string which is the difference between the two operands.
    */
@@ -362,7 +362,7 @@ export class BitString {
   /**
    * Interpret this bit string as a signed number, assuming it is stored in
    * two's compliment form.
-   * 
+   *
    * > [!WARNING]
    * > The behavior of this function depends on that of JavaScript's `parseInt()`
    * > and on the maximum size of `number`s in JavaScript.
@@ -383,7 +383,7 @@ export class BitString {
 
   /**
    * Interpret this bit string as an unsigned number.
-   * 
+   *
    * > [!WARNING]
    * > The behavior of this function depends on that of JavaScript's `parseInt()`
    * > and on the maximum size of `number`s in JavaScript.
@@ -419,7 +419,7 @@ export class BitString {
    * Determine if this bit string is greater than another one, performing the
    * operation `A > B` where `A` is
    * the bit string this method is called on, and `B` is the passed parameter.
-   * 
+   *
    * > [!NOTE]
    * > The naive method for determining `A > B` in two's compliment is to
    * > perform `A - B` and then
@@ -427,7 +427,7 @@ export class BitString {
    * > This method implements this functionality in this manner, using
    * > {@link sub}, {@link msb}, and {@link equals}, which may not be the
    * > most computationally efficient implementation.
-   * 
+   *
    * @param str The bit string to compare to this one.
    * @returns Whether or not this bit string is greater than the given one.
    */
@@ -447,7 +447,7 @@ export class BitString {
    * Determine if this bit string is less than another one, performing the
    * operation `A < B` where `A` is
    * the bit string this method is called on, and `B` is the passed parameter.
-   * 
+   *
    * > [!NOTE]
    * > The naive method for determining `A < B` in two's compliment is to
    * > perform `A - B` and then
@@ -455,7 +455,7 @@ export class BitString {
    * > This method implements this functionality in this manner, using
    * > {@link sub}, {@link msb}, and {@link equals}, which may not be the
    * > most computationally efficient implementation.
-   * 
+   *
    * @param str The bit string to compare to this one.
    * @returns Whether or not this bit string is less than the given one.
    */
@@ -497,7 +497,7 @@ export class BitString {
 
   /**
    * Pad this bit string, adding significant bits which are `0` (low) until
-   * the string is the given length. 
+   * the string is the given length.
    * @param width How many bits to truncate this bit string to. If this is less than or
    * equal to the length of this bit string, then the whole string is returned.
    * @returns A bit string which has been padded with leading zero bits until it is

@@ -6,11 +6,6 @@ import { Output } from "./CircuitElement/Output";
 import { SubCircuit } from "./CircuitElement/SubCircuit";
 import { CircuitLoggable, LogLevel } from "./CircuitLogger";
 
-type QueueEntry = {
-  time: number;
-  element: CircuitElement;
-};
-
 export type CircuitRunType =
   | Record<string, BitString | string>
   | (BitString | string | null)[];
@@ -25,15 +20,15 @@ export type CircuitRunResult<T extends CircuitRunType> = {
  * The Circuit is how you execute the simulation. It provides everything you
  * need to evaluate a complete circuit (which may or may not consist of {@link SubCircuit}s)
  * with or without a clock.
- * 
+ *
  * If a circuit has no clock, then it is simply evaluated like a combinatorial
  * or sequential circuit. However, if it does have a clock, then the engine will
  * tick the clock automatically, evaluating the circuit each clock cycle.
- * 
+ *
  * It is highly unlikely that you will instantiate this class directly; rather, you
  * should normally retrieve circuits from your {@link CircuitProject}, provided to
  * you by a {@link CircuitLoader} (see {@link loadProject}).
- * 
+ *
  * > [!NOTE] This simulation engine is not thread-safe. While this shouldn't be
  * > a concern for most JavaScript environments, it is important to remember that
  * > this class contains a lot of internal state which is not intended to be mutated
@@ -156,11 +151,11 @@ export class Circuit extends CircuitLoggable {
    * Execute this circuit with the provided inputs. This method runs an event-driven simulation
    * which evaluates the circuit in terms of its elements, propagating the outputs of elements to
    * other elements which are connected.
-   * 
+   *
    * If a circuit has no clock, then it is simply evaluated like a combinatorial
    * or sequential circuit. However, if it does have a clock, then the engine will
    * tick the clock automatically, evaluating the circuit each clock cycle.
-   * 
+   *
    * > [!NOTE] This simulation engine inherits some limitations of CircuitVerse when evaluating
    * > circuits with clocks:
    * > - Real life circuits go into a stable state between clock ticks. Irrespective of any
@@ -174,11 +169,11 @@ export class Circuit extends CircuitLoggable {
    * > engine originally took inspiration from CircuitVerse. Note, of course, that this
    * > engine **does not share any code** with CircuitVerse, it simply used the same algorithm
    * > and general principles.
-   * 
+   *
    * > [!WARNING] It is possible for this function to run forever. If you are attempting to
    * > run a circuit with clock inputs, but don't provide the optional `haltCond`, the simulation
    * > will simply keep ticking the clock indefinitely, and will thus never return, even if the
-   * > circuit has stabilized. 
+   * > circuit has stabilized.
    * >
    * > If your circuit contains a clock (which you can check by checking that {@link getClocks} returns
    * > an array with size `> 0`), you must provide a `haltCond` that will terminate the simulation
@@ -187,7 +182,7 @@ export class Circuit extends CircuitLoggable {
    * >
    * > If any {@link CircuitLogger}s are attached to this circuit, a warning will be emitted to
    * > them if this method detects that the simulation will run forever.
-   * 
+   *
    * @param inputs A keyed object of input values or an array of input values. For end users, the
    * keyed object will provide the most intuitive interface; the array syntax exists to support
    * CircuitVerse {@link SubCircuit}s, which don't have labeled inputs, but rather take their inputs
@@ -289,21 +284,26 @@ export class Circuit extends CircuitLoggable {
    * Resolve this circuit as though it was a {@link CircuitElement} even though it isn't.
    * This method is used to implement {@link SubCircuit}s and is called internally by {@link run},
    * and should not be used in any other scenarios. Use {@link run} instead.
-   * 
+   *
    * This method is responsible for executing a single clock cycle of the circuit. It
    * contains the event loop, taking in the
    * inputs, queuing them up, and then running the event loop until the values have propagated
    * entirely through the circuit and there are no more events in the queue.
-   * 
+   *
    * @param inputs The optional inputs to the circuit. If inputs are provided, each element
    * in the circuit is reset by calling {@link CircuitElement.reset} and the simulation
    * effectively starts over. If no inputs are provided here, then the simulation runs from the
    * previous state it was in when it ended the last time it ran. This functionality is extremely
    * useful for a clocked circuit, where the clock input changes and requires the circuit to be
    * re-evaluated each cycle.
-   * @returns 
+   * @returns
    */
   resolve<T extends CircuitRunType>(inputs?: T): CircuitRunResult<T> {
+    type QueueEntry = {
+      time: number;
+      element: CircuitElement;
+    };
+
     this.#log(LogLevel.INFO, "Resolving circuit...");
     const eventQueue: QueueEntry[] = [];
 

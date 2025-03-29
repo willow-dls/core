@@ -2,7 +2,30 @@ import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
 
+/**
+ * SR Flip-Flop Circuit Element.
+ *
+ * This class represents an SR flip-flop (Set-Reset flip-flop) circuit element. It includes inputs for
+ * Set (S), Reset (R), preset, reset, and enable, and provides outputs for Q and Q inverse (Q').
+ *
+ * The flip-flop operates based on the state of the inputs and the enable signal. When enable is high,
+ * the S and R inputs determine the state of the output Q. If reset is high, the preset value is passed
+ * to Q regardless of other inputs.
+ *
+ * @extends {CircuitElement}
+ */
 export class SRFlipFlop extends CircuitElement {
+  /**
+   * Creates an instance of the SR flip flop element.
+   *
+   * @param s The Set input (S).
+   * @param r The Reset input (R).
+   * @param q The output (Q).
+   * @param qInv The inverted output (Q').
+   * @param reset The reset input.
+   * @param preset The preset value input.
+   * @param enable The enable input.
+   */
   constructor(
     s: CircuitBus,
     r: CircuitBus,

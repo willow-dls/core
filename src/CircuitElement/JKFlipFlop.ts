@@ -2,7 +2,25 @@ import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { SequentialElement } from "./SequentialElement";
 
+/**
+ * This class implements a JK flip flop. This particular element most closely matches
+ * CircuitVerse's implementation, which contains some additional inputs that modify the
+ * behavior of the circuit. See the constructor documentation.
+ */
 export class JKFlipFlop extends SequentialElement {
+  /**
+   * Constructs a new instance of the JK flip flop.
+   *
+   * @param clock The clock signal input bus.
+   * @param j The J input bus.
+   * @param k The K input bus.
+   * @param q The Q output bus.
+   * @param qInv The inverted Q output bus.
+   * @param reset The reset signal input bus. When this value is high, this element simply
+   * passes through the `preset` value in real time, bypassing the clock.
+   * @param preset The preset signal input bus.
+   * @param enable The enable signal input bus.
+   */
   constructor(
     clock: CircuitBus,
     j: CircuitBus,

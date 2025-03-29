@@ -3,9 +3,21 @@ import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
 import { Circuit } from "../Circuit";
 
+/**
+ * A class representing a multiplexer circuit element.
+ *
+ * The multiplexer selects one of the input buses based on the control signal and sets it to the output bus.
+ */
 export class Multiplexer extends CircuitElement {
   #controlSignal: CircuitBus;
 
+  /**
+   * Creates an instance of a multiplexer.
+   *
+   * @param inputs An array of input circuit buses for the multiplexer.
+   * @param outputs An array of output circuit buses for the multiplexer.
+   * @param controlSignal A control signal circuit bus that determines which input to select.
+   */
   constructor(
     inputs: CircuitBus[],
     outputs: CircuitBus[],

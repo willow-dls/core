@@ -10,6 +10,13 @@
 
 > [!WARNING] Willow targets the NodeJS execution environment. It currently will not run client-side in the browser due to dependencies on the NodeJS standard library. This limitation exists primarily in the circuit loading logic; theoretically we just have to decouple the loading logic into a separate package to enable client-side browser execution, but that is currently beyond the scope of this project.
 
+## Features
+
+- **Extensible:** Willow makes no assumptions about where your circuit came from or what elements it contains. While we ship a default set of base elements and circuit loaders, Willow is designed to allow custom circuit elements and circuit loaders to be implemented with ease.
+- **Simple:** Willow uses a simple event loop to evaluate circuits. It doesn't use overly complex algorithms or performance optimizations, make it it trivial to understand and modify, particularly for students. The relative simplicity compared to other circuit simulators is intended to lower the barrier to entry and allow students to not only simulate their own circuits, but also understand how circuit simulators can be implemented.
+- **Robust Logging:** The custom logging facility is as extensible as the rest of the engine. It allows users and developers to inspect just about any part of the engine as a circuit runs, which can be helpful in debugging either the engine itself or circuits running it it. Logs are extremely granular, with log levels and subsystem tags, providing the ability to drill down and see logs for only a certain part of the system, or capture everything all at once.
+- **Well-Documented TypeScript:** Willow is written fully in TypeScript, making it easier to use because the type system can catch common errors and mistakes. Furthermore, Willow is extremely well-documented, publishing full API documentation and sample code.
+
 ## Getting Started
 
 To start using Willow, simply set up a new NPM package as you do and then install Willow as a dependency. If this is your first NodeJS project, make sure you have Node and NPM installed on your machine. Instructions can be found [here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). You will also have to set up a new NPM package where your own code will live. You can do so by creating an empty directory and running `npm init`.
