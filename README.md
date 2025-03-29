@@ -235,3 +235,15 @@ Contributing to this project is as straightforward as most others these days. Ju
 1. Format all code by running `npm run format`
 
 Then you can commit and push your changes.
+
+## Change Log
+
+### v0.4.0
+
+- Added complete API documentation.
+- Implemented the JLS project loader.
+- Implemented the Logisim project loader.
+
+### v0.3.0
+
+Initial public release after re-branding the internal project.
