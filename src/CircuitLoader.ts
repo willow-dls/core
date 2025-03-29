@@ -2,6 +2,7 @@ import { Stream } from "node:stream";
 import fs from "node:fs";
 import { CircuitProject } from "./CircuitProject";
 import { CircuitLoggable, CircuitLogger } from "./CircuitLogger";
+import { Circuit } from "./Circuit";
 
 async function readStream(stream: Stream): Promise<string> {
   const chunks: Buffer<any>[] = [];
@@ -31,7 +32,7 @@ async function loadFileOrStream(file: string | Stream): Promise<object> {
  * representation to be ran with this engine. This class is the primary mechanism for
  * loading circuits from third-party circuit simulators, and is extended by the circuit
  * loaders supported by this package (see below.)
- * 
+ *
  * Custom implementations can load circuits from anywhere, even remote resources, as long as
  * they return a standard {@link CircuitProject} with properly behaving {@link Circuit}s which
  * accurately represent the original data file. To support a custom data source, simply implement
@@ -78,4 +79,26 @@ export async function loadProject(
     circuitLoader.attachLogger(logger);
   }
   return stream.then((json) => circuitLoader.load(json));
+}
+
+/**
+ * A simple helper method that calls {@link loadProject} and then {@link CircuitProject.getCircuitByName}
+ * to immediately retrieve a circuit from a file. This is most useful for single-circuit projects or for
+ * projects where only one circuit will be executed and the others are just subcircuits or other circuits
+ * which are not immediately useful.
+ * @param loader See {@link loadProject}.
+ * @param data See {@link loadProject}.
+ * @param name The name of the circuit to load from the project.
+ * @param logger See {@link loadProject}.
+ * @returns A promise of the specified circuit from the data source.
+ */
+export async function loadCircuit(
+  loader: new () => CircuitLoader,
+  data: Stream | string,
+  name: string,
+  logger?: CircuitLogger,
+): Promise<Circuit> {
+  return loadProject(loader, data, logger).then((project) =>
+    project.getCircuitByName(name),
+  );
 }

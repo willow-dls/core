@@ -5,26 +5,26 @@ import { CircuitLoggable } from "./CircuitLogger";
  * A Circuit Project is a collection of circuits which may or may not be
  * interdependent on one onother. Projects may consist of a circuit and all
  * of its subcircuits, or a collection of totally unrelated circuits.
- * 
+ *
  * "Projects" are a concept which came from CircuitVerse, where a project
  * is a file, and ciruits are tabs in the CircuitVerse UI when the file is
  * loaded.
- * 
+ *
  * This class will probably not be instantiated manually in end-user code;
  * rather, the project loader (see {@link loadProject} and {@link CircuitLoader})
  * will parse circuit data and generate a project which compiles any circuits
  * contained within that data.
- * 
+ *
  * This class is simply a data class for managing circuits, it does not perform
- * any logic of its own. The most commonly used methods will probably be 
+ * any logic of its own. The most commonly used methods will probably be
  * {@link getCircuitById} and {@link getCircuitByName}, as these allow you to
  * fetch circuits and then actually execute them.
- * 
+ *
  * > [!NOTE] Not all {@link CircuitLoader}s may support fetching a circuit by
  * > name. In those cases, you will have to fetch circuits by ID or by index
  * > in the array returned by {@link getCircuits}, which will return circuits in
  * > the same order for the same file.
- * 
+ *
  * @author Jordan Bancino
  */
 export class CircuitProject extends CircuitLoggable {
@@ -35,7 +35,7 @@ export class CircuitProject extends CircuitLoggable {
 
   /**
    * Create a new Circuit Project.
-   * 
+   *
    * @param ciruits An array of ciruits to initially create this project with.
    * Note that circuits can be added by calling {@link addCircuit}.
    */
@@ -59,7 +59,7 @@ export class CircuitProject extends CircuitLoggable {
   }
 
   /**
-   * Get a reference to a circuit by name. 
+   * Get a reference to a circuit by name.
    * @param name The name of the circuit to fetch.
    * @returns A reference to the circuit.
    * @throws Error if a circuit with the given name cannot be found.

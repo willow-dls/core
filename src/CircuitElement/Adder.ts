@@ -1,7 +1,18 @@
 import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
 
+/**
+ * A simple adder which supports operands of any width.
+ */
 export class Adder extends CircuitElement {
+  /**
+   * Construct a new adder.
+   * @param a The first operand bus.
+   * @param b The second operand bus.
+   * @param carryIn The carry in bus.
+   * @param sum The output bus.
+   * @param carryOut The carry out bus.
+   */
   constructor(
     a: CircuitBus,
     b: CircuitBus,

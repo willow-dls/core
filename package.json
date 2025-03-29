@@ -1,6 +1,6 @@
 {
   "name": "@willow-dls/core",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Headless digital logic simulator framework written in TypeScript with support for multiple educational circuit logic simulators.",
   "main": "dist/index.js",
   "type": "module",
@@ -19,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/willow-dls/core/issues"
   },
-  "homepage": "https://willow-dls.github.io",
+  "homepage": "https://willow-dls.github.io/core/",
   "devDependencies": {
     "@babel/preset-env": "^7.26.7",
     "@babel/preset-typescript": "^7.26.0",

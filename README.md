@@ -2,12 +2,20 @@
 
 **Willow DLS** is a digital logic simulator framework written in TypeScript with support for executing circuits for educational logic simulators such as [CircuitVerse](https://circuitverse.org), [JLS](#) and [LogiSim](#). It is platform- and simulator-agnostic, and is primarily intended to be used for headless testing of circuits via a unit testing framework such as [Jest](#). Willow was created as an undergraduate project at Grand Valley State University but is now published as an open-source package independently.
 
-> [!NOTE] Willow is a *headless* DLS *framework*. It does not implement a GUI and has no intentions to do so. The intended use cases are:
+> [!NOTE] Willow is a _headless_ DLS _framework_. It does not implement a GUI and has no intentions to do so. The intended use cases are:
+>
 > - Software developers who want to write a DLS GUI in TypeScript using Willow as the actual logic engine.
 > - Students and other users who design circuits in a well-known GUI platform (see above) and want to test them with a unit testing library for more thorough and precise automated testing than what those simulators provide by default.
-> Willow was initially designed with this latter use case in mind, and thus may not be optimal or ideal for the former.
+>   Willow was initially designed with this latter use case in mind, and thus may not be optimal or ideal for the former.
 
 > [!WARNING] Willow targets the NodeJS execution environment. It currently will not run client-side in the browser due to dependencies on the NodeJS standard library. This limitation exists primarily in the circuit loading logic; theoretically we just have to decouple the loading logic into a separate package to enable client-side browser execution, but that is currently beyond the scope of this project.
+
+## Features
+
+- **Extensible:** Willow makes no assumptions about where your circuit came from or what elements it contains. While we ship a default set of base elements and circuit loaders, Willow is designed to allow custom circuit elements and circuit loaders to be implemented with ease.
+- **Simple:** Willow uses a simple event loop to evaluate circuits. It doesn't use overly complex algorithms or performance optimizations, make it it trivial to understand and modify, particularly for students. The relative simplicity compared to other circuit simulators is intended to lower the barrier to entry and allow students to not only simulate their own circuits, but also understand how circuit simulators can be implemented.
+- **Robust Logging:** The custom logging facility is as extensible as the rest of the engine. It allows users and developers to inspect just about any part of the engine as a circuit runs, which can be helpful in debugging either the engine itself or circuits running it it. Logs are extremely granular, with log levels and subsystem tags, providing the ability to drill down and see logs for only a certain part of the system, or capture everything all at once.
+- **Well-Documented TypeScript:** Willow is written fully in TypeScript, making it easier to use because the type system can catch common errors and mistakes. Furthermore, Willow is extremely well-documented, publishing full API documentation and sample code.
 
 ## Getting Started
 
@@ -77,7 +85,7 @@ Next, configure TypeScript by creating a `tsconfig.json` in the root of your pro
     "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
 
-    "strict": true /* Enable all strict type-checking options. */,
+    "strict": true /* Enable all strict type-checking options. */
   }
 }
 ```
@@ -115,24 +123,24 @@ Jest will automatically scan and execute all files ending in `.test.js` or `.tes
 
 ```js
 import { expect, beforeAll, test } from "@jest/globals";
-import { loadProject, CircuitVerseLoader } from '@willow-dls/core';
+import { loadProject, CircuitVerseLoader } from "@willow-dls/core";
 
 let circuit;
 
 // Before running any tests, load your circuit using the CircuitVerse
 // loader and Willow's loadProject() function.
 beforeAll(async () => {
-    // Set the file path of your .cv file here.
-    const cvFile = 'MyCircuit.cv';
+  // Set the file path of your .cv file here.
+  const cvFile = "MyCircuit.cv";
 
-    // If you renamed your circuit in CircuitVerse, set the name
-    // here. CircuitVerse defaults to Main, so if you didn't change
-    // your circuit's name, you should be able to leave this
-    // as-is.
-    const circuitName = 'Main';
+  // If you renamed your circuit in CircuitVerse, set the name
+  // here. CircuitVerse defaults to Main, so if you didn't change
+  // your circuit's name, you should be able to leave this
+  // as-is.
+  const circuitName = "Main";
 
-    const project = await loadProject(CircuitVerseLoader, cvFile);
-    circuit = project.getCircuitByName(circuitName);
+  const project = await loadProject(CircuitVerseLoader, cvFile);
+  circuit = project.getCircuitByName(circuitName);
 });
 
 // This is a sample test that shows you how to declare inputs and
@@ -140,29 +148,29 @@ beforeAll(async () => {
 // clocks. You'll have to adjust most of this code to adequately
 // test your circuit. You can add more of these test() calls below
 // to add distinct tests.
-test('Sample Test', () => {
-    // Declare circuit inputs by label. This object is keyed by the
-    // labels you assigned to your circuit in Step 2.
-    const inputs = {
-        inp1: '01',
-        inp2: '10'
-    };
+test("Sample Test", () => {
+  // Declare circuit inputs by label. This object is keyed by the
+  // labels you assigned to your circuit in Step 2.
+  const inputs = {
+    inp1: "01",
+    inp2: "10",
+  };
 
-    // Declare expected outputs by label. This object is keyed by
-    // the labels you assigned to your circuit in Step 2.
-    const expectedOutputs = {
-        out1: '11'
-    };
+  // Declare expected outputs by label. This object is keyed by
+  // the labels you assigned to your circuit in Step 2.
+  const expectedOutputs = {
+    out1: "11",
+  };
 
-    // Execute the circuit, returning the results.
-    const result = circuit.run(inputs);
+  // Execute the circuit, returning the results.
+  const result = circuit.run(inputs);
 
-    // This line is just for demonstration, most likely you won't
-    //  care about the propagation delay.
-    // expect(result.propagationDelay).toBe(10);
+  // This line is just for demonstration, most likely you won't
+  //  care about the propagation delay.
+  // expect(result.propagationDelay).toBe(10);
 
-    // Compare the actual results to the expected results.
-    expect(result.outputs).toStrictEqual(exectedOutputs);
+  // Compare the actual results to the expected results.
+  expect(result.outputs).toStrictEqual(exectedOutputs);
 });
 ```
 
@@ -181,35 +189,49 @@ $ npm test
 
 Jest will then run through all the test files in your tests folder and check your circuits against your tests. It will then output to your CLI whether your tests have passed or failed. If your tests failed, it will provide the output it received compared to the output it expected.
 
-## What Next?
-
-Now that you can run basic tests and have a general understanding of how Willow works, check out the API documentation, taking special note of the following classes, which are the main user-facing classes:
-
-- `CircuitLoader`
-- `BitString`
-- `CircuitProject`
-- `Circuit`
-
-Most of the other classes are used mostly internally. Though they may surface occasionally, you likely won't have to do much with them unless you are implementing your own circuit loader or doing processing/optimization on your circuits once they are loaded into Willow's data structures.
-
 ## Example: Building From Source
 
 Sometimes, you may not want to install Willow from NPM, but rather build it from source, most likely for development and testing, or peace of mind. Here's how you do that in your local environment:
 
 1. Clone the Git repository:
-    ```
-    $ git clone https://github.com/willow-dls/core.git willow-dls-core
-    ```
+   ```
+   $ git clone https://github.com/willow-dls/core.git willow-dls-core
+   ```
 1. Install all dependencies and build the package:
-    ```
-    $ cd willow-dls-core
-    $ npm install
-    $ npm run build
-    ```
+   ```
+   $ cd willow-dls-core
+   $ npm install
+   $ npm run build
+   ```
 1. Go to your NPM package into which you wish to install Willow from source.
 1. There, run the following command, adjusting the path to the Willow repository:
-    ```
-    $ npm install '../path/to/willow-dls-core'`
-    ```
+   ```
+   $ npm install '../path/to/willow-dls-core'`
+   ```
 
 You should now be able to run your package using the local source code. Note that any time you make modifications to Willow, you will have to re-run the `npm run build` step to regenerate the JavaScript code.
+
+## What Next?
+
+Now that you can run basic tests and have a general understanding of how Willow works, check out the API documentation, taking special note of the following classes, which are the main user-facing classes and functions:
+
+- `loadProject`: Used for loading circuit projects. See the subclasses of `CircuitLoader` for implementations of available loaders, which can take in simulator-specific data and translate it into Willow internal data structures.
+- `CircuitProject`: Used for storing a collection of circuits. This is what will be returned by a circuit loader.
+- `BitString`: Used for passing values into circuits and getting values out of circuits.
+- `Circuit`: Used for actually executing a circuit simulation.
+
+Most of the other classes are used mostly internally. Though they may surface occasionally, you likely won't have to do much with them unless you are implementing your own circuit loader or doing processing/optimization on your circuits once they are loaded into Willow's data structures. If you _do_ want to implement your own loader or your own circuit elements, the following additional classes will also be helpful to you:
+
+- `CircuitElement`: The base class for all circuit elements.
+- `CircuitBus`: The way that bit values are communicated between elements.
+- `CircuitLoader`: The base class for all custom circuit loaders.
+
+### Contributing
+
+Contributing to this project is as straightforward as most others these days. Just open up a Pull Request on GitHub. However, before submitting your pull request, do remember to do the following:
+
+1. Write tests for your new code and make sure they pass by running `npm run test`.
+1. Make sure all the existing tests pass by running `npm run test`.
+1. Format all code by running `npm run format`
+
+Then you can commit and push your changes.
