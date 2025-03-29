@@ -40,6 +40,8 @@ import { Adder } from "../CircuitElement/Adder";
 import { BufferGate } from "../CircuitElement/BufferGate";
 import { ControlledInverter } from "../CircuitElement/ControlledInverter";
 import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
+import Stream from "stream";
+import { FileUtil } from "../Util/File";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -267,13 +269,13 @@ export class CircuitVerseLoader extends CircuitLoader {
     super("CircuitVerseLoader");
   }
 
-  load(data: any): CircuitProject {
+  async load(stream: Stream): Promise<CircuitProject> {
     const project: CircuitProject = new CircuitProject();
     this.propagateLoggersTo(project);
 
-    this.log(LogLevel.INFO, `Loading circuit from data:`, data);
+    const data = await FileUtil.readJsonStream(stream);
 
-    data = JSON.parse(data);
+    this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
     // Each scope is a circuit
     for (const scopeInd in data.scopes) {

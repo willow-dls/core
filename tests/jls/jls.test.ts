@@ -7,7 +7,7 @@ let bitSelector: Circuit;
 beforeAll(async () => {
   const project = await loadProject(
     JLSCircuitLoader,
-    "tests/jls/SubcircuitTest",
+    "tests/jls/HalfAdder.jls",
   );
   // bitSelector = project.getCircuitByName("BitSelector");
 });

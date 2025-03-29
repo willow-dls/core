@@ -8,6 +8,8 @@ import { XorGate } from "../CircuitElement/XorGate";
 import { Input } from "../CircuitElement/Input";
 import { Output } from "../CircuitElement/Output";
 import { SubCircuit } from "../CircuitElement/SubCircuit";
+import Stream from "stream";
+import { FileUtil } from "../Util/File";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -43,15 +45,12 @@ export class JLSCircuitLoader extends CircuitLoader {
     super("JLSCircuitLoader");
   }
 
-  /*
-                                                                                                                                          TODO: This current solution requires the user to
-                                                                                                                                            unzip a .jls file and extract the JLSCircuit from inside.
-                                                                                                                                            *Ideal* end goal would be to handle the unzipping internally for
-                                                                                                                                            the purposes of testing
-                                                                                                                                         */
-  load(data: any): CircuitProject {
+  async load(stream: Stream): Promise<CircuitProject> {
     const project: CircuitProject = new CircuitProject();
     this.propagateLoggersTo(project);
+
+    const data = await FileUtil.extractFromZip(stream, ['JLSCircuit'])
+      .then(([stream]) => FileUtil.readTextStream(stream));
 
     this.log(LogLevel.INFO, `Loading circuit from data ${data}`);
 
