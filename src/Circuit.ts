@@ -6,10 +6,28 @@ import { Output } from "./CircuitElement/Output";
 import { SubCircuit } from "./CircuitElement/SubCircuit";
 import { CircuitLoggable, LogLevel } from "./CircuitLogger";
 
+/**
+ * There are multiple ways to run a circuit with {@link Circuit.run}. You can either
+ * pass in a keyed object where the keys are {@link Input} labels and the values are
+ * the {@link BitString} values, or you can simply pass in a straight array of 
+ * {@link BitString}s.
+ */
 export type CircuitRunType =
   | Record<string, BitString | string>
   | (BitString | string | null)[];
 
+/**
+ * {@link Circuit.run} returns this type, which contains the output values in the
+ * same format that they were passed in to {@link Circuit.run}. That is, if you passed
+ * an object, you'll get a keyed object where the keys are {@link Output} labels and
+ * the values are {@link BitString}s, and if you pass in an array, you'll get an array
+ * out as well.
+ * 
+ * You can also get the propagation delay of the circuit after it was executed as well
+ * as the number of internal simulation steps it took to execute the circuit. This
+ * value probably won't be that useful beyond attempting to optimize circuits for
+ * shorter runtime.
+ */
 export type CircuitRunResult<T extends CircuitRunType> = {
   outputs: T;
   propagationDelay: number;
