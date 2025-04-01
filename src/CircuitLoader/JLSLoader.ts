@@ -114,6 +114,8 @@ export class JLSCircuitLoader extends CircuitLoader {
 
         elementStack.push(currentElement);
         circuitMap[circuitStack[circuitStack.length - 1]].push(currentElement);
+      } else if (lineParts[0] === "ENDCIRCUIT") {
+        circuitStack.pop();
       } else if (lineParts[0] === "SUBCIRCUIT") {
         if (circuitStack.length > 0) {
           circuitStack.pop();
@@ -135,6 +137,12 @@ export class JLSCircuitLoader extends CircuitLoader {
         elementStack[elementStack.length - 1].wires.push(Number(lineParts[2]));
       }
     }
+
+    Object.keys(circuitMap).forEach((key) => {
+      console.log(
+        `Found circuit ${key} with ${circuitMap[key].length} elements`,
+      );
+    });
 
     // let arbitraryIdx: number = 0;
     // // Iterate for every circuit
@@ -169,9 +177,9 @@ export class JLSCircuitLoader extends CircuitLoader {
     //   project.addCircuit(circuit);
     // }
 
-    console.log(elementStack);
+    // console.log(elementStack);
 
-    console.log(circuitMap);
+    // console.log(circuitMap);
 
     return project;
   }
