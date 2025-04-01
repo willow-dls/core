@@ -90,7 +90,7 @@ export class JLSCircuitLoader extends CircuitLoader {
     const lines: string[] = data.split("\n");
 
     // Blacklist elements without nodes or that are visual only
-    const blacklistKeys = ["WireEnd", "Text"];
+    const blacklistKeys = ["Text"];
 
     let circuitStack: string[] = [];
     let elementStack: PlaceholderElement[] = [];
@@ -108,7 +108,10 @@ export class JLSCircuitLoader extends CircuitLoader {
       if (lineParts[0] === "CIRCUIT") {
         circuitStack.push(lineParts[1]);
         circuitMap[lineParts[1]] = [];
-      } else if (lineParts[0] === "ELEMENT") {
+      } else if (
+        lineParts[0] === "ELEMENT" &&
+        !blacklistKeys.includes(lineParts[1])
+      ) {
         currentElement = new PlaceholderElement();
         currentElement.type = lineParts[1];
 
@@ -179,7 +182,7 @@ export class JLSCircuitLoader extends CircuitLoader {
 
     // console.log(elementStack);
 
-    // console.log(circuitMap);
+    console.log(circuitMap);
 
     return project;
   }
