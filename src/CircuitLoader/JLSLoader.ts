@@ -60,6 +60,11 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       nodes[data.customData.nodes.inp1],
       data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd]),
     ),
+  WireEnd: ({ nodes, data }) =>
+    new OrGate(
+      data.customData.nodes.inp.map((i: number) => nodes[i]),
+      [nodes[data.customData.nodes.output1]],
+    ),
 };
 
 export class JLSCircuitLoader extends CircuitLoader {
@@ -79,7 +84,7 @@ export class JLSCircuitLoader extends CircuitLoader {
     const elements: CircuitElement[] = [];
     while (tokens.length > 0) {
       const nextToken = tokens[0];
-      if (nextToken != "ENDCIRCUIT") {
+      if (nextToken == "ENDCIRCUIT") {
         tokens.shift();
         break;
       }
@@ -90,7 +95,7 @@ export class JLSCircuitLoader extends CircuitLoader {
   }
 
   parseElement(tokens: string[]): CircuitElement {
-    const tokenToParse = tokens.shift();
+    let tokenToParse = tokens.shift();
 
     if (tokenToParse != "ELEMENT") {
       this.log(
@@ -105,15 +110,21 @@ export class JLSCircuitLoader extends CircuitLoader {
       throw new Error(`${elementType} is not a valid ELEMENT`);
     }
 
-    this.log(LogLevel.INFO, `Parsing element ${tokenToParse}`);
-
+    this.log(LogLevel.INFO, `Parsing element ${elementType}`);
     if (elementType == undefined) {
       throw new Error("Something went wrong");
     }
 
+    while (tokens.length > 0) {
+      tokenToParse = tokens.shift();
+      if (tokenToParse === "END") {
+        break;
+      }
+    }
+
     return createElement[elementType]?.({
       nodes: [],
-      data: elementData,
+      data: {},
       project: {} as CircuitProject,
     });
   }
