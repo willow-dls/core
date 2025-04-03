@@ -13,22 +13,13 @@ import { FileUtil } from "../Util/File";
 import { NotGate } from "../CircuitElement/NotGate";
 import { OrGate } from "../CircuitElement/OrGate";
 import { Splitter } from "../CircuitElement/Splitter";
+import { Circuit } from "../Circuit";
 
 type CircuitContext = {
   nodes: CircuitBus[];
   data: any;
   project: CircuitProject;
 };
-
-class PlaceholderElement {
-  type: string;
-  id: number;
-  wires: number[] = [];
-  name: string | null;
-  delay: number;
-  bitLength: number;
-  attach: number[] = [];
-}
 
 const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   AndGate: ({ nodes, data }) =>
@@ -76,6 +67,57 @@ export class JLSCircuitLoader extends CircuitLoader {
     super("JLSCircuitLoader");
   }
 
+  parseCircuit(tokens: string[]): Circuit {
+    const tokenToParse = tokens.shift();
+    const name = tokens.shift();
+
+    if (tokenToParse != "CIRCUIT") {
+      this.log(LogLevel.INFO, `Failed to parse ${tokenToParse}`);
+      throw new Error("I should be parsing a CIRCUIT");
+    }
+
+    const elements: CircuitElement[] = [];
+    while (tokens.length > 0) {
+      const nextToken = tokens[0];
+      if (nextToken != "ENDCIRCUIT") {
+        tokens.shift();
+        break;
+      }
+      elements.push(this.parseElement(tokens));
+    }
+
+    return new Circuit(name ?? "", name ?? "", elements);
+  }
+
+  parseElement(tokens: string[]): CircuitElement {
+    const tokenToParse = tokens.shift();
+
+    if (tokenToParse != "ELEMENT") {
+      this.log(
+        LogLevel.ERROR,
+        `Should be parsing ELEMENT, found ${tokenToParse}`,
+      );
+      throw new Error("I should be parsing an ELEMENT");
+    }
+
+    const elementType = tokens.shift();
+    if (elementType != undefined && !(elementType in createElement)) {
+      throw new Error(`${elementType} is not a valid ELEMENT`);
+    }
+
+    this.log(LogLevel.INFO, `Parsing element ${tokenToParse}`);
+
+    if (elementType == undefined) {
+      throw new Error("Something went wrong");
+    }
+
+    return createElement[elementType]?.({
+      nodes: [],
+      data: elementData,
+      project: {} as CircuitProject,
+    });
+  }
+
   async load(stream: Stream): Promise<CircuitProject> {
     const project: CircuitProject = new CircuitProject();
     this.propagateLoggersTo(project);
@@ -84,105 +126,24 @@ export class JLSCircuitLoader extends CircuitLoader {
       ([stream]) => FileUtil.readTextStream(stream),
     );
 
-    this.log(LogLevel.INFO, `Loading circuit from data ${data}`);
-
     // Get all circuit parts
-    const lines: string[] = data.split("\n");
+    const tokens: string[] = data
+      .split(/[\s+]/)
+      .filter((token) => token.length > 0);
+
+    this.log(LogLevel.WARN, `${tokens}`);
+
+    this.log(LogLevel.INFO, `Loading circuit from data ${tokens[1]}`);
+
+    const circuitList: Circuit[] = [];
+    while (tokens.length > 0) {
+      this.log(LogLevel.INFO, `Parsing circuit with ${tokens.length} tokens`);
+      const circuit: Circuit = this.parseCircuit(tokens);
+      circuitList.push(circuit);
+    }
 
     // Blacklist elements without nodes or that are visual only
     const blacklistKeys = ["Text"];
-
-    let circuitStack: string[] = [];
-    let elementStack: PlaceholderElement[] = [];
-    let circuitMap: Record<string, PlaceholderElement[]> = {};
-
-    let currentElement: PlaceholderElement | null = null;
-
-    // Generate a list of all the different types of circuits
-    for (let line of lines) {
-      const lineParts = line
-        .replace(/[\n\r]+/g, "")
-        .trim()
-        .split(" ");
-
-      if (lineParts[0] === "CIRCUIT") {
-        circuitStack.push(lineParts[1]);
-        circuitMap[lineParts[1]] = [];
-      } else if (
-        lineParts[0] === "ELEMENT" &&
-        !blacklistKeys.includes(lineParts[1])
-      ) {
-        currentElement = new PlaceholderElement();
-        currentElement.type = lineParts[1];
-
-        elementStack.push(currentElement);
-        circuitMap[circuitStack[circuitStack.length - 1]].push(currentElement);
-      } else if (lineParts[0] === "ENDCIRCUIT") {
-        circuitStack.pop();
-      } else if (lineParts[0] === "SUBCIRCUIT") {
-        if (circuitStack.length > 0) {
-          circuitStack.pop();
-        }
-      } else if (line.trim().startsWith("int id")) {
-        elementStack[elementStack.length - 1].id = Number(lineParts[2]);
-      } else if (line.trim().startsWith("int delay")) {
-        elementStack[elementStack.length - 1].delay = Number(lineParts[2]);
-      } else if (line.trim().startsWith("String put")) {
-        elementStack[elementStack.length - 1].name = lineParts[2].replace(
-          /['"]+/g,
-          "",
-        );
-      } else if (line.trim().startsWith("int bits")) {
-        elementStack[elementStack.length - 1].bitLength = Number(lineParts[2]);
-      } else if (line.trim().startsWith("ref attach")) {
-        elementStack[elementStack.length - 1].attach.push(Number(lineParts[2]));
-      } else if (line.trim().startsWith("ref wire")) {
-        elementStack[elementStack.length - 1].wires.push(Number(lineParts[2]));
-      }
-    }
-
-    Object.keys(circuitMap).forEach((key) => {
-      console.log(
-        `Found circuit ${key} with ${circuitMap[key].length} elements`,
-      );
-    });
-
-    // let arbitraryIdx: number = 0;
-    // // Iterate for every circuit
-    // for (const circuitName of Object.keys(circuitMap)) {
-    //   const circuitElements: CircuitElement[] = [];
-    //
-    //   // Iterate for every element in the circuit map
-    //   for (const elementType of circuitMap[circuitName]) {
-    //     // Establish data for element
-    //     const data = {
-    //       customData: {
-    //         nodes: { output1: 0 },
-    //         values: [],
-    //       },
-    //       index: arbitraryIdx,
-    //     };
-    //
-    //     // TODO: Build nodes and data
-    //     const newElement = createElement[elementType]({
-    //       project: project,
-    //       nodes: [],
-    //       data: data,
-    //     });
-    //     circuitElements.push(newElement);
-    //   }
-    //
-    //   const circuit = new Circuit(
-    //     arbitraryIdx.toString(),
-    //     circuitName,
-    //     circuitElements,
-    //   );
-    //   project.addCircuit(circuit);
-    // }
-
-    // console.log(elementStack);
-
-    console.log(circuitMap);
 
     return project;
   }
