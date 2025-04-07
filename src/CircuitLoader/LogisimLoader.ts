@@ -41,11 +41,6 @@ import { BufferGate } from "../CircuitElement/BufferGate";
 import { ControlledInverter } from "../CircuitElement/ControlledInverter";
 import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
 
-type CircuitContext = {
-    nodes: CircuitBus[];
-    data: any;
-    project: CircuitProject;
-};
 
 // TODO: Consistent formatting of the keys on this object.
 const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
@@ -262,6 +257,41 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
         ),
 };
 
+function coord2Num(coord: string) {
+    let comma = coord.indexOf(',')
+    let x = Number(coord.substring(1, comma))
+    let y = Number(coord.substring(comma + 1, coord.length - 1))
+    return [x, y]
+}
+
+//Function for loading data. Needs to move to and be integrated into CircuitLoad somehow
+
+import fs from "node:fs";
+const { XMLParser } = require("fast-xml-parser");
+
+function loadXML(file: string) {
+    let xmlData = fs.readFileSync(file, 'utf8')
+
+    const alwaysArray = [
+        "project.circuit",
+        "project.circuit.wire",
+        "project.circuit.comp",
+        "project.circuit.comp.a"
+    ]
+    const options = {
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+        isArray: (jpath: any) => {
+            if (alwaysArray.indexOf(jpath) !== -1) return true;
+        }
+    }
+
+    const parser = new XMLParser(options)
+    const data = parser.parse(xmlData)
+    return data
+}
+
+
 export class LogisimLoader extends CircuitLoader {
     constructor() {
         super("LogisimLoader");
@@ -273,161 +303,84 @@ export class LogisimLoader extends CircuitLoader {
 
         this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
-
-
         for (const circuitIndex in data.project.circuit) {
             const circuit = data.project.circuit[circuitIndex]
+            let circuitName = circuit["name"]
 
-            circuit.name = circuit.a[0][1]
-
-
-
-            const nodes: CircuitBus[] = [];
-            const wire2Node = []
-
-            //Wires for nodes
+            const wire2Node: { nodes: any[], connections: any[] } = {
+                nodes: [],
+                connections: []
+            }
+            // Create list of all wire locations
             for (let wireIndex = 0; wireIndex < circuit.wire.length; wireIndex++) {
                 const wire = circuit.wire[wireIndex]
+                if (!wire2Node.nodes.includes(wire.from)) {
+                    wire2Node.nodes.push(wire.from);
+                }
+                if (!wire2Node.nodes.includes(wire.to)) {
+                    wire2Node.nodes.push(wire.to);
+                }
+            }
+            //Create list of connections for each node/wire based on index of wire locations
+            for (let wireIndex = 0; wireIndex < circuit.wire.length; wireIndex++) {
+                const wire = circuit.wire[wireIndex]
+                let wireEnd1Index = wire2Node.nodes.indexOf(wire.from);
+                let wireEnd2Index = wire2Node.nodes.indexOf(wire.to);
 
-
-
-
+                (wire2Node.connections[wireEnd1Index] || (wire2Node.connections[wireEnd1Index] = [])).push(wireEnd2Index);
+                (wire2Node.connections[wireEnd2Index] || (wire2Node.connections[wireEnd2Index] = [])).push(wireEnd1Index);
             }
 
-
-            //Components
-            for (let compIndex = 0; compIndex < circuit.comp.length; compIndex++) {
-
+            let circElementList: any[] = []
+            // Loop through component list to retrieve pertinant information
+            for (let compIndex in circuit.comp) {
+                const circElement: { type: string, name: string, width: number, outputPin: boolean, inputs: number[], outputs: number[] } = {
+                    type: '',
+                    name: '',
+                    width: 1,
+                    outputPin: false,
+                    inputs: [],
+                    outputs: [],
+                }
                 const component = circuit.comp[compIndex]
-
-                const compElement = component["@_name"]
-                const compLoc = component["@_loc"]
-                const compAttributes = component["a"]
-
-
-
-
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-        ///////////////////////l
-        // Each scope is a circuit
-        for (const scopeInd in data.scopes) {
-            const scope = data.scopes[scopeInd];
-
-            this.log(LogLevel.DEBUG, `Loading scope:`, scope);
-
-            const nodes: CircuitBus[] = [];
-
-            // First pass over nodes array to create nodes.
-            for (let nodeInd = 0; nodeInd < scope.allNodes.length; nodeInd++) {
-                const scopeNode = scope.allNodes[nodeInd];
-                const node = new CircuitBus(scopeNode.bitWidth);
-                nodes.push(node);
-                this.log(
-                    LogLevel.TRACE,
-                    `Created bus with width ${scopeNode.bitWidth}`,
-                );
-            }
-
-            // Second pass over nodes to add connections now that all nodes
-            // are instantiated.
-            for (let nodeInd = 0; nodeInd < scope.allNodes.length; nodeInd++) {
-                const scopeNode = scope.allNodes[nodeInd];
-
-                for (const connectInd in scopeNode.connections) {
-                    const ind = scopeNode.connections[connectInd];
-                    nodes[nodeInd].connect(nodes[ind]);
-                    this.log(LogLevel.TRACE, `Connecting bus: ${nodeInd} => ${ind}`);
-                }
-            }
-
-            // CircuitVerse stores elements keyed by their type
-            // in the same object as the scope properties. This is... dumb.
-            //
-            // Since we don't know what types we have in advnance, we create
-            // a blacklist of all the keys that we know aren't circuit element
-            // arrays, and don't process those.
-            const blacklistKeys = [
-                "layout",
-                "verilogMetadata",
-                "allNodes",
-                "id",
-                "name",
-                "restrictedCircuitElementsUsed",
-                "nodes",
-                // Annotation elements which are visual only.
-                "Text",
-                "Rectangle",
-                "Arrow",
-                "ImageAnnotation",
-            ];
-
-            this.log(LogLevel.TRACE, "Collecting scope elements...");
-            const elementArray = Object.keys(scope)
-                .filter((k) => !blacklistKeys.includes(k))
-                .map((k) =>
-                    scope[k].map((e: any, ind: number) => {
-                        e.objectType = k;
-                        e.index = ind;
-                        return e;
-                    }),
-                )
-                .flat();
-
-            const id = scope.id;
-            const name = scope.name;
-            const elements: CircuitElement[] = [];
-
-            for (const i in elementArray) {
-                const elementData = elementArray[i];
-                const type = elementData.objectType;
-
-                this.log(
-                    LogLevel.TRACE,
-                    `Creating element of type '${type}'...`,
-                    elementData,
-                );
-
-                if (!createElement[type]) {
-                    throw new Error(
-                        `Circuit '${name}' (${id}) uses unsupported element: ${type}.`,
-                    );
+                let loc = component.loc
+                circElement.type = component.name
+                const compAttributes = component.a
+                for (let attrIndex in compAttributes) {
+                    let attribute = compAttributes[attrIndex]
+                    if (attribute.name === "label") {
+                        circElement.name = attribute.val
+                    }
+                    if (attribute.name === "width") {
+                        circElement.width = Number(attribute.val)
+                    }
+                    if (attribute.name === "output") {
+                        circElement.outputPin = true
+                        circElement.inputs.push(wire2Node.nodes.indexOf(loc))
+                    }
                 }
 
-                const newElement = createElement[type]({
-                    project: project,
-                    nodes: nodes,
-                    data: elementData,
-                })
-                    .setLabel(elementData.label)
-                    .setPropagationDelay(elementData.propagationDelay ?? 0);
+                let outputNodeIndex = wire2Node.nodes.indexOf(loc);
 
-                //console.log(LogLevel.DEBUG, `Creating element of type '${type}' with label '${data.label}'...`, elementData)
+                if (outputNodeIndex > -1 && circElement.outputPin === false) {
+                    circElement.outputs.push(outputNodeIndex)
+                }
+                if (circElement.type != "Pin") {
+                    let [locx, locy] = coord2Num(loc)
+                    let xbound = locx - 50;
+                    let ymin = locy - 30;
+                    let ymax = locy + 30;
+                    for (let node of wire2Node.nodes) {
+                        let [x, y] = coord2Num(node)
+                        if (x === xbound && y > ymin && y < ymax) {
+                            circElement.inputs.push(wire2Node.nodes.indexOf(node))
+                        }
+                    }
+                }
 
-                elements.push(newElement);
+                circElementList.push(circElement)
             }
-
-            // The final circuit for this scope.
-            this.log(
-                LogLevel.TRACE,
-                "Constructing circuit and adding it to the project...",
-            );
-            const circuit = new Circuit(id, name, elements);
-            project.addCircuit(circuit);
+            console.log(circElementList)
         }
-
-        return project;
     }
 }
