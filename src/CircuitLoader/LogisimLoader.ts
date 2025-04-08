@@ -303,9 +303,17 @@ export class LogisimLoader extends CircuitLoader {
 
         this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
+        const allCircuits: any[] = []
+        let subcircuits: any[] = []
+        for (let circuit of data.project.circuit) {
+            subcircuits.push(circuit.name)
+        }
+
         for (const circuitIndex in data.project.circuit) {
             const circuit = data.project.circuit[circuitIndex]
-            let circuitName = circuit["name"]
+
+            const thisCircuit: { name?: string; nodes?: object; elements?: object } = {}
+            thisCircuit.name = circuit["name"]
 
             const wire2Node: { nodes: any[], connections: any[] } = {
                 nodes: [],
@@ -330,7 +338,7 @@ export class LogisimLoader extends CircuitLoader {
                 (wire2Node.connections[wireEnd1Index] || (wire2Node.connections[wireEnd1Index] = [])).push(wireEnd2Index);
                 (wire2Node.connections[wireEnd2Index] || (wire2Node.connections[wireEnd2Index] = [])).push(wireEnd1Index);
             }
-
+            thisCircuit.nodes = wire2Node
             let circElementList: any[] = []
             // Loop through component list to retrieve pertinant information
             for (let compIndex in circuit.comp) {
@@ -344,7 +352,8 @@ export class LogisimLoader extends CircuitLoader {
                 }
                 const component = circuit.comp[compIndex]
                 let loc = component.loc
-                circElement.type = component.name
+                if (subcircuits.includes(component.name)) circElement.type = "Subcircuit"
+                else circElement.type = component.name
                 const compAttributes = component.a
                 for (let attrIndex in compAttributes) {
                     let attribute = compAttributes[attrIndex]
@@ -380,7 +389,11 @@ export class LogisimLoader extends CircuitLoader {
 
                 circElementList.push(circElement)
             }
-            console.log(circElementList)
+            thisCircuit.elements = circElementList
+            allCircuits.push(thisCircuit)
         }
+
+        for (let nodeInd = 0; nodeInd < )
+
     }
 }
