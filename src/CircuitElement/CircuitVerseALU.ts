@@ -2,7 +2,22 @@ import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
 
+/**
+ * The CircuitVerse ALU. This element implements CircuitVerse's ALU. Since each
+ * simulator implements the ALU differently, we have separate implementations for
+ * all the simulators we support. This ALU behaves exactly like the CircuitVerse
+ * one, so refer to the [CircuitVerse ALU Documentation](https://docs.circuitverse.org/#/chapter4/8misc?id=alu)
+ * for the opcodes and other usage information.
+ */
 export class CircuitVerseALU extends CircuitElement {
+  /**
+   * Create a new CircuitVerse ALU.
+   * @param a The first ALU operand bus.
+   * @param b The second ALU operand bus.
+   * @param control The control signal bus.
+   * @param output The output value bus.
+   * @param carryOut The carry out bus.
+   */
   constructor(
     a: CircuitBus,
     b: CircuitBus,

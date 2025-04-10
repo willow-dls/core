@@ -67,7 +67,10 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     ),
 };
 
-export class JLSCircuitLoader extends CircuitLoader {
+/**
+ * A circuit loaded that loads JLS `.jls` circuit files.
+ */
+export class JLSLoader extends CircuitLoader {
   constructor() {
     super("JLSCircuitLoader");
   }

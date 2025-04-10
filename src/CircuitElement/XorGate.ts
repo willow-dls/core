@@ -2,6 +2,11 @@ import { BitString } from "../BitString";
 import { LogLevel } from "../CircuitLogger";
 import { Gate } from "./Gate";
 
+/**
+ * A simple XOR gate.
+ *
+ * @see OrGate
+ */
 export class XorGate extends Gate {
   evaluate(previousValue: BitString, currentValue: BitString): BitString {
     const result = previousValue

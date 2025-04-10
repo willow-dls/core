@@ -264,6 +264,15 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     ),
 };
 
+/**
+ * A circuit loader that loads CircuitVerse `.cv` files. This loader is the
+ * reference implementation of a circuit loader and actually is the inspiration
+ * for a lot of the design of this engine. Decisions about how the engine should
+ * be structured were made largely around how CircuitVerse stores data in their
+ * data files, which means that circuits loaded from CircuitVerse will likely run
+ * better than circuits from other engines, as this loader was developed in sync
+ * with the rest of the engine, and others were added after.
+ */
 export class CircuitVerseLoader extends CircuitLoader {
   constructor() {
     super("CircuitVerseLoader");
