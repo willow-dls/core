@@ -60,48 +60,48 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     "AND Gate": ({ nodes, data }) =>
         new AndGate(
             data.inputs.map((i: number) => nodes[i]),
-            [nodes[data.customData.nodes.output1]],
+            [nodes[data.outputs]],
         ),
     "NOR Gate": ({ nodes, data }) =>
         new NorGate(
-            data.customData.nodes.inp.map((i: number) => nodes[i]),
-            [nodes[data.customData.nodes.output1]],
+            data.inputs.map((i: number) => nodes[i]),
+            [nodes[data.outputs]],
         ),
     "NAND Gate": ({ nodes, data }) =>
         new NandGate(
-            data.customData.nodes.inp.map((i: number) => nodes[i]),
-            [nodes[data.customData.nodes.output1]],
+            data.inputs.map((i: number) => nodes[i]),
+            [nodes[data.outputs]],
         ),
     "OR Gate": ({ nodes, data }) =>
         new OrGate(
-            data.customData.nodes.inp.map((i: number) => nodes[i]),
-            [nodes[data.customData.nodes.output1]],
+            data.inputs.map((i: number) => nodes[i]),
+            [nodes[data.outputs]],
         ),
     "NOT Gate": ({ nodes, data }) =>
         new NotGate(
-            [nodes[data.customData.nodes.inp1]],
-            [nodes[data.customData.nodes.output1]],
+            [nodes[data.inputs]],
+            [nodes[data.outputs]],
         ),
     "Buffer": ({ nodes, data }) =>
         new BufferGate(
-            [nodes[data.customData.nodes.inp1]],
-            [nodes[data.customData.nodes.output1]],
+            [nodes[data.inputs]],
+            [nodes[data.outputs]],
         ),
     "XNOR Gate": ({ nodes, data }) =>
         new XnorGate(
-            data.customData.nodes.inp.map((i: number) => nodes[i]),
-            [nodes[data.customData.nodes.output1]],
+            data.inputs.map((i: number) => nodes[i]),
+            [nodes[data.outputs]],
         ),
     "XOR Gate": ({ nodes, data }) =>
         new XorGate(
-            data.customData.nodes.inp.map((i: number) => nodes[i]),
-            [nodes[data.customData.nodes.output1]],
+            data.inputs.map((i: number) => nodes[i]),
+            [nodes[data.outputs]],
         ),
     "Input": ({ nodes, data }) =>
-        new Input(data.index, data.label, [nodes[data.customData.nodes.output1]]),
+        new Input(data.index, data.label, [nodes[data.outputs]]),
 
     "Output": ({ nodes, data }) =>
-        new Output(data.index, data.label, nodes[data.customData.nodes.inp1]),
+        new Output(data.index, data.label, nodes[data.inputs]),
     // "Demultiplexer": ({ nodes, data }) =>
     //     new Demultiplexer(
     //         [nodes[data.customData.nodes.input]],
