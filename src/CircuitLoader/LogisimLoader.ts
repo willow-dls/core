@@ -41,6 +41,8 @@ import { BufferGate } from "../CircuitElement/BufferGate";
 import { ControlledInverter } from "../CircuitElement/ControlledInverter";
 import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
 
+import fs from "node:fs";
+
 type CircuitContext = {
     nodes: CircuitBus[];
     data: any;
@@ -102,6 +104,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
 
     "Output": ({ nodes, data }) =>
         new Output(data.index, data.label, nodes[data.inputs]),
+    "SubCircuit": ({ nodes, data, project }) =>
+        new SubCircuit(
+            project.getCircuitById(data.id),
+            data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
+            data.outputNodes.map((nodeInd: number) => nodes[nodeInd]),
+        ),
     // "Demultiplexer": ({ nodes, data }) =>
     //     new Demultiplexer(
     //         [nodes[data.customData.nodes.input]],
@@ -124,12 +132,6 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     //     new Decoder(
     //         nodes[data.customData.nodes.input],
     //         data.customData.nodes.output1.map((i: number) => nodes[i]),
-    //     ),
-    // "SubCircuit": ({ nodes, data, project }) =>
-    //     new SubCircuit(
-    //         project.getCircuitById(data.id),
-    //         data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
-    //         data.outputNodes.map((nodeInd: number) => nodes[nodeInd]),
     //     ),
     // "Splitter": ({ nodes, data }) =>
     //     new Splitter(
@@ -221,6 +223,10 @@ export class LogisimLoader extends CircuitLoader {
     }
 
     load(data: any): CircuitProject {
+        // console.log("Current directory:", process.cwd());
+        // const fileOut = "test.json"
+        // fs.writeFileSync(fileOut, JSON.stringify(data))
+
         const project: CircuitProject = new CircuitProject();
         this.propagateLoggersTo(project);
 
@@ -231,11 +237,14 @@ export class LogisimLoader extends CircuitLoader {
             subcircuits.push(circuit.name)
         }
 
-        for (const circuitIndex in data.project.circuit) {
+        //start index at one, as circuit index 0 is always just main information
+        for (let circuitIndex = 1; circuitIndex < data.project.circuit.length; circuitIndex++) {
             const scope = data.project.circuit[circuitIndex]
             this.log(LogLevel.DEBUG, `Loading scope:`, scope);
 
-
+            // if (!scope.wire || !scope.comp) {
+            //     continue
+            // }
 
             const wire2Node: { nodes: any[], connections: any[] } = {
                 nodes: [], //Wire locations
@@ -282,8 +291,8 @@ export class LogisimLoader extends CircuitLoader {
             let elements: CircuitElement[] = []
             for (let compIndex in scope.comp) {
                 const circElement: { type: string, name: string, width: number, outputPin: boolean, inputs: number[], outputs: number[], index: number } = {
-                    type: '',
-                    name: '',
+                    type: ' ',
+                    name: ' ',
                     width: 1,
                     outputPin: false,
                     inputs: [],
@@ -293,7 +302,7 @@ export class LogisimLoader extends CircuitLoader {
                 const component = scope.comp[compIndex]
                 let loc = component.loc
                 if (subcircuits.includes(component.name)) circElement.type = "Subcircuit"
-                else if (circElement.type = "Pin") circElement.type = "Input"
+                else if (component.name === "Pin") circElement.type = "Input"
                 else circElement.type = component.name
                 const compAttributes = component.a
                 for (let attrIndex in compAttributes) {
@@ -316,7 +325,7 @@ export class LogisimLoader extends CircuitLoader {
                 if (outputNodeIndex > -1 && circElement.outputPin === false) {
                     circElement.outputs.push(outputNodeIndex)
                 }
-                if (circElement.type != "Pin") {
+                if (circElement.type != "Input" && circElement.type != "Output") {
                     let [locx, locy] = coord2Num(loc)
                     let xmin = locx - 75;
                     let xmax = locx - 30;
@@ -330,17 +339,33 @@ export class LogisimLoader extends CircuitLoader {
                     }
                 }
 
+                this.log(
+                    LogLevel.TRACE,
+                    `Creating element of type '${circElement.type}'...`,
+                    circElement,
+                );
+
+                if (!createElement[circElement.type]) {
+                    throw new Error(
+                        `Circuit '${scope["name"]}' (${circElement.name}) uses unsupported element: ${circElement.type}.`,
+                    );
+                }
                 const newElement = createElement[circElement.type]({
                     project: project,
                     nodes: nodes,
                     data: circElement,
                 })
-                    .setLabel(circElement.name)
+                console.log(circElement.name)
+                newElement.setLabel(circElement.name)
+
+                console.log(circElement)
+                console.log(newElement)
+                console.log(newElement.getLabel())
 
                 elements.push(newElement)
             }
 
-            const circuit = new Circuit(circuitIndex, scope["name"], elements)
+            const circuit = new Circuit(circuitIndex.toString(), scope["name"], elements)
             project.addCircuit(circuit)
         }
         return project
