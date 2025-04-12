@@ -12,13 +12,18 @@ import { AndGate } from "../CircuitElement/AndGate";
 import { XorGate } from "../CircuitElement/XorGate";
 import { Input } from "../CircuitElement/Input";
 import { Output } from "../CircuitElement/Output";
+import { OrGate } from "../CircuitElement/OrGate";
+import { SubCircuit } from "../CircuitElement/SubCircuit";
 
-const createElement: Record<string, (data: {type: string; props: Record<string, string[]>;}, inputs: CircuitBus[], outputs: CircuitBus[]) => CircuitElement> = {
+const createElement: Record<string, (data: {type: string; props: Record<string, string[]>; subcircuit?: Circuit;}, inputs: CircuitBus[], outputs: CircuitBus[]) => CircuitElement> = {
   // TODO: Properly set input and output index parameter for use with subcircuits.
   'InputPin': (data, inputs, outputs) => new Input(0, data.props['name'][0] ?? '', outputs),
   'OutputPin': (data, inputs, outputs) => new Output(0, data.props['name'][0] ?? '', inputs[0]),
+  // data.subcircuit will always be set here because the parser ensures it.
+  'SubCircuit': (data, inputs, outputs) => new SubCircuit(data.subcircuit as Circuit, inputs, outputs),
   'AndGate': (data, inputs, outputs) => new AndGate(inputs, outputs),
   'XorGate': (data, inputs, outputs) => new XorGate(inputs, outputs),
+  'OrGate': (date, inputs, outputs) => new OrGate(inputs, outputs)
 };
 
 /**
@@ -45,7 +50,7 @@ export class JLSLoader extends CircuitLoader {
 
     const name = this.#expect(/[a-zA-Z0-9]+/, tokens.shift());
 
-    const parsedElements: {type: string, props: Record<string, string[]>}[] = [];
+    const parsedElements: {type: string, props: Record<string, string[]>, subcircuit?: Circuit}[] = [];
     while (tokens.length && tokens[0] != 'ENDCIRCUIT') {
       parsedElements.push(this.#parseElement(tokens));
     }
@@ -55,32 +60,98 @@ export class JLSLoader extends CircuitLoader {
     const parsedWires = parsedElements.filter(e => e.type == 'WireEnd');
     const noWires = parsedElements.filter(e => e.type != 'WireEnd');
 
-    // This block creates all the wires for the circuit.
+    // This block creates all the wires for the circuit, excluding subcircuits.
     const wires: Record<string, CircuitBus> = {};
     for (const parsedElement of noWires) {
       const id = parsedElement.props['id'][0];
-      const width = parsedElement.props['bits'][0];
 
       const directConnections = parsedWires.filter(w => (w.props['attach'] ?? []).includes(id));
       const connectedWires = this.#getWireDependencies(parsedWires, directConnections);
 
+
+      let width: number;
+      let inputs: Record<string, Input> = {};
+      let outputs: Record<string, Output> = {};
+
+      if (parsedElement.props['bits']) {
+        width = parseInt(parsedElement.props['bits'][0]);
+      } else {
+        // If we don't have a width, this element is a subcircuit. We need to extract
+        // the width of the child input pin in the subcircuit to which any given wire is "put".
+        // Since we don't know what that is in advance, we use a sentinel value and also fetch the
+        // inputs and outputs, which will be used when the sentinel is matched for each connected
+        // wire in the loop below.
+        width = -1;
+
+        if (parsedElement.type != 'SubCircuit') {
+          throw new Error(`Sanity check failed: Found element of type ${parsedElement.type} without a 'bits' property.`);
+        }
+
+        if (!parsedElement.subcircuit) {
+          throw new Error(`Sanity check failed: Found a SubCircuit ELEMENT without nested CIRCUIT.`);
+        }
+
+        inputs = parsedElement.subcircuit.getInputs();
+        outputs = parsedElement.subcircuit.getOutputs();
+      }
+
       for (const connectedWire of connectedWires) {
+        let wireWidth = width;
+        // No wire width, locate the matching wire in the subcircuit.
+        if (wireWidth == -1) {
+          // console.log(JSON.stringify(connectedWire));
+
+          if (!connectedWire.props['put']) {
+            // We can't create the wire using this subcircuit. It should get created
+            // another time around thanks to getWireDependencies(), which results in us processing
+            // wires lots of times.
+            continue;
+          }
+
+          const put = connectedWire.props['put'][0];
+          if (inputs[put]) {
+            wireWidth = inputs[put].getOutputs()[0].getWidth();
+          } else if (outputs[put]) {
+            wireWidth = outputs[put].getInputs()[0].getWidth();
+          } else {            
+            // We can't create the wire using this subcircuit. It should get created
+            // another time around thanks to getWireDependencies(), which results in us processing
+            // wires lots of times.
+            continue;
+          }
+        }
+
         if (!wires[connectedWire.props['id'][0]]) {
-          wires[connectedWire.props['id'][0]] = new CircuitBus(parseInt(width));
+          wires[connectedWire.props['id'][0]] = new CircuitBus(wireWidth);
         } else {
-          if (wires[connectedWire.props['id'][0]].getWidth() != parseInt(width)) {
-            throw new Error(`Wire width mismatch: Element expected wire of width ${width}, but the wire was already created with width ${wires[connectedWire.props['id'][0]].getWidth()}`);
+          if (wires[connectedWire.props['id'][0]].getWidth() != wireWidth) {
+            throw new Error(`Wire width mismatch: Element expected wire of width ${wireWidth}, but the wire was already created with width ${wires[connectedWire.props['id'][0]].getWidth()}`);
+          }
+        }
+      }
+    }
+
+    // There may be some intermediate wires left over that have yet to be instantiated
+    // because they aren't directly connected to any elements (only other wires). Locate
+    // those and instantiate them based on what they are connected to, interatively 
+    // until we have connected everything.
+    //
+    // This seems like it could loop forever for malformed inputs, but any valid JLS
+    // save should work properly with this.
+    while (parsedWires.length != Object.values(wires).length) {
+      for (const parsedWire of parsedWires) {
+        const id = parsedWire.props['id'][0];
+        const connectedTo = parsedWire.props['wire'];
+        for (const connectedId of connectedTo) {
+          if (wires[connectedId]) {
+            wires[id] = new CircuitBus(wires[connectedId].getWidth());
+            break;
           }
         }
       }
     }
 
     // Now that we have all the wires, connect them together.
-
-    if (parsedWires.length != Object.values(wires).length) {
-      throw new Error(`Sanity check failed: Parsed ${parsedWires.length} wires from the file, but instantiated ${Object.values(wires).length}.`);
-    }
-
     for (const parsedWire of parsedWires) {
       const id = parsedWire.props['id'][0];
       const attach = parsedWire.props['wire'];
@@ -141,24 +212,33 @@ export class JLSLoader extends CircuitLoader {
   }
 
   // TODO: Support subcircuits
-  #parseElement(tokens: string[]): {type: string, props: Record<string, string[]>} {
+  #parseElement(tokens: string[]): {type: string, props: Record<string, string[]>, subcircuit?: Circuit} {
     this.#expect('ELEMENT', tokens.shift());
 
     const elementType = this.#expect(/[a-zA-Z0-9]*/, tokens.shift());
 
     const properties: Record<string, string[]> = {};
+    let subcircuit;
     while (tokens.length && tokens[0] != 'END') {
-      const prop = this.#parseProperty(tokens);
-      if (!properties[prop.name]) {
-        properties[prop.name] = [];
+      if (tokens[0] == 'CIRCUIT') {
+        if (subcircuit) {
+          throw new Error(`Sanity check failed: Multiple CIRCUITs found in a Subcircuit ELEMENT.`);
+        }
+        subcircuit = this.#parseCircuit(tokens);
+      } else {
+        const prop = this.#parseProperty(tokens);
+        if (!properties[prop.name]) {
+          properties[prop.name] = [];
+        }
+        properties[prop.name].push(prop.value);
       }
-      properties[prop.name].push(prop.value);
     }
 
     this.#expect('END', tokens.shift());
     return {
       type: elementType,
-      props: properties
+      props: properties,
+      subcircuit: subcircuit
     };
   }
 

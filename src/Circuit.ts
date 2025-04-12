@@ -131,6 +131,24 @@ export class Circuit extends CircuitLoggable {
   }
 
   /**
+   * Get all of the input elements in this circuit.
+   * @returns A record of inputs where the key is the string name of the input and
+   * the value is the input object itself.
+   */
+  getInputs(): Record<string, Input> {
+    return this.#inputs;
+  }
+
+  /**
+   * Get all of the output elements in this circuit.
+   * @returns A record of outputs where the key is the name of the output and
+   * the value is the output object itself.
+   */
+  getOutputs(): Record<string, Output> {
+    return this.#outputs;
+  }
+
+  /**
    * Get the name of this circuit.
    * @returns The name of this circuit which was passed into the constructor.
    */
