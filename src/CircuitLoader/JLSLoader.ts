@@ -14,6 +14,16 @@ import { Input } from "../CircuitElement/Input";
 import { Output } from "../CircuitElement/Output";
 import { OrGate } from "../CircuitElement/OrGate";
 import { SubCircuit } from "../CircuitElement/SubCircuit";
+import { Decoder } from "../CircuitElement/Decoder";
+import { BufferGate } from "../CircuitElement/BufferGate";
+import { NorGate } from "../CircuitElement/NorGate";
+import { Adder } from "../CircuitElement/Adder";
+import { TriState } from "../CircuitElement/TriState";
+import { NandGate } from "../CircuitElement/NandGate";
+import { Constant } from "../CircuitElement/Constant";
+import { BitString } from "../BitString";
+import { NotGate } from "../CircuitElement/NotGate";
+import { Clock } from "../CircuitElement/Clock";
 
 const createElement: Record<string, (data: { type: string; props: Record<string, string[]>; subcircuit?: Circuit; }, inputs: CircuitBus[], outputs: CircuitBus[]) => CircuitElement> = {
   // We hard-code 0 indices for all inputs and outputs for now, but the parser will update these as necessary
@@ -22,9 +32,34 @@ const createElement: Record<string, (data: { type: string; props: Record<string,
   'OutputPin': (data, inputs, outputs) => new Output(0, data.props['name'][0] ?? '', inputs[0]),
   // data.subcircuit will always be set here because the parser ensures it, so the cast is safe.
   'SubCircuit': (data, inputs, outputs) => new SubCircuit(data.subcircuit as Circuit, inputs, outputs),
+
+  // Gates
   'AndGate': (data, inputs, outputs) => new AndGate(inputs, outputs),
   'XorGate': (data, inputs, outputs) => new XorGate(inputs, outputs),
-  'OrGate': (date, inputs, outputs) => new OrGate(inputs, outputs)
+  'OrGate': (data, inputs, outputs) => new OrGate(inputs, outputs),
+  'NorGate': (data, inputs, outputs) => new NorGate(inputs, outputs),
+  'NandGate': (data, inputs, outputs) => new NandGate(inputs, outputs),
+  'NotGate': (data, inputs, outputs) => new NotGate(inputs, outputs),
+  'DelayGate': (data, inputs, outputs) => new BufferGate(inputs, outputs),
+
+  // Other elements
+  'Constant': (data, inputs, outputs) => {
+    const base = parseInt(data.props['base'][0]);
+    const value = parseInt(data.props['value'][0], base);
+    const binStr = value.toString(2);
+    
+    return new Constant(outputs[0], new BitString(binStr));
+  },
+  'Clock': (data, inputs, outputs) => new Clock(outputs[0]),
+
+  // TODO: Double check inputs and outputs on these elements
+  'Decoder': (data, inputs, outputs) => new Decoder(inputs[0], outputs),
+
+  // TODO: Make sure inputs and outputs are in deterministic order on Adder.
+  'Adder': (data, inputs, outputs) => new Adder(inputs[0], inputs[1], inputs[2], outputs[1], outputs[0]),
+  'TriState': (data, inputs, outputs) => new TriState(inputs[0], inputs[1], outputs[0]),
+
+  // TODO: Add support for splitter (bundle and unbundle), make N copies, multiplexer, shift register
 };
 
 /**
@@ -51,9 +86,19 @@ export class JLSLoader extends CircuitLoader {
 
     const name = this.#expect(/[a-zA-Z0-9]+/, tokens.shift());
 
+    const ignoreElements = [
+      'SigGen',
+      'Text',
+      'Display'
+    ];
+
     const parsedElements: { type: string, props: Record<string, string[]>, subcircuit?: Circuit }[] = [];
     while (tokens.length && tokens[0] != 'ENDCIRCUIT') {
-      parsedElements.push(this.#parseElement(tokens));
+      const e = this.#parseElement(tokens);
+      if (ignoreElements.includes(e.type)) {
+        continue;
+      }
+      parsedElements.push(e);
     }
 
     this.#expect('ENDCIRCUIT', tokens.shift());
@@ -70,7 +115,6 @@ export class JLSLoader extends CircuitLoader {
       const directConnections = parsedWires.filter(w => (w.props['attach'] ?? []).includes(id));
       const connectedWires = this.#getWireDependencies(parsedWires, directConnections);
 
-
       let width: number;
       let inputs: Record<string, Input> = {};
       let outputs: Record<string, Output> = {};
@@ -78,26 +122,41 @@ export class JLSLoader extends CircuitLoader {
       if (parsedElement.props['bits']) {
         width = parseInt(parsedElement.props['bits'][0]);
       } else {
-        // If we don't have a width, this element is a subcircuit. We need to extract
-        // the width of the child input pin in the subcircuit to which any given wire is "put".
-        // Since we don't know what that is in advance, we use a sentinel value and also fetch the
-        // inputs and outputs, which will be used when the sentinel is matched for each connected
-        // wire in the loop below.
-        width = -1;
+        switch (parsedElement.type) {
+          case 'Clock':
+            width = 1;
+            break;
+          case 'Constant':
+            // Constants don't have a width, they just have a value. This will grab the
+            // minimum width a bus needs to be to accomodate that value.
+            const base = parseInt(parsedElement.props['base'][0]);
+            const value = parseInt(parsedElement.props['value'][0], base);
+            width = value.toString(2).length;
+            break;
+          case 'SubCircuit':
+            // If we don't have a width, this element is a subcircuit. We need to extract
+            // the width of the child input pin in the subcircuit to which any given wire is "put".
+            // Since we don't know what that is in advance, we use a sentinel value and also fetch the
+            // inputs and outputs, which will be used when the sentinel is matched for each connected
+            // wire in the loop below.
+            width = -1;
+            if (!parsedElement.subcircuit) {
+              throw new Error(`Sanity check failed: Found a SubCircuit ELEMENT without nested CIRCUIT.`);
+            }
 
-        if (parsedElement.type != 'SubCircuit') {
-          throw new Error(`Sanity check failed: Found element of type ${parsedElement.type} without a 'bits' property.`);
+            inputs = parsedElement.subcircuit.getInputs();
+            outputs = parsedElement.subcircuit.getOutputs();
+            break;
+          default:
+            throw new Error(`Sanity check failed: Found element of type ${parsedElement.type} without a 'bits' property.`);
         }
-
-        if (!parsedElement.subcircuit) {
-          throw new Error(`Sanity check failed: Found a SubCircuit ELEMENT without nested CIRCUIT.`);
-        }
-
-        inputs = parsedElement.subcircuit.getInputs();
-        outputs = parsedElement.subcircuit.getOutputs();
       }
 
       for (const connectedWire of connectedWires) {
+        if (wires[connectedWire.props['id'][0]]) {
+          continue;
+        }
+
         let wireWidth = width;
         // No wire width, locate the matching wire in the subcircuit.
         if (wireWidth == -1) {
@@ -123,13 +182,7 @@ export class JLSLoader extends CircuitLoader {
           }
         }
 
-        if (!wires[connectedWire.props['id'][0]]) {
-          wires[connectedWire.props['id'][0]] = new CircuitBus(wireWidth);
-        } else {
-          if (wires[connectedWire.props['id'][0]].getWidth() != wireWidth) {
-            throw new Error(`Wire width mismatch: Element expected wire of width ${wireWidth}, but the wire was already created with width ${wires[connectedWire.props['id'][0]].getWidth()}`);
-          }
-        }
+        wires[connectedWire.props['id'][0]] = new CircuitBus(wireWidth);
       }
     }
 
@@ -170,38 +223,41 @@ export class JLSLoader extends CircuitLoader {
       const id = parsedElement.props['id'][0];
       const delay = parseInt((parsedElement.props['delay'] ?? ['0'])[0]);
 
-      const connectedWires = parsedWires.filter(w => (w.props['attach'] ?? []).includes(id));
+      const connectedWires = parsedWires
+        .filter(w => (w.props['attach'] ?? []).includes(id))
+        // Sort connected wires by their put so the ordering is deterministic.
+        // Needed for "built-in" subcircuits such as the Adder.
+        .sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0]));
 
       if (parsedElement.type != 'SubCircuit') {
-
         const parsedInputWires = connectedWires.filter(w => w.props['put'][0].startsWith('input'));
         const parsedOutputWires = connectedWires.filter(w => w.props['put'][0].startsWith('output'));
-  
+
         // Sort inputs by their 'put'. JLS increments a number at then end of the put string which corresponds
         // to the index that the input connects to.
         const inputWires = parsedInputWires.sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0]));
         const inputIds = inputWires.map(i => i.props['id'][0]);
         const inputs = inputIds.map(i => wires[i]);
-  
+
         const outputWires = parsedOutputWires.sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0]));
         const outputIds = outputWires.map(i => i.props['id'][0]);
         const outputs = outputIds.map(i => wires[i]);
-  
+
         if (!createElement[parsedElement.type]) {
           throw new Error(`Unsupported element of type: ${parsedElement.type}`);
         }
-  
+
         const element = createElement[parsedElement.type](parsedElement, inputs, outputs);
-  
+
         element
           .setLabel((parsedElement.props['name'] ?? [''])[0])
           .setPropagationDelay(delay);
-  
+
         inputs.forEach(input => input.connectElement(element));
         outputs.forEach(output => output.connectElement(element));
-  
+
         elements.push(element);
-  
+
       } else {
         // The element is a subcircuit. It requires special treatment to configure the connections.
         // Unfortunately, our subcircuit design is best suited to CircuitVerse, which means it uses
@@ -242,7 +298,7 @@ export class JLSLoader extends CircuitLoader {
         }
 
         const element = createElement[parsedElement.type](parsedElement, inputWires, outputWires);
-  
+
         element
           .setLabel((parsedElement.props['name'] ?? [''])[0])
           .setPropagationDelay(delay);
@@ -303,7 +359,7 @@ export class JLSLoader extends CircuitLoader {
     name: string;
     value: string;
   } {
-    const type = this.#expect(/(int|String|ref)/, tokens.shift());
+    const type = this.#expect(/([Ii]nt|String|ref|probe)/, tokens.shift());
     const name = this.#expect(/[a-zA-Z0-9]*/, tokens.shift());
 
     let value = this.#expect(/(("?[a-zA-Z0-9]*"?)|([0-9]+))/, tokens.shift());

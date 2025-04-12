@@ -47,8 +47,8 @@ export abstract class CircuitElement extends CircuitLoggable {
     this.#inputs = inputs;
     this.#outputs = outputs;
 
-    this.#inputs.forEach((i) => i.connectElement(this));
-    this.#outputs.forEach((i) => i.connectElement(this));
+    this.#inputs.forEach((i) => i?.connectElement(this));
+    this.#outputs.forEach((i) => i?.connectElement(this));
 
     this.#propagationDelay = 0;
     this.#label = null;
