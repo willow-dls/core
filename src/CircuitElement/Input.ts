@@ -49,6 +49,23 @@ export class Input extends CircuitElement {
   }
 
   /**
+   * Set the index of this input. This function is used to ensure the proper
+   * functionality of subcircuits.
+   * 
+   * > [!WARNING]
+   * > This is intended to be used by {@link CircuitLoader}s only.
+   * > You should never call this function from code outside of a loader
+   * > implementation.
+   * 
+   * @param index The new index.
+   * @returns This input for method chaining.
+   */
+  setIndex(index: number): Input {
+    this.#index = index;
+    return this;
+  }
+
+  /**
    * Get the label of this input.
    * @returns The label string that was passed into the constructor.
    */

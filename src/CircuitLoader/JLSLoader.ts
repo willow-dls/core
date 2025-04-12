@@ -15,11 +15,12 @@ import { Output } from "../CircuitElement/Output";
 import { OrGate } from "../CircuitElement/OrGate";
 import { SubCircuit } from "../CircuitElement/SubCircuit";
 
-const createElement: Record<string, (data: {type: string; props: Record<string, string[]>; subcircuit?: Circuit;}, inputs: CircuitBus[], outputs: CircuitBus[]) => CircuitElement> = {
-  // TODO: Properly set input and output index parameter for use with subcircuits.
+const createElement: Record<string, (data: { type: string; props: Record<string, string[]>; subcircuit?: Circuit; }, inputs: CircuitBus[], outputs: CircuitBus[]) => CircuitElement> = {
+  // We hard-code 0 indices for all inputs and outputs for now, but the parser will update these as necessary
+  // for subcircuits so that is okay.
   'InputPin': (data, inputs, outputs) => new Input(0, data.props['name'][0] ?? '', outputs),
   'OutputPin': (data, inputs, outputs) => new Output(0, data.props['name'][0] ?? '', inputs[0]),
-  // data.subcircuit will always be set here because the parser ensures it.
+  // data.subcircuit will always be set here because the parser ensures it, so the cast is safe.
   'SubCircuit': (data, inputs, outputs) => new SubCircuit(data.subcircuit as Circuit, inputs, outputs),
   'AndGate': (data, inputs, outputs) => new AndGate(inputs, outputs),
   'XorGate': (data, inputs, outputs) => new XorGate(inputs, outputs),
@@ -27,7 +28,7 @@ const createElement: Record<string, (data: {type: string; props: Record<string, 
 };
 
 /**
- * A circuit loaded that loads JLS `.jls` circuit files.
+ * A circuit loader that loads JLS `.jls` circuit files.
  */
 export class JLSLoader extends CircuitLoader {
   constructor() {
@@ -50,7 +51,7 @@ export class JLSLoader extends CircuitLoader {
 
     const name = this.#expect(/[a-zA-Z0-9]+/, tokens.shift());
 
-    const parsedElements: {type: string, props: Record<string, string[]>, subcircuit?: Circuit}[] = [];
+    const parsedElements: { type: string, props: Record<string, string[]>, subcircuit?: Circuit }[] = [];
     while (tokens.length && tokens[0] != 'ENDCIRCUIT') {
       parsedElements.push(this.#parseElement(tokens));
     }
@@ -58,7 +59,8 @@ export class JLSLoader extends CircuitLoader {
     this.#expect('ENDCIRCUIT', tokens.shift());
 
     const parsedWires = parsedElements.filter(e => e.type == 'WireEnd');
-    const noWires = parsedElements.filter(e => e.type != 'WireEnd');
+    // Elements are sorted by ID so they get a consistent index.
+    const noWires = parsedElements.filter(e => e.type != 'WireEnd').sort((a, b) => a.props['id'][0].localeCompare(b.props['id'][0]));
 
     // This block creates all the wires for the circuit, excluding subcircuits.
     const wires: Record<string, CircuitBus> = {};
@@ -113,7 +115,7 @@ export class JLSLoader extends CircuitLoader {
             wireWidth = inputs[put].getOutputs()[0].getWidth();
           } else if (outputs[put]) {
             wireWidth = outputs[put].getInputs()[0].getWidth();
-          } else {            
+          } else {
             // We can't create the wire using this subcircuit. It should get created
             // another time around thanks to getWireDependencies(), which results in us processing
             // wires lots of times.
@@ -169,39 +171,94 @@ export class JLSLoader extends CircuitLoader {
       const delay = parseInt((parsedElement.props['delay'] ?? ['0'])[0]);
 
       const connectedWires = parsedWires.filter(w => (w.props['attach'] ?? []).includes(id));
-      const inputWires = connectedWires.filter(w => w.props['put'][0].startsWith('input'));
-      const outputWires = connectedWires.filter(w => w.props['put'][0].startsWith('output'));
 
-      // Sort inputs by their 'put'. JLS increments a number at then end of the put string which corresponds
-      // to the index that the input connects to.
-      const inputIds = inputWires.sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0])).map(i => i.props['id'][0]);
-      const inputs = inputIds.map(i => wires[i]);
+      if (parsedElement.type != 'SubCircuit') {
 
-      const outputIds = outputWires.sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0])).map(i => i.props['id'][0]);
-      const outputs = outputIds.map(i => wires[i]);
+        const parsedInputWires = connectedWires.filter(w => w.props['put'][0].startsWith('input'));
+        const parsedOutputWires = connectedWires.filter(w => w.props['put'][0].startsWith('output'));
+  
+        // Sort inputs by their 'put'. JLS increments a number at then end of the put string which corresponds
+        // to the index that the input connects to.
+        const inputWires = parsedInputWires.sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0]));
+        const inputIds = inputWires.map(i => i.props['id'][0]);
+        const inputs = inputIds.map(i => wires[i]);
+  
+        const outputWires = parsedOutputWires.sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0]));
+        const outputIds = outputWires.map(i => i.props['id'][0]);
+        const outputs = outputIds.map(i => wires[i]);
+  
+        if (!createElement[parsedElement.type]) {
+          throw new Error(`Unsupported element of type: ${parsedElement.type}`);
+        }
+  
+        const element = createElement[parsedElement.type](parsedElement, inputs, outputs);
+  
+        element
+          .setLabel((parsedElement.props['name'] ?? [''])[0])
+          .setPropagationDelay(delay);
+  
+        inputs.forEach(input => input.connectElement(element));
+        outputs.forEach(output => output.connectElement(element));
+  
+        elements.push(element);
+  
+      } else {
+        // The element is a subcircuit. It requires special treatment to configure the connections.
+        // Unfortunately, our subcircuit design is best suited to CircuitVerse, which means it uses
+        // index-based input feeding, while JLS uses the far superior label-based feeding. This
+        // block exists solely to normalize the subcircuit's input indices to match what we pass in
+        // for the inputs array to the subcircuit element just to make sure everything works out
+        // properly.
 
-      if (!createElement[parsedElement.type]) {
-        throw new Error(`Unsupported element of type: ${parsedElement.type}`);
+        if (!parsedElement.subcircuit) {
+          throw new Error(`Sanity check failed; Subcircuit element doesn't have a CIRCUIT in it.`);
+        }
+
+        const inputs = Object.values(parsedElement.subcircuit.getInputs());
+        const outputs = Object.values(parsedElement.subcircuit.getOutputs());
+
+        let inputId = 0;
+        const inputWires: CircuitBus[] = [];
+        for (const input of inputs) {
+          input.setIndex(inputId);
+
+          // Find the wire whose "put" matches this input.
+          const putWire = connectedWires.filter(w => w.props['put'].includes(input.getLabel()))[0].props['id'][0];
+          inputWires.push(wires[putWire]);
+
+          inputId++;
+        }
+
+        let outputId = 0;
+        const outputWires: CircuitBus[] = [];
+        for (const output of outputs) {
+          output.setIndex(outputId);
+
+          // Find the wire whose "put" matches this output.
+          const putWire = connectedWires.filter(w => w.props['put'].includes(output.getLabel()))[0].props['id'][0];
+          outputWires.push(wires[putWire]);
+
+          inputId++;
+        }
+
+        const element = createElement[parsedElement.type](parsedElement, inputWires, outputWires);
+  
+        element
+          .setLabel((parsedElement.props['name'] ?? [''])[0])
+          .setPropagationDelay(delay);
+
+        // Notify the wires. This handles both the inputs and the outputs.
+        connectedWires.map(w => wires[w.props['id'][0]]).forEach(w => w.connectElement(element));
+        elements.push(element);
       }
-
-      const element = createElement[parsedElement.type](parsedElement, inputs, outputs);
-
-      element
-        .setLabel((parsedElement.props['name'] ?? [''])[0])
-        .setPropagationDelay(delay);
-
-      inputs.forEach(input => input.connectElement(element));
-      outputs.forEach(output => output.connectElement(element));
-
-      elements.push(element);
     }
 
     // JLS circuits do not have unique IDs, so we just use the name instead.
     return new Circuit(name, name, elements);
   }
 
-  #getWireDependencies(allWires: {type: string, props: Record<string, string[]>}[], wires: {type: string, props: Record<string, string[]>}[]): {type: string, props: Record<string, string[]>}[] {
-    const deps: {type: string, props: Record<string, string[]>}[] = [];
+  #getWireDependencies(allWires: { type: string, props: Record<string, string[]> }[], wires: { type: string, props: Record<string, string[]> }[]): { type: string, props: Record<string, string[]> }[] {
+    const deps: { type: string, props: Record<string, string[]> }[] = [];
 
     for (const wire of wires) {
       const connected = allWires.filter(w => w.props['wire'].includes(wire.props['id'][0]));
@@ -211,8 +268,7 @@ export class JLSLoader extends CircuitLoader {
     return deps.length ? this.#getWireDependencies(allWires, [...wires, ...deps]) : wires;
   }
 
-  // TODO: Support subcircuits
-  #parseElement(tokens: string[]): {type: string, props: Record<string, string[]>, subcircuit?: Circuit} {
+  #parseElement(tokens: string[]): { type: string, props: Record<string, string[]>, subcircuit?: Circuit } {
     this.#expect('ELEMENT', tokens.shift());
 
     const elementType = this.#expect(/[a-zA-Z0-9]*/, tokens.shift());
@@ -246,7 +302,7 @@ export class JLSLoader extends CircuitLoader {
     type: string;
     name: string;
     value: string;
-} {
+  } {
     const type = this.#expect(/(int|String|ref)/, tokens.shift());
     const name = this.#expect(/[a-zA-Z0-9]*/, tokens.shift());
 
