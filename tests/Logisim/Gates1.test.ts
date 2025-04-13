@@ -15,7 +15,7 @@ let xorCircuit;
 
 beforeAll(async () => {
     // logger.setLevel(LogLevel.TRACE).setSubsystems(/^Circuit$/);
-    const project = await loadProject(LogisimLoader, "tests/Logisim/AndGate.circ");
+    const project = await loadProject(LogisimLoader, "tests/Logisim/Gates1.circ");
     andCircuit = project.getCircuitByName("main");
     orCircuit = project.getCircuitByName("ORGate")
     and2Circuit = project.getCircuitByName("AndGate2")
