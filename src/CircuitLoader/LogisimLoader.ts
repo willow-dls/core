@@ -49,15 +49,6 @@ type CircuitContext = {
     project: CircuitProject;
 };
 
-// const circElement: { type: string, name: string, width: number, outputPin: boolean, inputs: number[], outputs: number[], index: number } = {
-//     type: '',
-//     name: '',
-//     width: 1,
-//     outputPin: false,
-//     inputs: [],
-//     outputs: [],
-//     index: Number(compIndex)
-// }
 const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     "AND Gate": ({ nodes, data }) =>
         new AndGate(
@@ -100,10 +91,10 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
             [nodes[data.outputs]],
         ),
     "Input": ({ nodes, data }) =>
-        new Input(data.index, data.label, [nodes[data.outputs]]),
+        new Input(data.index, data.name, [nodes[data.outputs]]),
 
     "Output": ({ nodes, data }) =>
-        new Output(data.index, data.label, nodes[data.inputs]),
+        new Output(data.index, data.name, nodes[data.inputs]),
     "SubCircuit": ({ nodes, data, project }) =>
         new SubCircuit(
             project.getCircuitById(data.id),
@@ -237,8 +228,7 @@ export class LogisimLoader extends CircuitLoader {
             subcircuits.push(circuit.name)
         }
 
-        //start index at one, as circuit index 0 is always just main information
-        for (let circuitIndex = 1; circuitIndex < data.project.circuit.length; circuitIndex++) {
+        for (let circuitIndex = 0; circuitIndex < data.project.circuit.length; circuitIndex++) {
             const scope = data.project.circuit[circuitIndex]
             this.log(LogLevel.DEBUG, `Loading scope:`, scope);
 
@@ -347,7 +337,7 @@ export class LogisimLoader extends CircuitLoader {
 
                 if (!createElement[circElement.type]) {
                     throw new Error(
-                        `Circuit '${scope["name"]}' (${circElement.name}) uses unsupported element: ${circElement.type}.`,
+                        `Circuit '${scope.name}' (${circElement.name}) uses unsupported element: ${circElement.type}.`,
                     );
                 }
                 const newElement = createElement[circElement.type]({
@@ -355,17 +345,11 @@ export class LogisimLoader extends CircuitLoader {
                     nodes: nodes,
                     data: circElement,
                 })
-                console.log(circElement.name)
                 newElement.setLabel(circElement.name)
-
-                console.log(circElement)
-                console.log(newElement)
-                console.log(newElement.getLabel())
-
                 elements.push(newElement)
             }
 
-            const circuit = new Circuit(circuitIndex.toString(), scope["name"], elements)
+            const circuit = new Circuit(circuitIndex.toString(), scope.name, elements)
             project.addCircuit(circuit)
         }
         return project

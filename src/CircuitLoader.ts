@@ -41,7 +41,6 @@ export async function loadProject(
     data: Stream | string,
     logger?: CircuitLogger,
 ): Promise<CircuitProject> {
-    const stream = loadFileOrStream(data);
     const circuitLoader = new loader();
     if (logger) {
         circuitLoader.attachLogger(logger);
@@ -49,9 +48,9 @@ export async function loadProject(
     if (typeof data === "string" && data.split('.').pop() === 'circ') {
         return circuitLoader.load(loadXML(data))
     }
-    else {
-        return stream.then((json) => circuitLoader.load(json));
-    }
+    const stream = loadFileOrStream(data);
+    return stream.then((json) => circuitLoader.load(json));
+
 }
 
 function loadXML(file: string) {
