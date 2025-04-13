@@ -97,9 +97,9 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
         new Output(data.index, data.name, nodes[data.inputs]),
     "SubCircuit": ({ nodes, data, project }) =>
         new SubCircuit(
-            project.getCircuitById(data.id),
-            data.inputNodes.map((nodeInd: number) => nodes[nodeInd]),
-            data.outputNodes.map((nodeInd: number) => nodes[nodeInd]),
+            [project, data.circIndex],
+            data.inputs.map((nodeInd: number) => nodes[nodeInd]),
+            data.outputs.map((nodeInd: number) => nodes[nodeInd]),
         ),
     // "Demultiplexer": ({ nodes, data }) =>
     //     new Demultiplexer(
@@ -214,10 +214,6 @@ export class LogisimLoader extends CircuitLoader {
     }
 
     load(data: any): CircuitProject {
-        // console.log("Current directory:", process.cwd());
-        // const fileOut = "test.json"
-        // fs.writeFileSync(fileOut, JSON.stringify(data))
-
         const project: CircuitProject = new CircuitProject();
         this.propagateLoggersTo(project);
 
@@ -232,6 +228,7 @@ export class LogisimLoader extends CircuitLoader {
             const scope = data.project.circuit[circuitIndex]
             this.log(LogLevel.DEBUG, `Loading scope:`, scope);
 
+            //Possibly need this if a circuit has no elements in it. Blank canvas upon saving.
             // if (!scope.wire || !scope.comp) {
             //     continue
             // }
@@ -280,19 +277,22 @@ export class LogisimLoader extends CircuitLoader {
             // Loop through component list to retrieve pertinant information
             let elements: CircuitElement[] = []
             for (let compIndex in scope.comp) {
-                const circElement: { type: string, name: string, width: number, outputPin: boolean, inputs: number[], outputs: number[], index: number } = {
+                const circElement: { type: string, name: string, width: number, outputPin?: boolean, inputs: number[], outputs: number[], index?: number, circIndex?: string } = {
                     type: ' ',
                     name: ' ',
                     width: 1,
-                    outputPin: false,
                     inputs: [],
                     outputs: [],
-                    index: Number(compIndex)
                 }
                 const component = scope.comp[compIndex]
-                let loc = component.loc
-                if (subcircuits.includes(component.name)) circElement.type = "Subcircuit"
-                else if (component.name === "Pin") circElement.type = "Input"
+                if (subcircuits.includes(component.name)) {
+                    circElement.type = "SubCircuit"
+                    circElement.circIndex = subcircuits.indexOf(component.name).toString()
+                }
+                else if (component.name === "Pin") {
+                    circElement.type = "Input"
+                    circElement.index = Number(compIndex)
+                }
                 else circElement.type = component.name
                 const compAttributes = component.a
                 for (let attrIndex in compAttributes) {
@@ -306,15 +306,17 @@ export class LogisimLoader extends CircuitLoader {
                     if (attribute.name === "output") {
                         circElement.outputPin = true
                         circElement.type = "Output"
-                        circElement.inputs.push(wire2Node.nodes.indexOf(loc))
+                        circElement.inputs.push(wire2Node.nodes.indexOf(component.loc))
                     }
                 }
+                let loc = component.loc
+                let outputNodeIndex = wire2Node.nodes.indexOf(component.loc);
 
-                let outputNodeIndex = wire2Node.nodes.indexOf(loc);
-
-                if (outputNodeIndex > -1 && circElement.outputPin === false) {
+                //Outputs
+                if (outputNodeIndex > -1 && !circElement.outputPin) {
                     circElement.outputs.push(outputNodeIndex)
                 }
+                //Inputs
                 if (circElement.type != "Input" && circElement.type != "Output") {
                     let [locx, locy] = coord2Num(loc)
                     let xmin = locx - 75;

@@ -3,40 +3,65 @@ import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
 import { LogLevel } from "../CircuitLogger";
 import { Clock } from "./Clock";
+import { CircuitProject } from "../CircuitProject";
+
+type cirHolder = {
+    circuit: Circuit;
+    project?: never;
+    circuitIndex?: never;
+} |
+{
+    circuit?: never;
+    project: CircuitProject;
+    circuitIndex: string;
+}
 
 export class SubCircuit extends CircuitElement {
-  #circuit: Circuit;
+    #circuitRetrieval: cirHolder;
 
-  constructor(circuit: Circuit, inputs: CircuitBus[], outputs: CircuitBus[]) {
-    super("SubCircuitElement", inputs, outputs);
-    this.#circuit = circuit;
-  }
 
-  resolve(): number {
-    this.log(
-      LogLevel.DEBUG,
-      `Executing Subcircuit: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`,
-    );
+    constructor(circuit: Circuit | [CircuitProject, string], inputs: CircuitBus[], outputs: CircuitBus[]) {
+        super("SubCircuitElement", inputs, outputs);
+        if (circuit instanceof Circuit) {
+            this.#circuitRetrieval = { circuit: circuit };
+        }
+        else {
+            this.#circuitRetrieval = { project: circuit[0], circuitIndex: circuit[1] }
+        }
 
-    const inputs = this.getInputs();
-    const outputs = this.getOutputs();
+    }
 
-    const result = this.#circuit.resolve(inputs.map((node) => node.getValue()));
+    setCircuit(): Circuit {
+        return this.#circuitRetrieval.circuit ? this.#circuitRetrieval.circuit : this.#circuitRetrieval.project.getCircuitById(this.#circuitRetrieval.circuitIndex)
+    }
 
-    result.outputs.forEach((value, index) => {
-      outputs[index].setValue(value);
-    });
+    resolve(): number {
+        let circuit = this.setCircuit()
+        this.log(
+            LogLevel.DEBUG,
+            `Executing Subcircuit: [id = ${circuit.getId()}, name = '${circuit.getName()}']`,
+        );
 
-    this.log(
-      LogLevel.DEBUG,
-      `Subcircuit complete: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`,
-      result,
-    );
+        const inputs = this.getInputs();
+        const outputs = this.getOutputs();
 
-    return result.propagationDelay;
-  }
+        const result = circuit.resolve(inputs.map((node) => node.getValue()));
 
-  getClocks(): Clock[] {
-    return this.#circuit.getClocks();
-  }
+        result.outputs.forEach((value, index) => {
+            outputs[index].setValue(value);
+        });
+
+        this.log(
+            LogLevel.DEBUG,
+            `Subcircuit complete: [id = ${circuit.getId()}, name = '${circuit.getName()}']`,
+            result,
+        );
+
+        return result.propagationDelay;
+    }
+
+    getClocks(): Clock[] {
+        let circuit = this.setCircuit()
+        return circuit.getClocks();
+    }
 }
