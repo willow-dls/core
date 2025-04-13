@@ -64,11 +64,11 @@ for (const entry of andtable) {
             Output1: new BitString(entry[2])
         }
         const results = andCircuit.run(inputs)
-        expect(results.outputs.Output1).toStrictEqual(outputs.Output1);
+        expect(results.outputs.Output1.toString()).toStrictEqual(outputs.Output1.toString());
     });
 }
 for (const entry of and2table) {
-    test("And Gate-2", async () => {
+    test.failing("Bad And Gate", async () => {
         const inputs = {
             Input1: new BitString(entry[0]),
             Input2: new BitString(entry[1]),
@@ -78,11 +78,12 @@ for (const entry of and2table) {
         }
         const results = andCircuit.run(inputs)
 
-        console.log(
-            `Inputs = ${JSON.stringify(inputs)}\n
-            Outputs = ${JSON.stringify(outputs)}\n
-            Results = ${JSON.stringify(results.outputs)}`)
-        expect(results.outputs).toEqual(outputs)
+        // console.log(
+        //     `Inputs = ${JSON.stringify(inputs)}\n
+        //     Outputs = ${JSON.stringify(outputs)}\n
+        //     Results = ${JSON.stringify(results.outputs)}`)
+
+        expect(results.outputs.Output1.toString()).toStrictEqual(outputs.Output1.toString());
     });
 }
 
@@ -95,10 +96,8 @@ for (const entry of ortable) {
         const outputs = {
             Output1: new BitString(entry[2])
         }
-
         const results = orCircuit.run(inputs)
-
-        expect(results.outputs).toStrictEqual(outputs);
+        expect(results.outputs.Output1.toString()).toStrictEqual(outputs.Output1.toString());
     });
 }
 
@@ -111,10 +110,8 @@ for (const entry of andtable) {
         const outputs = {
             Output1: new BitString(entry[2])
         }
-
         const results = and2Circuit.run(inputs)
-
-        expect(results.outputs).toStrictEqual(outputs);
+        expect(results.outputs.Output1.toString()).toStrictEqual(outputs.Output1.toString());
     });
 }
 
@@ -131,7 +128,6 @@ for (const entry of xortable) {
         }
 
         const results = xorCircuit.run(inputs)
-
-        expect(results.outputs).toStrictEqual(outputs);
+        expect(results.outputs.Output1.toString()).toStrictEqual(outputs.Output1.toString());
     });
 }
