@@ -318,9 +318,10 @@ export class LogisimLoader extends CircuitLoader {
                 }
                 //Inputs
                 if (circElement.type != "Input" && circElement.type != "Output") {
+                    //May need to make dictionary with each element type as a key, with sizes to check for input wires
                     let [locx, locy] = coord2Num(loc)
                     let xmin = locx - 75;
-                    let xmax = locx - 30;
+                    let xmax = locx;
                     let ymin = locy - 30;
                     let ymax = locy + 30;
                     for (let node of wire2Node.nodes) {

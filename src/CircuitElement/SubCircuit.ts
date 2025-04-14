@@ -37,6 +37,7 @@ export class SubCircuit extends CircuitElement {
 
     resolve(): number {
         let circuit = this.setCircuit()
+        console.log(JSON.stringify(circuit))
         this.log(
             LogLevel.DEBUG,
             `Executing Subcircuit: [id = ${circuit.getId()}, name = '${circuit.getName()}']`,
@@ -44,7 +45,6 @@ export class SubCircuit extends CircuitElement {
 
         const inputs = this.getInputs();
         const outputs = this.getOutputs();
-
         const result = circuit.resolve(inputs.map((node) => node.getValue()));
 
         result.outputs.forEach((value, index) => {
@@ -61,7 +61,12 @@ export class SubCircuit extends CircuitElement {
     }
 
     getClocks(): Clock[] {
-        let circuit = this.setCircuit()
-        return circuit.getClocks();
+        try {
+            let circuit = this.setCircuit()
+            return circuit.getClocks();
+        }
+        catch {
+            return []
+        }
     }
 }
