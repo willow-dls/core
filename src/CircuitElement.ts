@@ -47,6 +47,8 @@ export abstract class CircuitElement extends CircuitLoggable {
     this.#inputs = inputs;
     this.#outputs = outputs;
 
+    // Connections may be undefined; it is possible to save elements that aren't
+    // actually connected to anything.
     this.#inputs.forEach((i) => i?.connectElement(this));
     this.#outputs.forEach((i) => i?.connectElement(this));
 
