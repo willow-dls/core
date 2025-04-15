@@ -2,6 +2,8 @@ import { expect, beforeAll, test } from "@jest/globals";
 import { BitString } from "../../src/BitString";
 import { loadProject } from "../../src/CircuitLoader";
 import { LogisimLoader } from "../../src/CircuitLoader/LogisimLoader";
+import { FileLogger } from "../../src/CircuitLogger/FileLogger";
+import { LogLevel } from "../../src/CircuitLogger";
 
 let mainCircuit;
 let nandCircuit;
@@ -9,11 +11,13 @@ let norCircuit;
 let xnorCircuit;
 let notCircuit;
 let bufferCircuit;
-
-
+const logger = new FileLogger('gate2.log');
+const logger2 = new FileLogger('gate2x.log');
 
 beforeAll(async () => {
-    // logger.setLevel(LogLevel.TRACE).setSubsystems(/^Circuit$/);
+
+    logger.setLevel(LogLevel.TRACE);
+    logger2.setLevel(LogLevel.TRACE)
     const project = await loadProject(LogisimLoader, "tests/Logisim/Gates2.circ");
     mainCircuit = project.getCircuitByName("main");
     nandCircuit = project.getCircuitByName("NANDGate")
@@ -21,6 +25,15 @@ beforeAll(async () => {
     xnorCircuit = project.getCircuitByName("XNORGate")
     notCircuit = project.getCircuitByName("NOTGate")
     bufferCircuit = project.getCircuitByName("BufferGate")
+    logger.attachTo(project)
+    logger2.attachTo(notCircuit)
+
+});
+
+
+afterAll(async () => {
+    logger.close();
+    logger2.close();
 });
 
 const maintable = [
@@ -64,7 +77,7 @@ for (const entry of maintable) {
         const outputs = {
             Output1: new BitString(entry[2])
         }
-        const results = nandCircuit.run(inputs)
+        const results = mainCircuit.run(inputs)
         expect(results.outputs.Output1.toString()).toStrictEqual(outputs.Output1.toString());
     });
 }
@@ -83,19 +96,6 @@ for (const entry of nandtable) {
     });
 }
 
-for (const entry of nandtable) {
-    test("NAND Gate", async () => {
-        const inputs = {
-            Input1: new BitString(entry[0]),
-            Input2: new BitString(entry[1]),
-        };
-        const outputs = {
-            Output1: new BitString(entry[2])
-        }
-        const results = nandCircuit.run(inputs)
-        expect(results.outputs.Output1.toString()).toStrictEqual(outputs.Output1.toString());
-    });
-}
 
 for (const entry of nortable) {
     test("NOR Gate", async () => {
