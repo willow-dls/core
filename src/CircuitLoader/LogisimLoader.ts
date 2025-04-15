@@ -95,12 +95,13 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
 
     "Output": ({ nodes, data }) =>
         new Output(data.index, data.name, nodes[data.inputs]),
-    "SubCircuit": ({ nodes, data, project }) =>
-        new SubCircuit(
-            [project, data.circIndex],
+    "SubCircuit": ({ nodes, data, project }) => {
+        return new SubCircuit(
+            project.getCircuitById(data.circIndex),
             data.inputs.map((nodeInd: number) => nodes[nodeInd]),
             data.outputs.map((nodeInd: number) => nodes[nodeInd]),
-        ),
+        )
+    },
     // "Demultiplexer": ({ nodes, data }) =>
     //     new Demultiplexer(
     //         [nodes[data.customData.nodes.input]],
@@ -207,6 +208,43 @@ function coord2Num(coord: string) {
     return [x, y]
 }
 
+function compareFn(a: any, b: any) {
+
+    if (a instanceof Input && !(b instanceof Input)) {
+        return -1
+    }
+    // if (a == Input && b == Input || a != Input && b != Input) {
+    //     return 0
+    // }
+    if (!(a instanceof Input) && b instanceof Input) {
+        return 1
+    }
+    return 0
+}
+
+const sizeDict: any = {
+    "AND Gate": [50, 30],
+    "NAND Gate": [60, 30],
+    "OR Gate": [50, 30],
+    "NOR Gate": [60, 30],
+    "XOR Gate": [60, 30],
+    "XNOR Gate": [70, 30],
+    "NOT Gate": [30, 0],
+    "Buffer": [20, 0],
+    "SubCircuit": [30, 20],
+    // TODO Positions below not set yet.
+    "Multiplexer": [50, 30],
+    "Demultiplexer": [50, 30],
+    "Priority Encoder": [50, 30],
+    "Decoder": [50, 30],
+    "Counter": [50, 30],
+    "Splitter": [50, 30],
+    "Clock": [50, 30],
+    "BitSelector": [50, 30],
+    "D Flip-Flop": [40, 30],
+    "S-R Flip-Flop": [40, 30],
+    "J-K Flip-Flop": [40, 30],
+}
 
 export class LogisimLoader extends CircuitLoader {
     constructor() {
@@ -223,9 +261,25 @@ export class LogisimLoader extends CircuitLoader {
         for (let circuit of data.project.circuit) {
             subcircuits.push(circuit.name)
         }
+        let unparsedCircuitArray = data.project.circuit;
+        let adjustList = []
+        console.log(unparsedCircuitArray)
+        for (let circuit in unparsedCircuitArray) {
+            for (let component of unparsedCircuitArray[circuit].comp) {
+                if (subcircuits.includes(component.name)) {
+                    adjustList.push(circuit)
 
-        for (let circuitIndex = 0; circuitIndex < data.project.circuit.length; circuitIndex++) {
-            const scope = data.project.circuit[circuitIndex]
+                }
+            }
+        }
+        console.log(subcircuits)
+        for (let item of adjustList) {
+            unparsedCircuitArray.push(unparsedCircuitArray.splice(Number(item), 1)[0])
+            subcircuits.push(subcircuits.splice(Number(item), 1)[0])
+        }
+        console.log(subcircuits)
+        for (let circuitIndex = 0; circuitIndex < unparsedCircuitArray.length; circuitIndex++) {
+            const scope = unparsedCircuitArray[circuitIndex]
             this.log(LogLevel.DEBUG, `Loading scope:`, scope);
 
             //Possibly need this if a circuit has no elements in it. Blank canvas upon saving.
@@ -276,6 +330,7 @@ export class LogisimLoader extends CircuitLoader {
 
             // Loop through component list to retrieve pertinant information
             let elements: CircuitElement[] = []
+            let inputIndex = 0;
             for (let compIndex in scope.comp) {
                 const circElement: { type: string, name: string, width: number, outputPin?: boolean, inputs: number[], outputs: number[], index?: number, circIndex?: string } = {
                     type: ' ',
@@ -287,11 +342,12 @@ export class LogisimLoader extends CircuitLoader {
                 const component = scope.comp[compIndex]
                 if (subcircuits.includes(component.name)) {
                     circElement.type = "SubCircuit"
-                    circElement.circIndex = subcircuits.indexOf(component.name).toString()
+                    circElement.circIndex = subcircuits.indexOf(component.name).toString();
                 }
                 else if (component.name === "Pin") {
                     circElement.type = "Input"
-                    circElement.index = Number(compIndex)
+                    circElement.index = inputIndex
+                    inputIndex++
                 }
                 else circElement.type = component.name
                 const compAttributes = component.a
@@ -307,6 +363,7 @@ export class LogisimLoader extends CircuitLoader {
                         circElement.outputPin = true
                         circElement.type = "Output"
                         circElement.inputs.push(wire2Node.nodes.indexOf(component.loc))
+                        inputIndex--
                     }
                 }
                 let loc = component.loc
@@ -320,13 +377,15 @@ export class LogisimLoader extends CircuitLoader {
                 if (circElement.type != "Input" && circElement.type != "Output") {
                     //May need to make dictionary with each element type as a key, with sizes to check for input wires
                     let [locx, locy] = coord2Num(loc)
-                    let xmin = locx - 75;
-                    let xmax = locx;
-                    let ymin = locy - 30;
-                    let ymax = locy + 30;
+                    let [xWindow, yWindow] = sizeDict[circElement.type]
+                    let xmin = locx - xWindow
+                    //May need to change this to account for multiplexers and other things with more than just inputs and outputs
+                    let xmax = locx - xWindow;
+                    let ymin = locy - yWindow
+                    let ymax = locy + yWindow;
                     for (let node of wire2Node.nodes) {
                         let [x, y] = coord2Num(node)
-                        if (x > xmin && x < xmax && y > ymin && y < ymax) {
+                        if (xmin <= x && x <= xmax && ymin <= y && y <= ymax) {
                             circElement.inputs.push(wire2Node.nodes.indexOf(node))
                         }
                     }
@@ -349,9 +408,10 @@ export class LogisimLoader extends CircuitLoader {
                     data: circElement,
                 })
                 newElement.setLabel(circElement.name)
+                newElement.setPropagationDelay(10)
                 elements.push(newElement)
             }
-
+            elements.sort(compareFn)
             const circuit = new Circuit(circuitIndex.toString(), scope.name, elements)
             project.addCircuit(circuit)
         }

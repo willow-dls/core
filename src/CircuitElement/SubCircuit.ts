@@ -3,49 +3,37 @@ import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
 import { LogLevel } from "../CircuitLogger";
 import { Clock } from "./Clock";
-import { CircuitProject } from "../CircuitProject";
 
-type cirHolder = {
-    circuit: Circuit;
-    project?: never;
-    circuitIndex?: never;
-} |
-{
-    circuit?: never;
-    project: CircuitProject;
-    circuitIndex: string;
-}
-
+/**
+ * Most circuit simulation libraries support the concept of "subcircuits," which are
+ * a way to embed an entire circuit as an element in another circuit. This class implements
+ * that functionality, allowing an entire {@link Circuit} to be added as an element in another
+ * {@link Circuit}.
+ */
 export class SubCircuit extends CircuitElement {
-    #circuitRetrieval: cirHolder;
+    #circuit: Circuit;
 
-
-    constructor(circuit: Circuit | [CircuitProject, string], inputs: CircuitBus[], outputs: CircuitBus[]) {
+    /**
+     * Create a new subcircuit.
+     * @param circuit The circuit to convert to a ciruit element.
+     * @param inputs The subcircuit inputs.
+     * @param outputs The subcircuit outputs.
+     */
+    constructor(circuit: Circuit, inputs: CircuitBus[], outputs: CircuitBus[]) {
         super("SubCircuitElement", inputs, outputs);
-        if (circuit instanceof Circuit) {
-            this.#circuitRetrieval = { circuit: circuit };
-        }
-        else {
-            this.#circuitRetrieval = { project: circuit[0], circuitIndex: circuit[1] }
-        }
-
-    }
-
-    setCircuit(): Circuit {
-        return this.#circuitRetrieval.circuit ? this.#circuitRetrieval.circuit : this.#circuitRetrieval.project.getCircuitById(this.#circuitRetrieval.circuitIndex)
+        this.#circuit = circuit;
     }
 
     resolve(): number {
-        let circuit = this.setCircuit()
-        console.log(JSON.stringify(circuit))
         this.log(
             LogLevel.DEBUG,
-            `Executing Subcircuit: [id = ${circuit.getId()}, name = '${circuit.getName()}']`,
+            `Executing Subcircuit: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`,
         );
 
         const inputs = this.getInputs();
         const outputs = this.getOutputs();
-        const result = circuit.resolve(inputs.map((node) => node.getValue()));
+
+        const result = this.#circuit.resolve(inputs.map((node) => node.getValue()));
 
         result.outputs.forEach((value, index) => {
             outputs[index].setValue(value);
@@ -53,20 +41,19 @@ export class SubCircuit extends CircuitElement {
 
         this.log(
             LogLevel.DEBUG,
-            `Subcircuit complete: [id = ${circuit.getId()}, name = '${circuit.getName()}']`,
+            `Subcircuit complete: [id = ${this.#circuit.getId()}, name = '${this.#circuit.getName()}']`,
             result,
         );
 
         return result.propagationDelay;
     }
 
+    /**
+     * Retrieve an array of all the clocks in this subcircuit, recursively.
+     * @returns All of the clocks in this circuit, so they can be set properly by the
+     * {@link Circuit.run} function.
+     */
     getClocks(): Clock[] {
-        try {
-            let circuit = this.setCircuit()
-            return circuit.getClocks();
-        }
-        catch {
-            return []
-        }
+        return this.#circuit.getClocks();
     }
 }
