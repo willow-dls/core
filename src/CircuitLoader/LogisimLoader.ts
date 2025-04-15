@@ -263,7 +263,6 @@ export class LogisimLoader extends CircuitLoader {
         }
         let unparsedCircuitArray = data.project.circuit;
         let adjustList = []
-        console.log(unparsedCircuitArray)
         for (let circuit in unparsedCircuitArray) {
             for (let component of unparsedCircuitArray[circuit].comp) {
                 if (subcircuits.includes(component.name)) {
@@ -272,12 +271,12 @@ export class LogisimLoader extends CircuitLoader {
                 }
             }
         }
-        console.log(subcircuits)
+
         for (let item of adjustList) {
             unparsedCircuitArray.push(unparsedCircuitArray.splice(Number(item), 1)[0])
             subcircuits.push(subcircuits.splice(Number(item), 1)[0])
         }
-        console.log(subcircuits)
+
         for (let circuitIndex = 0; circuitIndex < unparsedCircuitArray.length; circuitIndex++) {
             const scope = unparsedCircuitArray[circuitIndex]
             this.log(LogLevel.DEBUG, `Loading scope:`, scope);
