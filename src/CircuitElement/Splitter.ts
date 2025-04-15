@@ -146,13 +146,13 @@ export class Splitter extends CircuitElement {
 
     if (split.length != outputs.length) {
       throw new Error(
-        `Splitter: split array must be the same length as the outputs array.`,
+        `Splitter: split array must be the same length as the outputs array: ${split.length} != ${outputs.length}`,
       );
     }
 
     if (split.reduce((a, b) => a + b, 0) != input.getWidth()) {
       throw new Error(
-        `Splitter: splits must total to the width of the input bus.`,
+        `Splitter: splits must total to the width of the input bus: ${split.reduce((a, b) => a + b, 0)} != ${input.getWidth()}`,
       );
     }
 
