@@ -107,7 +107,7 @@ export class JLSLoader extends CircuitLoader {
     return token;
   }
 
-  #parseCircuit(tokens: string[]): Circuit {
+  #parseCircuit(project: CircuitProject, tokens: string[]): Circuit {
     this.#expect('CIRCUIT', tokens.shift());
 
     const name = this.#expect(/[a-zA-Z0-9]+/, tokens.shift());
@@ -122,7 +122,7 @@ export class JLSLoader extends CircuitLoader {
 
     const parsedElements: { type: string, props: Record<string, string[]>, subcircuit?: Circuit }[] = [];
     while (tokens.length && tokens[0] != 'ENDCIRCUIT') {
-      const e = this.#parseElement(tokens);
+      const e = this.#parseElement(project, tokens);
       if (ignoreElements.includes(e.type)) {
         continue;
       }
@@ -398,7 +398,9 @@ export class JLSLoader extends CircuitLoader {
     }
 
     // JLS circuits do not have unique IDs, so we just use the name instead.
-    return new Circuit(name, name, elements);
+    const circuit = new Circuit(name, name, elements);
+    project.addCircuit(circuit);
+    return circuit;
   }
 
   #getWireDependencies(allWires: { type: string, props: Record<string, string[]> }[], wires: { type: string, props: Record<string, string[]> }[]): { type: string, props: Record<string, string[]> }[] {
@@ -412,7 +414,7 @@ export class JLSLoader extends CircuitLoader {
     return deps.length ? this.#getWireDependencies(allWires, [...wires, ...deps]) : wires;
   }
 
-  #parseElement(tokens: string[]): { type: string, props: Record<string, string[]>, subcircuit?: Circuit } {
+  #parseElement(project: CircuitProject, tokens: string[]): { type: string, props: Record<string, string[]>, subcircuit?: Circuit } {
     this.#expect('ELEMENT', tokens.shift());
 
     const elementType = this.#expect(/[a-zA-Z0-9]*/, tokens.shift());
@@ -424,7 +426,7 @@ export class JLSLoader extends CircuitLoader {
         if (subcircuit) {
           throw new Error(`Sanity check failed: Multiple CIRCUITs found in a Subcircuit ELEMENT.`);
         }
-        subcircuit = this.#parseCircuit(tokens);
+        subcircuit = this.#parseCircuit(project, tokens);
       } else {
         const prop = this.#parseProperty(tokens);
         if (!properties[prop.name]) {
@@ -488,7 +490,7 @@ export class JLSLoader extends CircuitLoader {
     const tokens: string[] = data.split(/[\s+]/).filter((token) => token.length > 0);
 
     while (tokens.length) {
-      project.addCircuit(this.#parseCircuit(tokens));
+      this.#parseCircuit(project, tokens);
     }
 
     return project;
