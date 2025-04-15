@@ -24,6 +24,8 @@ import { Constant } from "../CircuitElement/Constant";
 import { BitString } from "../BitString";
 import { NotGate } from "../CircuitElement/NotGate";
 import { Clock } from "../CircuitElement/Clock";
+import { Multiplexer } from "../CircuitElement/Multiplexer";
+import { Extend } from "../CircuitElement/Extend";
 
 const createElement: Record<string, (data: { type: string; props: Record<string, string[]>; subcircuit?: Circuit; }, inputs: CircuitBus[], outputs: CircuitBus[]) => CircuitElement> = {
   // We hard-code 0 indices for all inputs and outputs for now, but the parser will update these as necessary
@@ -51,15 +53,21 @@ const createElement: Record<string, (data: { type: string; props: Record<string,
     return new Constant(outputs[0], new BitString(binStr));
   },
   'Clock': (data, inputs, outputs) => new Clock(outputs[0]),
-
-  // TODO: Double check inputs and outputs on these elements
-  'Decoder': (data, inputs, outputs) => new Decoder(inputs[0], outputs),
-
-  // TODO: Make sure inputs and outputs are in deterministic order on Adder.
   'Adder': (data, inputs, outputs) => new Adder(inputs[0], inputs[1], inputs[2], outputs[1], outputs[0]),
-  'TriState': (data, inputs, outputs) => new TriState(inputs[0], inputs[1], outputs[0]),
+  'Decoder': (data, inputs, outputs) => new Decoder(inputs[0], outputs),
+  'TriState': (data, inputs, outputs) => new TriState(inputs[1], inputs[0], outputs[0]),
+  'Mux': (data, inputs, outputs) => {
+    const select = inputs.pop();
 
-  // TODO: Add support for splitter (bundle and unbundle), make N copies, multiplexer, shift register
+    if (!select) {
+      throw new Error("Mux inputs array is empty.");
+    }
+
+    return new Multiplexer(inputs, outputs, select);
+  },
+  'Extend': (data, inputs, outputs) => new Extend(inputs[0], outputs),
+
+  // TODO: Add support for splitter (bundle and unbundle)
 };
 
 /**
@@ -86,6 +94,8 @@ export class JLSLoader extends CircuitLoader {
 
     const name = this.#expect(/[a-zA-Z0-9]+/, tokens.shift());
 
+    // These elements have no functionality for us, so we simply discard them
+    // after we parse them out of the file.
     const ignoreElements = [
       'SigGen',
       'Text',
@@ -230,11 +240,37 @@ export class JLSLoader extends CircuitLoader {
         .sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0]));
 
       if (parsedElement.type != 'SubCircuit') {
-        const parsedInputWires = connectedWires.filter(w => w.props['put'][0].startsWith('input'));
-        const parsedOutputWires = connectedWires.filter(w => w.props['put'][0].startsWith('output'));
+        // JLS has some elements whose inputs and outputs have fixed names that
+        // don't match the pattern of 'inputX' and 'outputX' like we assume by
+        // default. Since each case is different, we have a map that gives us the
+        // "put" values of the inputs and outputs.
+        const hardcodedElements: Record<string, string[][]> = {
+          // Type: [Inputs, Outputs]
+          'Adder': [['A', 'B', 'Cin'], ['S', 'Cout']],
+          'TriState': [['control'], []],
+          'Mux': [['select'], []]
+        };
+
+        let parsedInputWires: { type: string, props: Record<string, string[]>, subcircuit?: Circuit }[] = [];
+        let parsedOutputWires: { type: string, props: Record<string, string[]>, subcircuit?: Circuit }[] = [];
+
+        if (hardcodedElements[parsedElement.type]) {
+          // The element has custom "put" names, make sure to grab those.
+          const inPuts = hardcodedElements[parsedElement.type][0];
+          const outPuts = hardcodedElements[parsedElement.type][1];
+          parsedInputWires = connectedWires.filter(w => inPuts.includes(w.props['put'][0]));
+          parsedOutputWires = connectedWires.filter(w => outPuts.includes(w.props['put'][0]));
+        }
+
+         // Assume the default behavior of inputX and outputX put values. Some elements will have both
+         // hard coded puts and the default naming behavior.
+         parsedInputWires = [...parsedInputWires, ...connectedWires.filter(w => w.props['put'][0].startsWith('input'))];
+         parsedOutputWires = [...parsedOutputWires, ...connectedWires.filter(w => w.props['put'][0].startsWith('output'))];
 
         // Sort inputs by their 'put'. JLS increments a number at then end of the put string which corresponds
-        // to the index that the input connects to.
+        // to the index that the input connects to. For elements that have custom
+        // put values, this ensures that they are provided in a deterministic order
+        // for all circuits.
         const inputWires = parsedInputWires.sort((a, b) => a.props['put'][0].localeCompare(b.props['put'][0]));
         const inputIds = inputWires.map(i => i.props['id'][0]);
         const inputs = inputIds.map(i => wires[i]);
@@ -257,7 +293,6 @@ export class JLSLoader extends CircuitLoader {
         outputs.forEach(output => output.connectElement(element));
 
         elements.push(element);
-
       } else {
         // The element is a subcircuit. It requires special treatment to configure the connections.
         // Unfortunately, our subcircuit design is best suited to CircuitVerse, which means it uses
@@ -294,7 +329,7 @@ export class JLSLoader extends CircuitLoader {
           const putWire = connectedWires.filter(w => w.props['put'].includes(output.getLabel()))[0].props['id'][0];
           outputWires.push(wires[putWire]);
 
-          inputId++;
+          outputId++;
         }
 
         const element = createElement[parsedElement.type](parsedElement, inputWires, outputWires);
@@ -382,6 +417,8 @@ export class JLSLoader extends CircuitLoader {
     const data = await FileUtil.extractFromZip(stream, ["JLSCircuit"]).then(
       ([stream]) => FileUtil.readTextStream(stream),
     );
+
+    this.log(LogLevel.TRACE, `"JLSCircuit Data:\n${data}`);
 
     // Tokenize the input stream. JLS circuits have an unfortunate structure, but
     // at the very least, it is whitespace separated, so we can just chop the whole
