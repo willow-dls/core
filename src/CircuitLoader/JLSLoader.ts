@@ -26,6 +26,21 @@ import { NotGate } from "../CircuitElement/NotGate";
 import { Clock } from "../CircuitElement/Clock";
 import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { Extend } from "../CircuitElement/Extend";
+import { Splitter } from "../CircuitElement/Splitter";
+
+function genSplit(data: { type: string; props: Record<string, string[]>; subcircuit?: Circuit; }): number[] {
+  const pairs = data.props['pair'].map(s => s.split(':'));
+  const pairMap: Record<string, string[]> = {};
+  for (const pair of pairs) {
+    if (!pairMap[pair[0]]) {
+      pairMap[pair[0]] = [];
+    }
+    pairMap[pair[0]].push(pair[1]);
+  }
+
+  const splitArr = Object.values(pairMap).map(a => a.length);
+  return splitArr;
+}
 
 const createElement: Record<string, (data: { type: string; props: Record<string, string[]>; subcircuit?: Circuit; }, inputs: CircuitBus[], outputs: CircuitBus[]) => CircuitElement> = {
   // We hard-code 0 indices for all inputs and outputs for now, but the parser will update these as necessary
@@ -49,7 +64,7 @@ const createElement: Record<string, (data: { type: string; props: Record<string,
     const base = parseInt(data.props['base'][0]);
     const value = parseInt(data.props['value'][0], base);
     const binStr = value.toString(2);
-    
+
     return new Constant(outputs[0], new BitString(binStr));
   },
   'Clock': (data, inputs, outputs) => new Clock(outputs[0]),
@@ -67,7 +82,10 @@ const createElement: Record<string, (data: { type: string; props: Record<string,
   },
   'Extend': (data, inputs, outputs) => new Extend(inputs[0], outputs),
 
-  // TODO: Add support for splitter (bundle and unbundle)
+  // Splitter and Binder are two separate elements in JLS, but are implemented
+  // in a single element for CircuitVerse.
+  'Splitter': (data, inputs, outputs) => new Splitter(genSplit(data), inputs[0], outputs),
+  'Binder': (data, inputs, outputs) => new Splitter(genSplit(data), outputs[0], inputs)
 };
 
 /**
@@ -126,10 +144,11 @@ export class JLSLoader extends CircuitLoader {
       const connectedWires = this.#getWireDependencies(parsedWires, directConnections);
 
       let width: number;
-      let inputs: Record<string, Input> = {};
-      let outputs: Record<string, Output> = {};
+      let inputs: Record<string, Input> | undefined;
+      let outputs: Record<string, Output> | undefined;
+      let split: boolean = false;
 
-      if (parsedElement.props['bits']) {
+      if (parsedElement.props['bits'] && (!['Splitter', 'Binder'].includes(parsedElement.type))) {
         width = parseInt(parsedElement.props['bits'][0]);
       } else {
         switch (parsedElement.type) {
@@ -142,6 +161,11 @@ export class JLSLoader extends CircuitLoader {
             const base = parseInt(parsedElement.props['base'][0]);
             const value = parseInt(parsedElement.props['value'][0], base);
             width = value.toString(2).length;
+            break;
+          case 'Splitter':
+          case 'Binder':
+            width = -1;
+            split = true;
             break;
           case 'SubCircuit':
             // If we don't have a width, this element is a subcircuit. We need to extract
@@ -180,15 +204,29 @@ export class JLSLoader extends CircuitLoader {
           }
 
           const put = connectedWire.props['put'][0];
-          if (inputs[put]) {
-            wireWidth = inputs[put].getOutputs()[0].getWidth();
-          } else if (outputs[put]) {
-            wireWidth = outputs[put].getInputs()[0].getWidth();
-          } else {
-            // We can't create the wire using this subcircuit. It should get created
-            // another time around thanks to getWireDependencies(), which results in us processing
-            // wires lots of times.
-            continue;
+
+          if (inputs && outputs) {
+            if (inputs[put]) {
+              wireWidth = inputs[put].getOutputs()[0].getWidth();
+            } else if (outputs[put]) {
+              wireWidth = outputs[put].getInputs()[0].getWidth();
+            } else {
+              // We can't create the wire using this subcircuit. It should get created
+              // another time around thanks to getWireDependencies(), which results in us processing
+              // wires lots of times.
+              continue;
+            }
+          }
+
+          if (split) {
+            // Determine which split this wire belongs to, and how wide it is.
+            if (['input', 'output'].includes(put)) {
+              wireWidth = parseInt(parsedElement.props['bits'][0]);
+            } else {
+              const parsedPut = put.split('-');
+            wireWidth = parsedPut.length > 1 ? (parseInt(parsedPut[0]) - parseInt(parsedPut[1])) + 1 : 1;
+            this.log(LogLevel.TRACE, `Wire connected to splitter: put = ${put} -> ${wireWidth}`);
+            }
           }
         }
 
@@ -262,10 +300,25 @@ export class JLSLoader extends CircuitLoader {
           parsedOutputWires = connectedWires.filter(w => outPuts.includes(w.props['put'][0]));
         }
 
-         // Assume the default behavior of inputX and outputX put values. Some elements will have both
-         // hard coded puts and the default naming behavior.
-         parsedInputWires = [...parsedInputWires, ...connectedWires.filter(w => w.props['put'][0].startsWith('input'))];
-         parsedOutputWires = [...parsedOutputWires, ...connectedWires.filter(w => w.props['put'][0].startsWith('output'))];
+        // Oh, Splitter... the pain you have caused...
+        // Why must you be so miserable to work with?
+        //
+        // This logic exists because the 'put' values for these elements is not deterministic at
+        // all. The put values are the names of the wire pairs being bound, which could probably
+        // be computed but that would be a little overkill. Instead, just grab all the wires that
+        // aren't the terminating end of the element
+        if (parsedElement.type == 'Splitter') {
+          parsedOutputWires = connectedWires.filter(w => w.props['put'][0] != 'input');
+        }
+
+        if (parsedElement.type == 'Binder') {
+          parsedInputWires = connectedWires.filter(w => w.props['put'][0] != 'output');
+        }
+
+        // Assume the default behavior of inputX and outputX put values. Some elements will have both
+        // hard coded puts and the default naming behavior.
+        parsedInputWires = [...parsedInputWires, ...connectedWires.filter(w => w.props['put'][0].startsWith('input'))];
+        parsedOutputWires = [...parsedOutputWires, ...connectedWires.filter(w => w.props['put'][0].startsWith('output'))];
 
         // Sort inputs by their 'put'. JLS increments a number at then end of the put string which corresponds
         // to the index that the input connects to. For elements that have custom
@@ -394,13 +447,22 @@ export class JLSLoader extends CircuitLoader {
     name: string;
     value: string;
   } {
-    const type = this.#expect(/([Ii]nt|String|ref|probe)/, tokens.shift());
-    const name = this.#expect(/[a-zA-Z0-9]*/, tokens.shift());
+    let type = this.#expect(/([Ii]nt|String|ref|probe|pair)/, tokens.shift());
 
+    let name = this.#expect(/[a-zA-Z0-9]*/, tokens.shift());
     let value = this.#expect(/(("?[a-zA-Z0-9]*"?)|([0-9]+))/, tokens.shift());
 
     if (type == 'String') {
+      while (!value.endsWith('"')) {
+        value += tokens.shift();
+      }
+
       value = value.split('"')[1];
+    }
+
+    if (type == 'pair') {
+      value = `${name}:${value}`;
+      name = type;
     }
 
     return {
@@ -418,7 +480,7 @@ export class JLSLoader extends CircuitLoader {
       ([stream]) => FileUtil.readTextStream(stream),
     );
 
-    this.log(LogLevel.TRACE, `"JLSCircuit Data:\n${data}`);
+    this.log(LogLevel.TRACE, `JLSCircuit Data:\n${data}`);
 
     // Tokenize the input stream. JLS circuits have an unfortunate structure, but
     // at the very least, it is whitespace separated, so we can just chop the whole
