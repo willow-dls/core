@@ -102,6 +102,9 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
             data.outputs.map((nodeInd: number) => nodes[nodeInd]),
         )
     },
+    "Power": ({ nodes, data }) => new Power(nodes[data.outputs]),
+    "Ground": ({ nodes, data }) => new Ground(nodes[data.outputs]),
+
     // "Demultiplexer": ({ nodes, data }) =>
     //     new Demultiplexer(
     //         [nodes[data.customData.nodes.input]],
@@ -133,8 +136,6 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     //         nodes[data.customData.nodes.inp1],
     //         data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd]),
     //     ),
-    // "Power": ({ nodes, data }) => new Power(nodes[data.customData.nodes.output1]),
-    // "Ground": ({ nodes, data }) => new Ground(nodes[data.customData.nodes.output1]),
     // "Constant": ({ nodes, data }) =>
     //     new Constant(
     //         nodes[data.customData.nodes.output1],
@@ -372,8 +373,15 @@ export class LogisimLoader extends CircuitLoader {
                 if (outputNodeIndex > -1 && !circElement.outputPin) {
                     circElement.outputs.push(outputNodeIndex)
                 }
+                const blacklist = [
+                    "Input",
+                    "Output",
+                    "Power",
+                    "Ground",
+                    "Constant",
+                ]
                 //Inputs
-                if (circElement.type != "Input" && circElement.type != "Output") {
+                if (!(blacklist.includes(circElement.type))) {
                     //May need to make dictionary with each element type as a key, with sizes to check for input wires
                     let [locx, locy] = coord2Num(loc)
                     let [xWindow, yWindow] = sizeDict[circElement.type]
