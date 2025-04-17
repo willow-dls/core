@@ -116,31 +116,37 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
             ),
         )
     },
-
-
     // "Demultiplexer": ({ nodes, data }) =>
     //     new Demultiplexer(
-    //         [nodes[data.customData.nodes.input]],
-    //         data.customData.nodes.output1.map((i: number) => nodes[i]),
-    //         nodes[data.customData.nodes.controlSignalInput],
+    //         [nodes[data.inputs]],
+    //         data.output.map((i: number) => nodes[i]),
+    //         nodes[data.signals],
     //     ),
     // "Multiplexer": ({ nodes, data }) =>
     //     new Multiplexer(
-    //         data.customData.nodes.inp.map((i: number) => nodes[i]),
-    //         [nodes[data.customData.nodes.output1]],
-    //         nodes[data.customData.nodes.controlSignalInput],
+    //         data.inputs.map((i: number) => nodes[i]),
+    //         [nodes[data.outputs]],
+    //         nodes[data.signals],
     //     ),
     // "Priority Encoder": ({ nodes, data }) =>
     //     new PriorityEncoder(
-    //         data.customData.nodes.inp1.map((i: number) => nodes[i]),
-    //         data.customData.nodes.output1.map((i: number) => nodes[i]),
-    //         nodes[data.customData.nodes.enable],
+    //         data.inputs.map((i: number) => nodes[i]),
+    //         data.outputs.map((i: number) => nodes[i]),
+    //         nodes[data.signals],
     //     ),
     // "Decoder": ({ nodes, data }) =>
     //     new Decoder(
-    //         nodes[data.customData.nodes.input],
-    //         data.customData.nodes.output1.map((i: number) => nodes[i]),
+    //         nodes[data.inputs],
+    //         data.outputs.map((i: number) => nodes[i]),
     //     ),
+    "BitSelector": ({ nodes, data }) =>
+        new BitSelector(
+            nodes[data.inputs],
+            nodes[data.outputs],
+            nodes[data.signals],
+        ),
+
+    // TODO elements below not fully implemented
     // "Splitter": ({ nodes, data }) =>
     //     new Splitter(
     //         // No, this is not a typo in our code, their data file actually has "constructorParamaters"
@@ -158,12 +164,6 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     //         nodes[data.customData.nodes.zero],
     //     ),
     // "Clock": ({ nodes, data }) => new Clock(nodes[data.customData.nodes.output1]),
-    // "BitSelector": ({ nodes, data }) =>
-    //     new BitSelector(
-    //         nodes[data.customData.nodes.inp1],
-    //         nodes[data.customData.nodes.output1],
-    //         nodes[data.customData.nodes.bitSelectorInp],
-    //     ),
     // "D Flip-Flop": ({ nodes, data }) =>
     //     new DFlipFlop(
     //         nodes[data.customData.nodes.clockInp],
@@ -292,9 +292,10 @@ export class LogisimLoader extends CircuitLoader {
             //     continue
             // }
 
-            const wire2Node: { nodes: any[], connections: any[] } = {
+            const wire2Node: { nodes: any[], connections: any[], widths: number[] } = {
                 nodes: [], //Wire locations
-                connections: [] //Node connections
+                connections: [], //Node connections
+                widths: []
             }
             // Create list of all wires and connections
             for (let wireIndex = 0; wireIndex < scope.wire.length; wireIndex++) {
@@ -302,9 +303,11 @@ export class LogisimLoader extends CircuitLoader {
                 //List of wire locations
                 if (!wire2Node.nodes.includes(wire.from)) {
                     wire2Node.nodes.push(wire.from);
+                    wire2Node.widths.push(1)
                 }
                 if (!wire2Node.nodes.includes(wire.to)) {
                     wire2Node.nodes.push(wire.to);
+                    wire2Node.widths.push(1)
                 }
                 //Create list of connections for each node/wire based on index of wire locations
                 let wireEnd1Index = wire2Node.nodes.indexOf(wire.from);
@@ -314,27 +317,11 @@ export class LogisimLoader extends CircuitLoader {
                 (wire2Node.connections[wireEnd2Index] || (wire2Node.connections[wireEnd2Index] = [])).push(wireEnd1Index);
             }
 
-            const nodes: CircuitBus[] = []
-            for (let nodeInd = 0; nodeInd < wire2Node.nodes.length; nodeInd++) {
-                //defaulting to 1 since bitwidth is stored in elements, not nodes
-                const node = new CircuitBus(1)
-                nodes.push(node);
-                this.log(
-                    LogLevel.TRACE,
-                    `Created bus with width ${1}`,
-                );
-            }
-            for (let nodeInd = 0; nodeInd < wire2Node.connections.length; nodeInd++) {
-                const scopeNode = wire2Node.connections[nodeInd];
-                for (const connectInd in scopeNode) {
-                    const ind = scopeNode[connectInd];
-                    nodes[nodeInd].connect(nodes[ind]);
-                    this.log(LogLevel.TRACE, `Connecting bus: ${nodeInd} => ${ind}`);
-                }
-            }
+
 
             // Loop through component list to retrieve pertinant information
-            let elements: CircuitElement[] = []
+
+            let circElements: any = []
             let inputIndex = 0;
             for (let compIndex in scope.comp) {
                 const circElement: { type: string, name: string, width: number, outputPin?: boolean, inputs: number[], outputs: number[], signals?: [], value?: string, index?: number, circIndex?: string } = {
@@ -381,6 +368,7 @@ export class LogisimLoader extends CircuitLoader {
                 //Outputs
                 if (outputNodeIndex > -1 && !circElement.outputPin) {
                     circElement.outputs.push(outputNodeIndex)
+
                 }
                 const blacklist = [
                     "Input",
@@ -405,29 +393,64 @@ export class LogisimLoader extends CircuitLoader {
                     }
                 }
 
-
                 //Signals (Multiplexer, de-multiplexer)
 
+
+                //Update bitWidths of wire2node arrays
+                for (let index of circElement.inputs) {
+                    wire2Node.widths[index] = circElement.width;
+                }
+                for (let index of circElement.outputs) {
+                    wire2Node.widths[index] = circElement.width;
+                }
+                //Add elements data to array so nodes can be created with proper bitwidth
+                circElements.push(circElement)
+            }
+            const nodes: CircuitBus[] = []
+            for (let nodeInd = 0; nodeInd < wire2Node.nodes.length; nodeInd++) {
+                //defaulting to 1 since bitwidth is stored in elements, not nodes
+                const node = new CircuitBus(wire2Node.widths[nodeInd])
+                nodes.push(node);
                 this.log(
                     LogLevel.TRACE,
-                    `Creating element of type '${circElement.type}'...`,
-                    circElement,
+                    `Created bus with width ${wire2Node.widths[nodeInd]}`,
+                );
+            }
+            for (let nodeInd = 0; nodeInd < wire2Node.connections.length; nodeInd++) {
+                const scopeNode = wire2Node.connections[nodeInd];
+                for (const connectInd in scopeNode) {
+                    const ind = scopeNode[connectInd];
+                    nodes[nodeInd].connect(nodes[ind]);
+                    this.log(LogLevel.TRACE, `Connecting bus: ${nodeInd} => ${ind}`);
+                }
+            }
+
+            let elements: CircuitElement[] = []
+            for (let elem of circElements) {
+                this.log(
+                    LogLevel.TRACE,
+                    `Creating element of type '${elem.type}'...`,
+                    elem,
                 );
 
-                if (!createElement[circElement.type]) {
+                if (!createElement[elem.type]) {
                     throw new Error(
-                        `Circuit '${scope.name}' (${circElement.name}) uses unsupported element: ${circElement.type}.`,
+                        `Circuit '${scope.name}' (${elem.name}) uses unsupported element: ${elem.type}.`,
                     );
                 }
-                const newElement = createElement[circElement.type]({
+                const newElement = createElement[elem.type]({
                     project: project,
                     nodes: nodes,
-                    data: circElement,
+                    data: elem,
                 })
-                newElement.setLabel(circElement.name)
+                newElement.setLabel(elem.name)
                 newElement.setPropagationDelay(10)
                 elements.push(newElement)
             }
+
+
+
+
             elements.sort(compareFn)
             const circuit = new Circuit(circuitIndex.toString(), scope.name, elements)
             project.addCircuit(circuit)
