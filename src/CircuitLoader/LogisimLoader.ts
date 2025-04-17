@@ -70,11 +70,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
             data.inputs.map((i: number) => nodes[i]),
             [nodes[data.outputs]],
         ),
-    "NOT Gate": ({ nodes, data }) =>
-        new NotGate(
+    "NOT Gate": ({ nodes, data }) => {
+        return new NotGate(
             [nodes[data.inputs]],
             [nodes[data.outputs]],
-        ),
+        )
+    },
     "Buffer": ({ nodes, data }) =>
         new BufferGate(
             [nodes[data.inputs]],
@@ -102,8 +103,20 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
             data.outputs.map((nodeInd: number) => nodes[nodeInd]),
         )
     },
-    "Power": ({ nodes, data }) => new Power(nodes[data.outputs]),
+    "Power": ({ nodes, data }) => {
+        return new Power(nodes[data.outputs])
+    },
     "Ground": ({ nodes, data }) => new Ground(nodes[data.outputs]),
+    "Constant": ({ nodes, data }) => {
+        return new Constant(
+            nodes[data.outputs],
+            new BitString(
+                data.value,
+                data.width,
+            ),
+        )
+    },
+
 
     // "Demultiplexer": ({ nodes, data }) =>
     //     new Demultiplexer(
@@ -135,14 +148,6 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     //         data.customData.constructorParamaters[2],
     //         nodes[data.customData.nodes.inp1],
     //         data.customData.nodes.outputs.map((nodeInd: number) => nodes[nodeInd]),
-    //     ),
-    // "Constant": ({ nodes, data }) =>
-    //     new Constant(
-    //         nodes[data.customData.nodes.output1],
-    //         new BitString(
-    //             data.customData.constructorParamaters[2],
-    //             data.customData.constructorParamaters[1],
-    //         ),
     //     ),
     // "Counter": ({ nodes, data }) =>
     //     new Counter(
@@ -332,12 +337,13 @@ export class LogisimLoader extends CircuitLoader {
             let elements: CircuitElement[] = []
             let inputIndex = 0;
             for (let compIndex in scope.comp) {
-                const circElement: { type: string, name: string, width: number, outputPin?: boolean, inputs: number[], outputs: number[], index?: number, circIndex?: string } = {
+                const circElement: { type: string, name: string, width: number, outputPin?: boolean, inputs: number[], outputs: number[], signals?: [], value?: string, index?: number, circIndex?: string } = {
                     type: ' ',
                     name: ' ',
                     width: 1,
                     inputs: [],
                     outputs: [],
+                    value: "0x1"
                 }
                 const component = scope.comp[compIndex]
                 if (subcircuits.includes(component.name)) {
@@ -365,6 +371,9 @@ export class LogisimLoader extends CircuitLoader {
                         circElement.inputs.push(wire2Node.nodes.indexOf(component.loc))
                         inputIndex--
                     }
+                    if (attribute.name === "value") {
+                        circElement.value = attribute.val
+                    }
                 }
                 let loc = component.loc
                 let outputNodeIndex = wire2Node.nodes.indexOf(component.loc);
@@ -382,11 +391,9 @@ export class LogisimLoader extends CircuitLoader {
                 ]
                 //Inputs
                 if (!(blacklist.includes(circElement.type))) {
-                    //May need to make dictionary with each element type as a key, with sizes to check for input wires
                     let [locx, locy] = coord2Num(loc)
                     let [xWindow, yWindow] = sizeDict[circElement.type]
                     let xmin = locx - xWindow
-                    //May need to change this to account for multiplexers and other things with more than just inputs and outputs
                     let xmax = locx - xWindow;
                     let ymin = locy - yWindow
                     let ymax = locy + yWindow;
@@ -397,6 +404,9 @@ export class LogisimLoader extends CircuitLoader {
                         }
                     }
                 }
+
+
+                //Signals (Multiplexer, de-multiplexer)
 
                 this.log(
                     LogLevel.TRACE,
