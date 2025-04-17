@@ -116,18 +116,18 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
             ),
         )
     },
-    // "Demultiplexer": ({ nodes, data }) =>
-    //     new Demultiplexer(
-    //         [nodes[data.inputs]],
-    //         data.output.map((i: number) => nodes[i]),
-    //         nodes[data.signals],
-    //     ),
-    // "Multiplexer": ({ nodes, data }) =>
-    //     new Multiplexer(
-    //         data.inputs.map((i: number) => nodes[i]),
-    //         [nodes[data.outputs]],
-    //         nodes[data.signals],
-    //     ),
+    "Demultiplexer": ({ nodes, data }) =>
+        new Demultiplexer(
+            [nodes[data.inputs]],
+            data.output.map((i: number) => nodes[i]),
+            nodes[data.signals],
+        ),
+    "Multiplexer": ({ nodes, data }) =>
+        new Multiplexer(
+            data.inputs.map((i: number) => nodes[i]),
+            [nodes[data.outputs]],
+            nodes[data.signals],
+        ),
     // "Priority Encoder": ({ nodes, data }) =>
     //     new PriorityEncoder(
     //         data.inputs.map((i: number) => nodes[i]),
@@ -139,12 +139,12 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     //         nodes[data.inputs],
     //         data.outputs.map((i: number) => nodes[i]),
     //     ),
-    "BitSelector": ({ nodes, data }) =>
-        new BitSelector(
-            nodes[data.inputs],
-            nodes[data.outputs],
-            nodes[data.signals],
-        ),
+    // "BitSelector": ({ nodes, data }) =>
+    //     new BitSelector(
+    //         nodes[data.inputs],
+    //         nodes[data.outputs],
+    //         nodes[data.signals],
+    //     ),
 
     // TODO elements below not fully implemented
     // "Splitter": ({ nodes, data }) =>
@@ -227,29 +227,39 @@ function compareFn(a: any, b: any) {
     }
     return 0
 }
-
+//X is width, Y height, and Z is the base side of the element.
+//Z value is 0 for right/output side, 1 for left/input side, 2 for bottom/signal side, 3 for top
+//X value is dependent on element. Some elements have base position based on outputs (ex: gates), others have it based on inputs or select bits (ex: demux and decoders, respectively)
+//A positive X value indicates base position is based on the right side of the element, reserved for outputs, generally.
+//A negative X value indicates base position is based on the left or bottom side of the element, inputs and signals, respectively.
+//Note: In Logisim, (0,0) is located at the top left by default. 
 const sizeDict: any = {
-    "AND Gate": [50, 30],
-    "NAND Gate": [60, 30],
-    "OR Gate": [50, 30],
-    "NOR Gate": [60, 30],
-    "XOR Gate": [60, 30],
-    "XNOR Gate": [70, 30],
-    "NOT Gate": [30, 0],
-    "Buffer": [20, 0],
-    "SubCircuit": [30, 20],
+    "Input": [0, 0, 0],
+    "Output": [0, 0, 0],
+    "Power": [0, 0, 0],
+    "Ground": [0, 0, 0],
+    "Constant": [0, 0, 0],
+    "AND Gate": [50, 60, 0],
+    "NAND Gate": [60, 60, 0],
+    "OR Gate": [50, 60, 0],
+    "NOR Gate": [60, 60, 0],
+    "XOR Gate": [60, 60, 0],
+    "XNOR Gate": [70, 60, 0],
+    "NOT Gate": [30, 20, 0],
+    "Buffer": [20, 20, 0],
+    "SubCircuit": [30, 20, 0], //Subcircuit will depend on the number of outputs and inputs...
+    "Multiplexer": [30, 40, 0],
+    "Demultiplexer": [30, 40, 1],
+    "Decoder": [30, 40, 2],
+    "BitSelector": [30, 30, 0],
     // TODO Positions below not set yet.
-    "Multiplexer": [50, 30],
-    "Demultiplexer": [50, 30],
-    "Priority Encoder": [50, 30],
-    "Decoder": [50, 30],
-    "Counter": [50, 30],
-    "Splitter": [50, 30],
-    "Clock": [50, 30],
-    "BitSelector": [50, 30],
-    "D Flip-Flop": [40, 30],
-    "S-R Flip-Flop": [40, 30],
-    "J-K Flip-Flop": [40, 30],
+    "Priority Encoder": [50, 30, 0],
+    "Counter": [50, 30, 0],
+    "Splitter": [50, 30, 0],
+    "Clock": [50, 30, 0],
+    "D Flip-Flop": [40, 30, 0],
+    "S-R Flip-Flop": [40, 30, 0],
+    "J-K Flip-Flop": [40, 30, 0],
 }
 
 export class LogisimLoader extends CircuitLoader {
@@ -263,21 +273,22 @@ export class LogisimLoader extends CircuitLoader {
 
         this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
+        //check for subcircuits within circuits
         let subcircuits: any[] = []
         for (let circuit of data.project.circuit) {
             subcircuits.push(circuit.name)
         }
+
+        //Sort array of circuits so that circuits containing subcircuits are pushed to the end of the array so that the circuits those subcircuits refer to have been instantiated before the subcircuit is created
         let unparsedCircuitArray = data.project.circuit;
         let adjustList = []
         for (let circuit in unparsedCircuitArray) {
             for (let component of unparsedCircuitArray[circuit].comp) {
                 if (subcircuits.includes(component.name)) {
                     adjustList.push(circuit)
-
                 }
             }
         }
-
         for (let item of adjustList) {
             unparsedCircuitArray.push(unparsedCircuitArray.splice(Number(item), 1)[0])
             subcircuits.push(subcircuits.splice(Number(item), 1)[0])
@@ -320,11 +331,10 @@ export class LogisimLoader extends CircuitLoader {
 
 
             // Loop through component list to retrieve pertinant information
-
             let circElements: any = []
             let inputIndex = 0;
             for (let compIndex in scope.comp) {
-                const circElement: { type: string, name: string, width: number, outputPin?: boolean, inputs: number[], outputs: number[], signals?: [], value?: string, index?: number, circIndex?: string } = {
+                const circElement: { type: string, name: string, width: number, outputPin?: boolean, inputs: number[], outputs: number[], signals?: number[], value?: string, index?: number, circIndex?: string } = {
                     type: ' ',
                     name: ' ',
                     width: 1,
@@ -355,46 +365,95 @@ export class LogisimLoader extends CircuitLoader {
                     if (attribute.name === "output") {
                         circElement.outputPin = true
                         circElement.type = "Output"
-                        circElement.inputs.push(wire2Node.nodes.indexOf(component.loc))
                         inputIndex--
                     }
                     if (attribute.name === "value") {
                         circElement.value = attribute.val
                     }
                 }
-                let loc = component.loc
-                let outputNodeIndex = wire2Node.nodes.indexOf(component.loc);
 
-                //Outputs
-                if (outputNodeIndex > -1 && !circElement.outputPin) {
-                    circElement.outputs.push(outputNodeIndex)
 
+                //Positional/dimensional Data for element
+                let [locx, locy] = coord2Num(component.loc)
+                console.log(circElement.type)
+                console.log(sizeDict)
+                const dimensions = sizeDict[circElement.type]
+                const xDim = dimensions[0]
+                const yDim = dimensions[1]
+                const baseSide = dimensions[2]
+                let xMax, xMin, yMax, yMin
+                switch (baseSide) {
+                    case 0: //Base position is on the right side of the element, the output side
+                        xMax = locx
+                        xMin = xMax - xDim
+                        yMax = locy + (1 / 2 * yDim)
+                        yMin = locy - (1 / 2 * yDim)
+                        break;
+                    case 1: //Base position is on the left side of the element, the input side
+                        xMax = locx + xDim
+                        xMin = locx
+                        yMax = locy + (1 / 2 * yDim)
+                        yMin = locy - (1 / 2 * yDim)
+                        break;
+                    case 2: //Base position is on the bottom of the element, the signal side
+                        xMax = locx + 10
+                        xMin = xMax - xDim
+                        yMax = locy
+                        yMin = locy - yDim
+                        break;
+                    case 3: //Base position is on the top of the element. Not used in anything so far.
+                        xMax = locx + 10
+                        xMin = xMax - xDim
+                        yMax = locy + yDim
+                        yMin = locy
+                        break;
+                    default:
+                        throw new Error(
+                            `Circuit '${scope.name}' (${circElement.name}) uses unsupported element: ${circElement.type}.`,
+                        );
                 }
-                const blacklist = [
+                //Elements without inputs
+                const inputBlacklist = [
                     "Input",
-                    "Output",
                     "Power",
                     "Ground",
                     "Constant",
+                    "Decoder"
                 ]
-                //Inputs
-                if (!(blacklist.includes(circElement.type))) {
-                    let [locx, locy] = coord2Num(loc)
-                    let [xWindow, yWindow] = sizeDict[circElement.type]
-                    let xmin = locx - xWindow
-                    let xmax = locx - xWindow;
-                    let ymin = locy - yWindow
-                    let ymax = locy + yWindow;
-                    for (let node of wire2Node.nodes) {
-                        let [x, y] = coord2Num(node)
-                        if (xmin <= x && x <= xmax && ymin <= y && y <= ymax) {
+                const outputBlacklist = [
+                    "Output"
+                ]
+                //Signals (Multiplexer, de-multiplexer)
+                const signalWireElements = [
+                    "Multiplexer",
+                    "Demultiplexer",
+                    "Decoder",
+                    "Priority Encoder",
+                    "Bit Selector",
+                ]
+
+                for (let node of wire2Node.nodes) {
+                    let [x, y] = coord2Num(node)
+                    //Inputs, left side of element
+                    if (!(inputBlacklist.includes(circElement.type))) {
+                        if (x == xMin && yMin <= y && y <= yMax) {
                             circElement.inputs.push(wire2Node.nodes.indexOf(node))
                         }
                     }
+                    //Outputs, right side of element
+                    if (!(outputBlacklist.includes(circElement.type))) {
+                        if (x == xMax && yMin <= y && y <= yMax) {
+                            circElement.outputs.push(wire2Node.nodes.indexOf(node))
+                        }
+                    }
+                    //Signals, bottom of element
+                    if (signalWireElements.includes(circElement.type)) {
+                        circElement.signals = []
+                        if (xMin <= x && x <= xMax && y == yMax) {
+                            circElement.signals.push(wire2Node.nodes.indexOf(node))
+                        }
+                    }
                 }
-
-                //Signals (Multiplexer, de-multiplexer)
-
 
                 //Update bitWidths of wire2node arrays
                 for (let index of circElement.inputs) {
@@ -406,6 +465,7 @@ export class LogisimLoader extends CircuitLoader {
                 //Add elements data to array so nodes can be created with proper bitwidth
                 circElements.push(circElement)
             }
+
             const nodes: CircuitBus[] = []
             for (let nodeInd = 0; nodeInd < wire2Node.nodes.length; nodeInd++) {
                 //defaulting to 1 since bitwidth is stored in elements, not nodes
