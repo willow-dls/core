@@ -21,11 +21,11 @@ beforeAll(async () => {
 function genTest(input: BitString) {
   return () => {
     const results = circuit.run({
-      SplitterInput: input
+      SplitterInput: input,
     });
 
     expect(results.outputs.SplitterOutput.toString()).toBe(input.toString());
-  }
+  };
 }
 
 let input = BitString.low(8);
@@ -33,9 +33,9 @@ let input = BitString.low(8);
 while (true) {
   test(`Splitter: ${input}`, genTest(input));
 
-  input = input.add('00000001');
+  input = input.add("00000001");
   // Overflow
-  if (input.toString() == '00000000') {
+  if (input.toString() == "00000000") {
     break;
   }
 }

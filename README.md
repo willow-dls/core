@@ -40,6 +40,7 @@ The most common use case for Willow will probably be to unit test circuits gener
 ### Template Project
 
 Willow provides a template repository which you are more than welcome to use if you do not want to follow all of the manual steps below. If you specifically want to use Jest and TypeScript with Willow, you can simply `git clone` or download our template:
+
 ```
 $ git clone https://github.com/willow-dls/example.git
 $ cd example

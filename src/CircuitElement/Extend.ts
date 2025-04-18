@@ -8,17 +8,17 @@ import { CircuitElement } from "../CircuitElement";
  * using that element.
  */
 export class Extend extends CircuitElement {
-    constructor(input: CircuitBus, outputs: CircuitBus[]) {
-        super('ExtendElement', [input], outputs);
+  constructor(input: CircuitBus, outputs: CircuitBus[]) {
+    super("ExtendElement", [input], outputs);
+  }
+
+  resolve(): number {
+    const [input] = this.getInputs();
+
+    for (const output of this.getOutputs()) {
+      output.setValue(input.getValue());
     }
 
-    resolve(): number {
-        const [input] = this.getInputs();
-
-        for (const output of this.getOutputs()) {
-            output.setValue(input.getValue());
-        }
-
-        return this.getPropagationDelay();
-    }
+    return this.getPropagationDelay();
+  }
 }

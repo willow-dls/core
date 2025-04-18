@@ -30,15 +30,14 @@ export abstract class Gate extends CircuitElement {
 
     const inputValues = inputs.map((i) => i.getValue());
     const result: BitString | null =
-      inputValues.length == 1
+      inputValues.length == 1 && inputValues[0] != null
         ? this.evaluate(BitString.low(), inputValues[0] as BitString)
-        : inputValues
-            .slice(1)
-            .reduce(
-              (prev, cur) =>
-                this.evaluate(prev ?? BitString.low(), cur ?? BitString.low()),
-              inputValues[0],
+        : inputValues.slice(1).reduce((prev, cur) => {
+            return this.evaluate(
+              prev ?? BitString.low(),
+              cur ?? BitString.low(),
             );
+          }, inputValues[0]);
 
     outputs.forEach((o) => o.setValue(result));
 
