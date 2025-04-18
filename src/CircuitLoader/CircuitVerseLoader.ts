@@ -40,6 +40,8 @@ import { Adder } from "../CircuitElement/Adder";
 import { BufferGate } from "../CircuitElement/BufferGate";
 import { ControlledInverter } from "../CircuitElement/ControlledInverter";
 import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
+import Stream from "stream";
+import { FileUtil } from "../Util/File";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -262,14 +264,25 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
     ),
 };
 
+/**
+ * A circuit loader that loads CircuitVerse `.cv` files. This loader is the
+ * reference implementation of a circuit loader and actually is the inspiration
+ * for a lot of the design of this engine. Decisions about how the engine should
+ * be structured were made largely around how CircuitVerse stores data in their
+ * data files, which means that circuits loaded from CircuitVerse will likely run
+ * better than circuits from other engines, as this loader was developed in sync
+ * with the rest of the engine, and others were added after.
+ */
 export class CircuitVerseLoader extends CircuitLoader {
   constructor() {
     super("CircuitVerseLoader");
   }
 
-  load(data: any): CircuitProject {
+  async load(stream: Stream): Promise<CircuitProject> {
     const project: CircuitProject = new CircuitProject();
     this.propagateLoggersTo(project);
+
+    const data = await FileUtil.readJsonStream(stream);
 
     this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 

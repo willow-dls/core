@@ -3,9 +3,21 @@ import { CircuitBus } from "../CircuitBus";
 import { BitString } from "../BitString";
 import { LogLevel } from "../CircuitLogger";
 
+/**
+ * The MSB element outputs the index of the most significant bit which is
+ * set high on the input.
+ */
 export class MSB extends CircuitElement {
-  readonly ENABLE_WIDTH: number = 1;
-
+  /**
+   * Create a new MSB element.
+   * @param input The input bus.
+   * @param output The output bus.
+   * @param enable The enable output bus. If low, it means a significant bit was not
+   * found in the input. If high, it means a significant bit was found. This is used
+   * to distinguish the case where the most significant bit is at index zero (producing
+   * an output of all zeros) as opposed to when there is actually no significant bit,
+   * which will also produce an output of all zeros.
+   */
   constructor(input: CircuitBus, output: CircuitBus, enable: CircuitBus) {
     super("MSBElement", [input], [output, enable]);
   }
@@ -34,7 +46,7 @@ export class MSB extends CircuitElement {
         output.setValue(msb);
 
         // Set ENABLE to HIGH if an MSB was found
-        enable.setValue(new BitString("1", this.ENABLE_WIDTH));
+        enable.setValue(BitString.high());
 
         return this.getPropagationDelay();
       }
@@ -42,7 +54,7 @@ export class MSB extends CircuitElement {
 
     this.log(LogLevel.TRACE, `No MSB found.`);
     output.setValue(BitString.low(inputWidth));
-    enable.setValue(BitString.low(this.ENABLE_WIDTH));
+    enable.setValue(BitString.low());
 
     return this.getPropagationDelay();
   }

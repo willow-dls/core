@@ -1,34 +1,41 @@
 {
-    "name": "simutest",
-    "version": "1.0.0",
-    "description": "Test CircuitVerse circuits with a simple JavaScript API.",
+    "name": "@willow-dls/core",
+    "version": "0.4.1",
+    "description": "Headless digital logic simulator framework written in TypeScript with support for multiple educational circuit logic simulators.",
     "main": "dist/index.js",
     "type": "module",
     "scripts": {
         "test": "jest --coverage",
         "build": "tsc",
-        "format": "prettier . --write"
+        "format": "prettier . --write",
+        "docs": "typedoc"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/gvsucis/w25-simutest.git"
+        "url": "git+https://github.com/willow-dls/core.git"
     },
     "author": "Jordan Bancino",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/gvsucis/w25-simutest/issues"
+        "url": "https://github.com/willow-dls/core/issues"
     },
-    "homepage": "https://github.com/gvsucis/w25-simutest#readme",
-    "dependencies": {},
+    "homepage": "https://willow-dls.github.io/core/",
     "devDependencies": {
         "@babel/preset-env": "^7.26.7",
         "@babel/preset-typescript": "^7.26.0",
         "@jest/globals": "^29.7.0",
         "@types/jest": "^29.5.14",
+        "@types/memorystream": "^0.3.4",
         "@types/node": "^22.12.0",
+        "@types/unzip-stream": "^0.3.4",
         "jest": "^29.7.0",
         "prettier": "^3.5.0",
-        "typescript": "^5.7.3",
+        "typedoc": "^0.28.1",
+        "typescript": "^5.7.3"
+    },
+    "dependencies": {
+        "memorystream": "^0.3.1",
+        "unzip-stream": "^0.3.4",
         "fast-xml-parser": "^5.0.9"
     }
 }

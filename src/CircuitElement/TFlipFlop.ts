@@ -2,7 +2,21 @@ import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { SequentialElement } from "./SequentialElement";
 
+/**
+ * A T-Flip-Flop, which is a type of sequential circuit element.
+ */
 export class TFlipFlop extends SequentialElement {
+  /**
+   * Creates an instance of the T-FlipFlop.
+   *
+   * @param clock The clock input signal.
+   * @param d The data input signal.
+   * @param q The Q output signal.
+   * @param qInv The inverted Q output signal (Q').
+   * @param reset The reset input signal.
+   * @param preset The preset input signal.
+   * @param enable The enable input signal.
+   */
   constructor(
     clock: CircuitBus,
     d: CircuitBus,
@@ -24,7 +38,7 @@ export class TFlipFlop extends SequentialElement {
         d.setValue(BitString.low());
       }
 
-      // onResolve() will update qInv  for us.
+      // onResolve() will update qInv for us.
       q.setValue(d.getValue()?.not() ?? null);
     }
   }

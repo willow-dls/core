@@ -3,6 +3,19 @@ import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
 import { LogLevel } from "../CircuitLogger";
 
+/**
+ * A bi-directional bus splitter that either combines multiple buses into
+ * a single output bus, or splits a bus into multiple output buses.
+ *
+ * > [!NOTE]
+ * > This element is complex and its implementation is convoluted. Despite its
+ * > seemingly simple visual representation in circuit simulators such as
+ * > CircuitVerse, this element has been the source of many bugs and many
+ * > internal workarounds are necessary to make it work. If your circuit is
+ * > misbehaving in this engine and it contains splitter elements, double check
+ * > that the splitters are not causing issues. If they are, open a bug
+ * > report.
+ */
 export class Splitter extends CircuitElement {
   #split: number[];
   #prevInput: BitString | null;
@@ -108,6 +121,19 @@ export class Splitter extends CircuitElement {
     return [input, outputs];
   }
 
+  /**
+   * Construct a new splitter. Remember that even though we use the terminology
+   * `input` and `outputs`, this element is bi-directional and will work both ways.
+   * The former of which referring to the single bus that
+   * gets split and the latter referring to the multiple buses that will get combined.
+   * @param split An array of numbers detailing the bus splits. The number of
+   * elements in this array is the number of buses that the input bus will be
+   * split into (and should thus match the length of `outputs`) and the values
+   * are the number of bits wide each split is. The sum of these should equal
+   * the width of the `input` bus.
+   * @param input The input bus to split into the outputs.
+   * @param outputs The output bus to combine into the inputs.s
+   */
   constructor(split: number[], input: CircuitBus, outputs: CircuitBus[]) {
     // This is a bi-directional element, so it's behavior depends on whether
     // the input changed (split input into outputs) or an output changed (combine
@@ -117,6 +143,18 @@ export class Splitter extends CircuitElement {
     // the inputs OR the outputs change. We will detect which happened in
     // the abomination which is below.
     super("SplitterElement", [input, ...outputs], [input, ...outputs]);
+
+    if (split.length != outputs.length) {
+      throw new Error(
+        `Splitter: split array must be the same length as the outputs array: ${split.length} != ${outputs.length}`,
+      );
+    }
+
+    if (split.reduce((a, b) => a + b, 0) != input.getWidth()) {
+      throw new Error(
+        `Splitter: splits must total to the width of the input bus: ${split.reduce((a, b) => a + b, 0)} != ${input.getWidth()}`,
+      );
+    }
 
     this.#split = split;
     this.#prevInput = null;

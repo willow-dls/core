@@ -3,9 +3,21 @@ import { CircuitBus } from "../CircuitBus";
 import { BitString } from "../BitString";
 import { LogLevel } from "../CircuitLogger";
 
+/**
+ * The LSB element outputs the index of the least significant bit which is
+ * set high on the input.
+ */
 export class LSB extends CircuitElement {
-  readonly ENABLE_WIDTH: number = 1;
-
+  /**
+   * Create a new LSB element.
+   * @param input The input bus.
+   * @param output The output bus.
+   * @param enable The enable output bus. If low, it means a significant bit was not
+   * found in the input. If high, it means a significant bit was found. This is used
+   * to distinguish the case where the least significant bit is at index zero (producing
+   * an output of all zeros) as opposed to when there is actually no significant bit,
+   * which will also produce an output of all zeros.
+   */
   constructor(input: CircuitBus, output: CircuitBus, enable: CircuitBus) {
     super("LSBElement", [input], [output, enable]);
   }
@@ -34,7 +46,7 @@ export class LSB extends CircuitElement {
         output.setValue(lsb);
 
         // Set ENABLE to HIGH if an LSB was found
-        enable.setValue(new BitString("1", this.ENABLE_WIDTH));
+        enable.setValue(BitString.high());
 
         return this.getPropagationDelay();
       }
@@ -42,7 +54,7 @@ export class LSB extends CircuitElement {
 
     this.log(LogLevel.TRACE, `No LSB found.`);
     output.setValue(BitString.low(inputWidth));
-    enable.setValue(BitString.low(this.ENABLE_WIDTH));
+    enable.setValue(BitString.low());
 
     return this.getPropagationDelay();
   }

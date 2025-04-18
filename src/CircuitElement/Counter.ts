@@ -3,7 +3,21 @@ import { CircuitBus } from "../CircuitBus";
 import { LogLevel } from "../CircuitLogger";
 import { SequentialElement } from "./SequentialElement";
 
+/**
+ * The counter element simply increments its output line on each rising edge
+ * of the clock. When the output value reaches the maximum, it rolls over to
+ * zero.
+ */
 export class Counter extends SequentialElement {
+  /**
+   * Create a new counter element.
+   * @param maxValue The maximum value that the counter can be before rolling over to zero.
+   * @param clock The clock signal.
+   * @param reset When this bus goes high, the count is immediately reset to zero.
+   * @param output The output bus.
+   * @param zero An output line which goes high when the counter rolled over due to hitting
+   * the max value. It goes high only on the clock cycle which the counter was reset.
+   */
   constructor(
     maxValue: CircuitBus,
     clock: CircuitBus,

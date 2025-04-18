@@ -21,28 +21,40 @@ import { BitString } from "../BitString";
 import { Random } from "../CircuitElement/Random";
 import { Counter } from "../CircuitElement/Counter";
 import { Clock } from "../CircuitElement/Clock";
-import { TriState } from "../CircuitElement/TriState";
 import { OrGate } from "../CircuitElement/OrGate";
 import { Demultiplexer } from "../CircuitElement/Demultiplexer";
 import { Multiplexer } from "../CircuitElement/Multiplexer";
-import { LSB } from "../CircuitElement/LSB";
 import { BitSelector } from "../CircuitElement/BitSelector";
-import { MSB } from "../CircuitElement/MSB";
 import { PriorityEncoder } from "../CircuitElement/PriorityEncoder";
 import { Decoder } from "../CircuitElement/Decoder";
 import { DFlipFlop } from "../CircuitElement/DFlipFlop";
-import { TFlipFlop } from "../CircuitElement/TFlipFlop";
-import { DLatch } from "../CircuitElement/DLatch";
 import { JKFlipFlop } from "../CircuitElement/JKFlipFlop";
 import { SRFlipFlop } from "../CircuitElement/SRFlipFlop";
-import { TwosCompliment } from "../CircuitElement/TwosCompliment";
-import { Adder } from "../CircuitElement/Adder";
 import { BufferGate } from "../CircuitElement/BufferGate";
-import { ControlledInverter } from "../CircuitElement/ControlledInverter";
-import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
-
 import fs from "node:fs";
+import Stream from "stream";
 
+function loadXML(file: Stream) {
+    const { XMLParser } = require("fast-xml-parser");
+    let xmlData = file
+    const alwaysArray = [
+        "project.circuit",
+        "project.circuit.wire",
+        "project.circuit.comp",
+        "project.circuit.comp.a"
+    ]
+    const options = {
+        ignoreAttributes: false,
+        attributeNamePrefix: "",
+        isArray: (name: any, jpath: string, isLeafNode: any, isAttribute: any) => {
+            if (alwaysArray.indexOf(jpath) !== -1) return true;
+        }
+    }
+
+    const parser = new XMLParser(options)
+    const data = parser.parse(xmlData)
+    return data
+}
 type CircuitContext = {
     nodes: CircuitBus[];
     data: any;
@@ -267,10 +279,11 @@ export class LogisimLoader extends CircuitLoader {
         super("LogisimLoader");
     }
 
-    load(data: any): CircuitProject {
+    async load(stream: Stream): Promise<CircuitProject> {
         const project: CircuitProject = new CircuitProject();
         this.propagateLoggersTo(project);
 
+        const data = await loadXML(stream);
         this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
         //check for subcircuits within circuits
