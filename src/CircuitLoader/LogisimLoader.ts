@@ -34,9 +34,17 @@ import { BufferGate } from "../CircuitElement/BufferGate";
 import fs from "node:fs";
 import Stream from "stream";
 
-function loadXML(file: Stream) {
+function streamToString(stream: Stream) {
+    const chunks: any = [];
+    return new Promise((resolve, reject) => {
+        stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+        stream.on('error', (err) => reject(err));
+        stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    })
+}
+
+async function loadXML(file: Stream) {
     const { XMLParser } = require("fast-xml-parser");
-    let xmlData = file
     const alwaysArray = [
         "project.circuit",
         "project.circuit.wire",
@@ -52,6 +60,7 @@ function loadXML(file: Stream) {
     }
 
     const parser = new XMLParser(options)
+    const xmlData = await streamToString(file)
     const data = parser.parse(xmlData)
     return data
 }
@@ -282,8 +291,7 @@ export class LogisimLoader extends CircuitLoader {
     async load(stream: Stream): Promise<CircuitProject> {
         const project: CircuitProject = new CircuitProject();
         this.propagateLoggersTo(project);
-
-        const data = await loadXML(stream);
+        const data = await loadXML(stream)
         this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
         //check for subcircuits within circuits
@@ -388,8 +396,6 @@ export class LogisimLoader extends CircuitLoader {
 
                 //Positional/dimensional Data for element
                 let [locx, locy] = coord2Num(component.loc)
-                console.log(circElement.type)
-                console.log(sizeDict)
                 const dimensions = sizeDict[circElement.type]
                 const xDim = dimensions[0]
                 const yDim = dimensions[1]
