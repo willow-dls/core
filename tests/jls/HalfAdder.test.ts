@@ -19,10 +19,10 @@ beforeAll(async () => {
 });
 
 const truthTable = [
-  ['00', '00'],
-  ['01', '10'],
-  ['10', '10'],
-  ['11', '01']
+  ["00", "00"],
+  ["01", "10"],
+  ["10", "10"],
+  ["11", "01"],
 ];
 
 function genTest(inputs, outputs) {
@@ -36,13 +36,16 @@ function genTest(inputs, outputs) {
 for (const row of truthTable) {
   const inputs = {
     InputA: row[0][0],
-    InputB: row[0][1]
+    InputB: row[0][1],
   };
 
   const outputs = {
     Sum: row[1][0],
-    Carry: row[1][1]
+    Carry: row[1][1],
   };
 
-  test(`JLS Half Adder [A = ${inputs.InputA}, B = ${inputs.InputB}] => [Sum = ${outputs.Sum}, Carry = ${outputs.Carry}]`, genTest(inputs, outputs));
+  test(
+    `JLS Half Adder [A = ${inputs.InputA}, B = ${inputs.InputB}] => [Sum = ${outputs.Sum}, Carry = ${outputs.Carry}]`,
+    genTest(inputs, outputs),
+  );
 }

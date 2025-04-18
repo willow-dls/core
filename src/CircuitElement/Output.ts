@@ -40,15 +40,15 @@ export class Output extends CircuitElement {
     return this.#index;
   }
 
-    /**
+  /**
    * Set the index of this output. This function is used to ensure the proper
    * functionality of subcircuits.
-   * 
+   *
    * > [!WARNING]
    * > This is intended to be used by {@link CircuitLoader}s only.
    * > You should never call this function from code outside of a loader
    * > implementation.
-   * 
+   *
    * @param index The new index.
    * @returns This output for method chaining.
    */
