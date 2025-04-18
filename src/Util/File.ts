@@ -1,6 +1,7 @@
 import Stream from "stream";
 import unzip from "unzip-stream";
 import MemoryStream from "memorystream";
+import { XMLParser } from "fast-xml-parser";
 
 export class FileUtil {
   // Don't allow extending or instantiating.
@@ -48,5 +49,24 @@ export class FileUtil {
       map[path] = new MemoryStream();
     }
     return this.streamFromZip(stream, map).then(() => Object.values(map));
+  }
+
+  static async readXmlStream(file: Stream) {
+    const alwaysArray = [
+      "project.circuit",
+      "project.circuit.wire",
+      "project.circuit.comp",
+      "project.circuit.comp.a",
+    ];
+    const options = {
+      ignoreAttributes: false,
+      attributeNamePrefix: "",
+      isArray: (name: any, jpath: string, isLeafNode: any, isAttribute: any) => alwaysArray.indexOf(jpath) !== -1,
+    };
+  
+    const parser = new XMLParser(options);
+    const xmlData = await FileUtil.readTextStream(file);
+    const data = parser.parse(xmlData);
+    return data;
   }
 }

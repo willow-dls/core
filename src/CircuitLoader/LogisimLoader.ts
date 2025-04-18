@@ -31,39 +31,9 @@ import { DFlipFlop } from "../CircuitElement/DFlipFlop";
 import { JKFlipFlop } from "../CircuitElement/JKFlipFlop";
 import { SRFlipFlop } from "../CircuitElement/SRFlipFlop";
 import { BufferGate } from "../CircuitElement/BufferGate";
-import fs from "node:fs";
 import Stream from "stream";
+import { FileUtil } from "../Util/File";
 
-function streamToString(stream: Stream) {
-  const chunks: any = [];
-  return new Promise((resolve, reject) => {
-    stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
-    stream.on("error", (err) => reject(err));
-    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
-  });
-}
-
-async function loadXML(file: Stream) {
-  const { XMLParser } = require("fast-xml-parser");
-  const alwaysArray = [
-    "project.circuit",
-    "project.circuit.wire",
-    "project.circuit.comp",
-    "project.circuit.comp.a",
-  ];
-  const options = {
-    ignoreAttributes: false,
-    attributeNamePrefix: "",
-    isArray: (name: any, jpath: string, isLeafNode: any, isAttribute: any) => {
-      if (alwaysArray.indexOf(jpath) !== -1) return true;
-    },
-  };
-
-  const parser = new XMLParser(options);
-  const xmlData = await streamToString(file);
-  const data = parser.parse(xmlData);
-  return data;
-}
 type CircuitContext = {
   nodes: CircuitBus[];
   data: any;
@@ -226,7 +196,7 @@ function coord2Num(coord: string) {
   return [x, y];
 }
 
-function compareFn(a: any, b: any) {
+function compareFn(a: CircuitElement, b: CircuitElement) {
   if (a instanceof Input && !(b instanceof Input)) {
     return -1;
   }
@@ -244,7 +214,7 @@ function compareFn(a: any, b: any) {
 //A positive X value indicates base position is based on the right side of the element, reserved for outputs, generally.
 //A negative X value indicates base position is based on the left or bottom side of the element, inputs and signals, respectively.
 //Note: In Logisim, (0,0) is located at the top left by default.
-const sizeDict: any = {
+const sizeDict: Record<string, number[]> = {
   Input: [0, 0, 0],
   Output: [0, 0, 0],
   Power: [0, 0, 0],
@@ -281,7 +251,7 @@ export class LogisimLoader extends CircuitLoader {
   async load(stream: Stream): Promise<CircuitProject> {
     const project: CircuitProject = new CircuitProject();
     this.propagateLoggersTo(project);
-    const data = await loadXML(stream);
+    const data = await FileUtil.readXmlStream(stream);
     this.log(LogLevel.INFO, `Loading circuit from data:`, data);
 
     //check for subcircuits within circuits
