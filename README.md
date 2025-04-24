@@ -106,7 +106,8 @@ module.exports = {
 };
 ```
 
-> [!NOTE] We are using the CommonJS module syntax for our Babel configuration for compatibility with Windows&mdash;for some reason our Windows developer could not get the ESM syntax to work. However, Willow uses the ESM module syntax for all of the code and is published as an ESM module.
+> [!NOTE]
+> We are using the CommonJS module syntax for our Babel configuration for compatibility with Windows&mdash;for some reason our Windows developer could not get the ESM syntax to work. However, Willow uses the ESM module syntax for all of the code and is published as an ESM module.
 
 #### Step 2: Export Your Circuits
 
