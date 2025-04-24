@@ -1,6 +1,6 @@
 # Willow Digital Logic Simulator
 
-**Willow DLS** is a digital logic simulator framework written in TypeScript with support for executing circuits for educational logic simulators such as [CircuitVerse](https://circuitverse.org), [JLS](#) and [LogiSim](#). It is platform- and simulator-agnostic, and is primarily intended to be used for headless testing of circuits via a unit testing framework such as [Jest](#). Willow was created as an undergraduate project at Grand Valley State University but is now published as an open-source package independently.
+**Willow DLS** is a digital logic simulator framework written in TypeScript with support for executing circuits for educational logic simulators such as [CircuitVerse](https://circuitverse.org), [JLS](https://github.com/anadon/JLS) and [LogiSim](https://cburch.com/logisim/). It is platform- and simulator-agnostic, and is primarily intended to be used for headless testing of circuits via a unit testing framework such as [Jest](https://jestjs.io/). Willow was created as an undergraduate project at Grand Valley State University but is now published as an open-source package independently.
 
 > [!NOTE]
 > Willow is a _headless_ DLS _framework_. It does not implement a GUI and has no intentions to do so. The intended use cases are:
