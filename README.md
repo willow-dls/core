@@ -23,7 +23,8 @@
 
 To start using Willow, simply set up a new NPM package as you do and then install Willow as a dependency. If this is your first NodeJS project, make sure you have Node and NPM installed on your machine. Instructions can be found [here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). You will also have to set up a new NPM package where your own code will live. You can do so by creating an empty directory and running `npm init`.
 
-> [!NOTE] You don't have to publish your package. This can just as easily be a private repository for testing your circuits locally. NPM simply requires you to have a `package.json` file into which the Willow DLS dependencies can be installed.
+> [!NOTE]
+> You don't have to publish your package. This can just as easily be a private repository for testing your circuits locally. NPM simply requires you to have a `package.json` file into which the Willow DLS dependencies can be installed.
 
 Install Willow into your project with the following command:
 
@@ -111,7 +112,8 @@ module.exports = {
 
 In this example, we are using CircuitVerse. If you are using a different circuit simulator, please refer to the documentation for your simulator to export circuits as data files.
 
-> [!NOTE] Your circuit must assign a unique label to all inputs and outputs. This is because the simulator needs a way to uniquely identify all of the circuit's IO for testing. If you don't assign labels, you will get a "duplicate label" error as all elements have a blank string as their label by default.
+> [!NOTE]
+> Your circuit must assign a unique label to all inputs and outputs. This is because the simulator needs a way to uniquely identify all of the circuit's IO for testing. If you don't assign labels, you will get a "duplicate label" error as all elements have a blank string as their label by default.
 
 From the CircuitVerse simulator with your project open, at the top of the window, click 'Project' and navigate down to 'Export as File'. A window will pop up with a prompt to provide the name of the circuit and a save button.
 
@@ -266,17 +268,17 @@ Willow DLS is open source software, released under the MIT license. This means t
  * Copyright (c) 2025 Jordan Bancino <jordan@bancino.net>
  * Copyright (c) 2025 Austin Hargis <hargisa@mail.gvsu.edu>
  * Copyright (c) 2025 Aaron MacDougall <macdouaa@mail.gvsu.edu>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
