@@ -1,60 +1,114 @@
 # Willow Digital Logic Simulator
 
-**Willow DLS** is a digital logic simulator framework written in TypeScript with support for executing circuits for educational logic simulators such as [CircuitVerse](https://circuitverse.org), [JLS](https://github.com/anadon/JLS) and [LogiSim](https://cburch.com/logisim/). It is platform- and simulator-agnostic, and is primarily intended to be used for headless testing of circuits via a unit testing framework such as [Jest](https://jestjs.io/). Willow was created as an undergraduate project at Grand Valley State University but is now published as an open-source package independently.
+**Willow DLS** is a digital logic simulator written in TypeScript with support for loading and executing circuits written using educational logic simulators such as [CircuitVerse](https://circuitverse.org), [JLS](https://github.com/anadon/JLS) and [LogiSim](https://cburch.com/logisim/). It is platform- and simulator-agnostic, and is primarily intended to be used for headless testing of circuits via a unit testing framework such as [Jest](https://jestjs.io/). Willow was created as an undergraduate project at [Grand Valley State University](https://www.gvsu.edu/computing/) but is now published as an open-source package.
+
 
 > [!NOTE]
 > Willow is a _headless_ DLS _framework_. It does not implement a GUI and has no intentions to do so. The intended use cases are:
 >
+> - Students, instructors, and other users who use graphical educational simulators (see above) and want to test circuits using a familiar unit testing framework (as opposed to the table-based ad-hoc techniques that many simulators provide).
 > - Software developers who want to write a DLS GUI in TypeScript using Willow as the actual logic engine.
-> - Students and other users who design circuits in a well-known GUI platform (see above) and want to test them with a unit testing library for more thorough and precise automated testing than what those simulators provide by default.
->   Willow was initially designed with this latter use case in mind, and thus may not be optimal or ideal for the former.
 
 > [!WARNING]
-> Willow targets the NodeJS execution environment. It currently will not run client-side in the browser due to dependencies on the NodeJS standard library. This limitation exists primarily in the circuit loading logic; theoretically we just have to decouple the loading logic into a separate package to enable client-side browser execution, but that is currently beyond the scope of this project.
+> Willow targets the NodeJS execution environment. It currently will not run client-side in the browser due to dependencies on the NodeJS standard library. (Most of these dependencies are in the circuit loading logic; theoretically we just have to decouple the loading logic. In principle, it would be straightforward to move the circuit loading into a separate package to enable client-side browser execution.)
 
 ## Features
 
-- **Extensible:** Willow makes no assumptions about where your circuit came from or what elements it contains. While we ship a default set of base elements and circuit loaders, Willow is designed to allow custom circuit elements and circuit loaders to be implemented with ease.
-- **Simple:** Willow uses a simple event loop to evaluate circuits. It doesn't use overly complex algorithms or performance optimizations, make it it trivial to understand and modify, particularly for students. The relative simplicity compared to other circuit simulators is intended to lower the barrier to entry and allow students to not only simulate their own circuits, but also understand how circuit simulators can be implemented.
+- **Extensible:** Willow makes no assumptions about the tool used to generate a circuit or what elements it contains. While Willow contains a default set of base elements and circuit loaders, it is designed to allow users to easily define custom circuit elements and circuit loaders.
+- **Simple:** Willow uses a simple event loop to evaluate circuits. It avoids overly complex algorithms and performance optimizations so as to allow users to more easily understand and modify it. The relative simplicity compared to other circuit simulators is intended to lower the barrier to entry and allow students to not only simulate/test their own circuits, but also understand how circuit simulators can be implemented.
 - **Robust Logging:** The custom logging facility is as extensible as the rest of the engine. It allows users and developers to inspect just about any part of the engine as a circuit runs, which can be helpful in debugging either the engine itself or circuits running it it. Logs are extremely granular, with log levels and subsystem tags, providing the ability to drill down and see logs for only a certain part of the system, or capture everything all at once.
-- **Well-Documented TypeScript:** Willow is written fully in TypeScript, making it easier to use because the type system can catch common errors and mistakes. Furthermore, Willow is extremely well-documented, publishing full API documentation and sample code.
+- **Well-Documented TypeScript:** Willow is written fully in TypeScript, making it easier to use because the type system can catch common errors and mistakes. Furthermore, Willow is extremely well-documented, including full API documentation and sample code.
 
-## Getting Started
+## Getting Started / First Example
 
-To start using Willow, simply set up a new NPM package as you do and then install Willow as a dependency. If this is your first NodeJS project, make sure you have Node and NPM installed on your machine. Instructions can be found [here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). You will also have to set up a new NPM package where your own code will live. You can do so by creating an empty directory and running `npm init`.
+ We expect the most common use case for Willow will be to unit test circuits generated by an educational digital logic simulator. This example walks through the setup for testing a CircuitVerse circuit using Jest and plain JavaScript.
 
-> [!NOTE]
-> You don't have to publish your package. This can just as easily be a private repository for testing your circuits locally. NPM simply requires you to have a `package.json` file into which the Willow DLS dependencies can be installed.
+The basic idea is that you need only set up a new NPM package, install Willow and Jest as dependency, then add the circuit under test and any test files:
 
-Install Willow into your project with the following command:
+> If this is your first NodeJS project, make sure you have Node and NPM installed on your machine. Instructions can be found [here](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). You will also have to set up a new NPM package where your own code will live. You can do so by creating an empty directory and running `npm init`.
+
+1. Create a new directory for your project
+
+```
+$ mkdir TestMyCircuit
+```
+
+2. Move into this new directory
+
+```
+$ cd TestMyCircuit
+```
+
+3. Create a new node project: (You may simply accept the default answer to each question.)
+
+```
+$ npm init
+```
+
+4. Install Willow into your project with the following command:
 
 ```
 $ npm install @willow-dls/core
 ```
 
-This will install the package, including all of the required dependencies. You can then install your unit testing framework of choice to test your circuits, or implement whatever other functionality you wish. Willow doesn't prescribe a certain use case; whatever you can make it do, you can use it for. Consult the API documentation for details on how to load projects and circuits as well as execute them in the simulator.
-
-## Example: Unit Testing CircuitVerse Circuits With Jest & TypeScript
-
-The most common use case for Willow will probably be to unit test circuits generated by CircuitVerse (or another circuit simulator&mdash;apply the relevant instructions accordingly) using a unit testing framework such as Jest. This example walks through the entire setup of a testing repository where you can test CircuitVerse circuits using Jest and TypeScript.
-
-### Template Project
-
-Willow provides a template repository which you are more than welcome to use if you do not want to follow all of the manual steps below. If you specifically want to use Jest and TypeScript with Willow, you can simply `git clone` or download our template:
+5. Install Jest (or your preferred unit test framework)
 
 ```
-$ git clone https://github.com/willow-dls/example.git
+$ npm install jest
+```
+
+6. Add your circuits and test files.
+
+7. Run the tests:
+
+```
+$ npx jest
+```
+
+## Using Templates
+
+Willow provides template repositories that you can clone to simplify project setup.
+
+For example, to use Jest and plain JavaScript, you can simply `git clone` or download this template:
+
+!!! **Verify new template repo name** !!!
+
+```
+$ git clone https://github.com/willow-dls/example-js.git
 $ cd example
 $ npm install
 ```
 
-These commands will automatically install the necessary dependencies and sets up Jest and TypeScript for you so you can start writing tests right away. Note that it contains an example circuit and a test suite, which you can delete if you are familiar with them.
+These commands will automatically install the necessary dependencies. At this point you need only add your circuits and tests.
 
-If you go this route, you don't need to manually configure anything; just start writing your tests to run against your circuits.
+## Using Typescript
 
-### Manual Install
+If you prefer to write your unit tests in Typescript, simply `git clone` or download this template:
 
-If you prefer to manually install and configure Jest and TypeScript, you are more than welcome to do so however you see fit. Beginners might wish to start with these instructions, however, to get a working setup as quickly as possible without having to know all of the theory behind what you're doing&mdash;though you should learn the theory at some point.
+
+!!! **Verify new template repo name** !!!
+
+```
+$ git clone https://github.com/willow-dls/example-ts.git
+$ cd example
+$ npm install
+```
+
+This template also contains the configuration files for Typescript and Babel.
+
+If you prefer to configure your package manually, see [Manual Typescript Configuration](#manual-typescript-configuration) below
+
+
+## Writing Unit Tests
+
+** TO DO **
+
+
+
+
+## Manual Typescript Configuration
+
+If you prefer to manually install and configure Jest and TypeScript:
 
 #### Step 0: Install Dependencies
 
@@ -289,6 +343,3 @@ Willow DLS is open source software, released under the MIT license. This means t
  * SOFTWARE.
  */
 ```
-
-
-Testing ReadmeUpdaet
