@@ -125,32 +125,34 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   Demultiplexer: ({ nodes, data }) =>
     new Demultiplexer(
       [nodes[data.inputs]],
-      data.output.map((i: number) => nodes[i]),
-      nodes[data.signals],
+      data.outputs.map((i: number) => nodes[i]),
+      nodes[data.signals[1]],
     ),
   Multiplexer: ({ nodes, data }) =>
     new Multiplexer(
       data.inputs.map((i: number) => nodes[i]),
       [nodes[data.outputs]],
-      nodes[data.signals],
+      nodes[data.signals[0]],
+    ),
+  Decoder: ({ nodes, data }) =>
+    new Decoder(
+      nodes[data.signals[1]],
+      data.outputs.map((i: number) => nodes[i]),
     ),
   // "Priority Encoder": ({ nodes, data }) =>
-  //     new PriorityEncoder(
-  //         data.inputs.map((i: number) => nodes[i]),
-  //         data.outputs.map((i: number) => nodes[i]),
-  //         nodes[data.signals],
-  //     ),
-  // "Decoder": ({ nodes, data }) =>
-  //     new Decoder(
-  //         nodes[data.inputs],
-  //         data.outputs.map((i: number) => nodes[i]),
-  //     ),
-  // "BitSelector": ({ nodes, data }) =>
-  //     new BitSelector(
-  //         nodes[data.inputs],
-  //         nodes[data.outputs],
-  //         nodes[data.signals],
-  //     ),
+  //   new PriorityEncoder(
+  //     data.inputs.map((i: number) => nodes[i]),
+  //     data.outputs.map((i: number) => nodes[i]),
+  //     nodes[data.signals],
+  //   ),
+
+  // BitSelector: ({ nodes, data }) =>
+  //   new BitSelector(
+  //     nodes[data.inputs],
+  //     nodes[data.outputs],
+  //     nodes[data.signals],
+  //   ),
+
 
   // TODO elements below not fully implemented
   // "Splitter": ({ nodes, data }) =>
@@ -256,7 +258,7 @@ const sizeDict: Record<string, number[]> = {
   Multiplexer: [30, 40, 0],
   Demultiplexer: [30, 40, 1],
   Decoder: [30, 40, 2],
-  BitSelector: [30, 30, 0],
+  BitSelector: [30, 20, 0],
   // TODO Positions below not set yet.
   "Priority Encoder": [50, 30, 0],
   Counter: [50, 30, 0],
@@ -315,11 +317,11 @@ export class LogisimLoader extends CircuitLoader {
       // }
 
       const wire2Node: { nodes: any[]; connections: any[]; widths: number[] } =
-        {
-          nodes: [], //Wire locations
-          connections: [], //Node connections
-          widths: [],
-        };
+      {
+        nodes: [], //Wire locations
+        connections: [], //Node connections
+        widths: [],
+      };
       // Create list of all wires and connections
       for (let wireIndex = 0; wireIndex < scope.wire.length; wireIndex++) {
         const wire = scope.wire[wireIndex];
@@ -451,9 +453,10 @@ export class LogisimLoader extends CircuitLoader {
           "Demultiplexer",
           "Decoder",
           "Priority Encoder",
-          "Bit Selector",
+          "BitSelector",
         ];
 
+        let firstSigX: number = -1;
         for (let node of wire2Node.nodes) {
           let [x, y] = coord2Num(node);
           //Inputs, left side of element
@@ -470,17 +473,29 @@ export class LogisimLoader extends CircuitLoader {
           }
           //Signals, bottom of element
           if (signalWireElements.includes(circElement.type)) {
-            circElement.signals = [];
+            if (circElement.signals == undefined) circElement.signals = [];
             if (xMin <= x && x <= xMax && y == yMax) {
-              circElement.signals.push(wire2Node.nodes.indexOf(node));
+              if (firstSigX == -1) {
+                firstSigX = x;
+                circElement.signals.push(wire2Node.nodes.indexOf(node));
+              }
+              else {
+                if (x < firstSigX) circElement.signals.unshift(wire2Node.nodes.indexOf(node))
+                else circElement.signals.push(wire2Node.nodes.indexOf(node));
+              }
             }
           }
+        }
+
+        if (circElement.type == "BitSelector") {
+          circElement.width = 8
         }
 
         //Update bitWidths of wire2node arrays
         for (let index of circElement.inputs) {
           wire2Node.widths[index] = circElement.width;
         }
+
         for (let index of circElement.outputs) {
           wire2Node.widths[index] = circElement.width;
         }
