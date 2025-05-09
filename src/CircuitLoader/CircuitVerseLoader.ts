@@ -67,7 +67,7 @@ import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
 import Stream from "stream";
 import { FileUtil } from "../Util/File";
 import { ROM } from "../CircuitElement/ROM";
-import { RAM } from "../CircuitElement/RAM";
+import { CircuitVerseRAM } from "../CircuitElement/CircuitVerseRAM";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -299,7 +299,7 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       16, // ROM is 16 bytes in CircuitVerse
     ),
   RAM: ({ nodes, data }) =>
-    new RAM(
+    new CircuitVerseRAM(
       nodes[data.customData.nodes.address],
       nodes[data.customData.data.dataIn],
       nodes[data.customData.nodes.write],
@@ -312,7 +312,7 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
   // Functions exactly like RAM but is smaller and has
   // custom data.
   EEPROM: ({ nodes, data }) =>
-    new RAM(
+    new CircuitVerseRAM(
       nodes[data.customData.nodes.address],
       nodes[data.customData.data.dataIn],
       nodes[data.customData.nodes.write],
