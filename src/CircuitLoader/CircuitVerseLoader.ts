@@ -66,6 +66,7 @@ import { ControlledInverter } from "../CircuitElement/ControlledInverter";
 import { CircuitVerseALU } from "../CircuitElement/CircuitVerseALU";
 import Stream from "stream";
 import { FileUtil } from "../Util/File";
+import { ROM } from "../CircuitElement/ROM";
 
 type CircuitContext = {
   nodes: CircuitBus[];
@@ -285,6 +286,15 @@ const createElement: Record<string, (ctx: CircuitContext) => CircuitElement> = {
       nodes[data.customData.nodes.controlSignalInput],
       nodes[data.customData.nodes.output],
       nodes[data.customData.nodes.carryOut],
+    ),
+  Rom: ({ nodes, data }) =>
+    new ROM(
+      nodes[data.customData.nodes.memAddr],
+      nodes[data.customData.nodes.dataOut],
+      nodes[data.customData.nodes.en],
+      data.customData.constructorParamaters[0].map(
+        (byte: string) => new BitString(parseInt(byte).toString(2), 8),
+      ),
     ),
 };
 
