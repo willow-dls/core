@@ -27,6 +27,7 @@ import { CircuitElement } from "./CircuitElement";
 import { Clock } from "./CircuitElement/Clock";
 import { Input } from "./CircuitElement/Input";
 import { Output } from "./CircuitElement/Output";
+import { RAM } from "./CircuitElement/RAM";
 import { SubCircuit } from "./CircuitElement/SubCircuit";
 import { CircuitLoggable, LogLevel } from "./CircuitLogger";
 
@@ -172,6 +173,19 @@ export class Circuit extends CircuitLoggable {
       .filter((e) => e instanceof Output)
       .forEach((e) => {
         record[e.getLabel()] = e;
+      });
+    return record;
+  }
+
+  getMemory(): Record<string, RAM> {
+    const record: Record<string, RAM> = {};
+    this.#elements
+      .filter((e) => e instanceof RAM)
+      .forEach((e) => {
+        const label = e.getLabel()?.trim();
+        if (label && label != "") {
+          record[label] = e;
+        }
       });
     return record;
   }
