@@ -1,0 +1,250 @@
+{
+    "name": "Memory",
+    "timePeriod": 500,
+    "clockEnabled": true,
+    "projectId": "K2qKDgcEGdLlI1Ph92Kn",
+    "focussedCircuit": 50240754529,
+    "orderedTabs": [
+        "50240754529"
+    ],
+    "scopes": [
+        {
+            "layout": {
+                "width": 100,
+                "height": 40,
+                "title_x": 50,
+                "title_y": 13,
+                "titleEnabled": true
+            },
+            "verilogMetadata": {
+                "isVerilogCircuit": false,
+                "isMainCircuit": false,
+                "code": "// Write Some Verilog Code Here!",
+                "subCircuitScopeIds": []
+            },
+            "allNodes": [
+                {
+                    "x": -80,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 4,
+                    "label": "Address",
+                    "connections": []
+                },
+                {
+                    "x": 0,
+                    "y": 50,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "Enable",
+                    "connections": []
+                },
+                {
+                    "x": 80,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 8,
+                    "label": "DataOut",
+                    "connections": []
+                },
+                {
+                    "x": -60,
+                    "y": -20,
+                    "type": 0,
+                    "bitWidth": 10,
+                    "label": "ADDRESS",
+                    "connections": []
+                },
+                {
+                    "x": -60,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 8,
+                    "label": "DATA IN",
+                    "connections": []
+                },
+                {
+                    "x": -60,
+                    "y": 20,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "WRITE",
+                    "connections": []
+                },
+                {
+                    "x": 0,
+                    "y": 40,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "RESET",
+                    "connections": []
+                },
+                {
+                    "x": -20,
+                    "y": 40,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "CORE DUMP",
+                    "connections": []
+                },
+                {
+                    "x": 60,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 8,
+                    "label": "DATA OUT",
+                    "connections": []
+                },
+                {
+                    "x": -60,
+                    "y": -20,
+                    "type": 0,
+                    "bitWidth": 8,
+                    "label": "ADDRESS",
+                    "connections": []
+                },
+                {
+                    "x": -60,
+                    "y": 0,
+                    "type": 0,
+                    "bitWidth": 8,
+                    "label": "DATA IN",
+                    "connections": []
+                },
+                {
+                    "x": -60,
+                    "y": 20,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "WRITE",
+                    "connections": []
+                },
+                {
+                    "x": 0,
+                    "y": 40,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "RESET",
+                    "connections": []
+                },
+                {
+                    "x": -20,
+                    "y": 40,
+                    "type": 0,
+                    "bitWidth": 1,
+                    "label": "CORE DUMP",
+                    "connections": []
+                },
+                {
+                    "x": 60,
+                    "y": 0,
+                    "type": 1,
+                    "bitWidth": 8,
+                    "label": "DATA OUT",
+                    "connections": []
+                }
+            ],
+            "id": 50240754529,
+            "name": "Main",
+            "Rom": [
+                {
+                    "x": 1070,
+                    "y": 290,
+                    "objectType": "Rom",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "LEFT",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            [
+                                35,
+                                33,
+                                0,
+                                33,
+                                0,
+                                33,
+                                35,
+                                0,
+                                0,
+                                35,
+                                35,
+                                35,
+                                19,
+                                19,
+                                5,
+                                4
+                            ]
+                        ],
+                        "nodes": {
+                            "memAddr": 0,
+                            "dataOut": 2,
+                            "en": 1
+                        }
+                    }
+                }
+            ],
+            "RAM": [
+                {
+                    "x": 1070,
+                    "y": 400,
+                    "objectType": "RAM",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "UP",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            8,
+                            10
+                        ],
+                        "nodes": {
+                            "address": 3,
+                            "dataIn": 4,
+                            "write": 5,
+                            "reset": 6,
+                            "coreDump": 7,
+                            "dataOut": 8
+                        }
+                    }
+                }
+            ],
+            "EEPROM": [
+                {
+                    "x": 1070,
+                    "y": 490,
+                    "objectType": "EEPROM",
+                    "label": "",
+                    "direction": "RIGHT",
+                    "labelDirection": "UP",
+                    "propagationDelay": 10,
+                    "customData": {
+                        "constructorParamaters": [
+                            "RIGHT",
+                            8,
+                            8,
+                            [
+                                50,
+                                60,
+                                70,
+                                80,
+                                90
+                            ]
+                        ],
+                        "nodes": {
+                            "address": 9,
+                            "dataIn": 10,
+                            "write": 11,
+                            "reset": 12,
+                            "coreDump": 13,
+                            "dataOut": 14
+                        }
+                    }
+                }
+            ],
+            "restrictedCircuitElementsUsed": [],
+            "nodes": []
+        }
+    ]
+}

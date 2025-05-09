@@ -34,6 +34,7 @@ export class ROM extends CircuitElement {
         output: CircuitBus,
         enable: CircuitBus,
         data: BitString[],
+        size: number
     ) {
         super("ROMElement", [address, enable], [output]);
 
@@ -43,7 +44,10 @@ export class ROM extends CircuitElement {
             }
         });
 
-        this.#data = data;
+        this.#data = new Array(size).fill(BitString.low(8));
+        data.forEach((value, index) => {
+            this.#data[index] = value.truncate(8).pad(8);
+        })
     }
 
     resolve(): number {
