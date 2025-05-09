@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import { BitString } from "./BitString";
 import { CircuitBus } from "./CircuitBus";
 import { CircuitLoggable } from "./CircuitLogger";
 
@@ -99,6 +100,8 @@ export abstract class CircuitElement extends CircuitLoggable {
    * inherits the propagation delay from the actual subcircuit.)
    */
   abstract resolve(): number;
+
+  initialize(value: BitString): void {}
 
   /**
    * Retrieve the input buses going in to this circuit element, in the order that

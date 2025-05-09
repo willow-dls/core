@@ -95,7 +95,7 @@ export class Output extends CircuitElement {
    * circuits properly.
    * @param value The value to send to the input buses.
    */
-  setValue(value: BitString) {
+  initialize(value: BitString) {
     this.#value = value;
 
     const inputs = this.getInputs();

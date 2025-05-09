@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { SequentialElement } from "./SequentialElement";
 
@@ -59,4 +60,11 @@ export class DLatch extends SequentialElement {
   onResolve(): void {}
 
   onClockFall(): void {}
+
+  initialize(value: BitString): void {
+    const [q, qInv] = this.getOutputs();
+
+    q.setValue(value);
+    qInv.setValue(value.not());
+  }
 }

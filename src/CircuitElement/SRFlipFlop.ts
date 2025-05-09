@@ -87,4 +87,11 @@ export class SRFlipFlop extends CircuitElement {
     qInv.setValue(q.getValue()?.not() ?? null);
     return this.getPropagationDelay();
   }
+
+  initialize(value: BitString): void {
+    const [q, qInv] = this.getOutputs();
+
+    q.setValue(value);
+    qInv.setValue(value.not());
+  }
 }

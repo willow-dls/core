@@ -74,4 +74,11 @@ export class Random extends SequentialElement {
   }
 
   onClockFall(): void {}
+
+  // Not sure why you'd want to initialize a random element in this way,
+  // but the feature is here anyway.
+  initialize(value: BitString): void {
+    const [output] = this.getOutputs();
+    output.setValue(value);
+  }
 }

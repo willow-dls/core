@@ -112,4 +112,9 @@ export class Counter extends SequentialElement {
     output.setValue(BitString.low(output.getWidth()));
     //this.getOutputs().forEach(o => o.setValue(BitString.low()));
   }
+
+  initialize(value: BitString): void {
+    const [output] = this.getOutputs();
+    output.setValue(value);
+  }
 }

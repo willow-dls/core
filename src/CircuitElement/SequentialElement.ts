@@ -114,6 +114,10 @@ export abstract class SequentialElement extends CircuitElement {
    */
   abstract onResolve(): void;
 
+  // Override of parent method, but since it is abstract we force children
+  // to implement it.
+  abstract initialize(value: BitString): void;
+
   reset(): void {
     super.reset();
 

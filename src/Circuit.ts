@@ -81,8 +81,7 @@ export type CircuitRunResult<T extends CircuitRunType> = {
  * > result in unintended consequences and undefined behavior.
  */
 export class Circuit extends CircuitLoggable {
-  #inputs: Record<string, Input>;
-  #outputs: Record<string, Output>;
+  #labeledElements: Record<string, CircuitElement>;
   #elements: CircuitElement[];
   #clocks: Clock[];
 
@@ -103,8 +102,8 @@ export class Circuit extends CircuitLoggable {
   constructor(id: string, name: string, elements: CircuitElement[]) {
     super("Circuit");
 
-    this.#inputs = {};
-    this.#outputs = {};
+    this.#elements = elements;
+    this.#labeledElements = {};
 
     this.#name = name;
     this.#id = id;
@@ -112,22 +111,17 @@ export class Circuit extends CircuitLoggable {
     this.#clocks = [];
 
     elements.forEach((e) => {
-      if (e instanceof Input) {
-        if (this.#inputs[e.getLabel()]) {
-          throw new Error(
-            `Multiple inputs with the same label: '${e.getLabel()}'.`,
-          );
-        }
-        this.#inputs[e.getLabel()] = e;
-      }
+      const label = e.getLabel()?.trim();
 
-      if (e instanceof Output) {
-        if (this.#outputs[e.getLabel()]) {
+      // Inputs and outputs will always have labels; labels on other
+      // elements are optional.
+      if (label && label != "") {
+        if (this.#labeledElements[label]) {
           throw new Error(
-            `Multiple outputs with the same label: '${e.getLabel()}'.`,
+            `Multiple elements with the same label: '${e.getLabel()}'.`,
           );
         }
-        this.#outputs[e.getLabel()] = e;
+        this.#labeledElements[label] = e;
       }
 
       if (e instanceof Clock && !this.#clocks.includes(e)) {
@@ -150,8 +144,6 @@ export class Circuit extends CircuitLoggable {
 
       this.propagateLoggersTo(e);
     });
-
-    this.#elements = elements;
   }
 
   /**
@@ -160,7 +152,13 @@ export class Circuit extends CircuitLoggable {
    * the value is the input object itself.
    */
   getInputs(): Record<string, Input> {
-    return this.#inputs;
+    const record: Record<string, Input> = {};
+    this.#elements
+      .filter((e) => e instanceof Input)
+      .forEach((e) => {
+        record[e.getLabel()] = e;
+      });
+    return record;
   }
 
   /**
@@ -169,7 +167,13 @@ export class Circuit extends CircuitLoggable {
    * the value is the output object itself.
    */
   getOutputs(): Record<string, Output> {
-    return this.#outputs;
+    const record: Record<string, Output> = {};
+    this.#elements
+      .filter((e) => e instanceof Output)
+      .forEach((e) => {
+        record[e.getLabel()] = e;
+      });
+    return record;
   }
 
   /**
@@ -373,13 +377,13 @@ export class Circuit extends CircuitLoggable {
       this.#log(LogLevel.TRACE, "Resetting all elements...");
       this.#elements.forEach((e) => e.reset());
 
-      this.#log(LogLevel.DEBUG, "Propagating inputs...");
+      this.#log(LogLevel.DEBUG, "Propagating initial values...");
       if (Array.isArray(inputs)) {
         this.#log(
           LogLevel.TRACE,
           "Input was provided as array; setting inputs by index.",
         );
-        Object.values(this.#inputs).forEach((input) => {
+        Object.values(this.getInputs()).forEach((input) => {
           let value = inputs[input.getIndex()];
 
           if (typeof value === "string") {
@@ -387,7 +391,7 @@ export class Circuit extends CircuitLoggable {
           }
 
           if (value) {
-            input.setValue(value);
+            input.initialize(value);
           }
         });
       } else {
@@ -397,8 +401,6 @@ export class Circuit extends CircuitLoggable {
         );
         const inputLabels = Object.keys(inputs);
         for (const i in inputLabels) {
-          let didSetLabel = false;
-
           const key = inputLabels[i];
           let value = inputs[key];
 
@@ -406,29 +408,11 @@ export class Circuit extends CircuitLoggable {
             value = new BitString(value);
           }
 
-          if (this.#inputs[key]) {
-            this.#inputs[key].setValue(value);
-
-            didSetLabel = true;
-            this.#log(LogLevel.TRACE, `Set input: ${key}`);
-          }
-
-          if (this.#outputs[key]) {
-            this.#outputs[key].setValue(value);
-
-            didSetLabel = true;
-            this.#log(LogLevel.TRACE, `Set output: ${key}`);
-
-            eventQueue.push({
-              time: 0,
-              element: this.#outputs[key],
-            });
-          }
-
-          if (!didSetLabel) {
-            throw new Error(
-              `No inputs or outputs with the given label: ${key}`,
-            );
+          if (this.#labeledElements[key]) {
+            this.#labeledElements[key].initialize(value);
+            this.#log(LogLevel.TRACE, `Set value on element: ${key}`);
+          } else {
+            throw new Error(`No elements with the given label: ${key}`);
           }
         }
       }
@@ -548,16 +532,16 @@ export class Circuit extends CircuitLoggable {
     if (Array.isArray(inputs)) {
       this.#log(LogLevel.TRACE, "Building output as array.");
       output = {
-        outputs: Object.values(this.#outputs).map((o) => o.getValue()),
+        outputs: Object.values(this.getOutputs()).map((o) => o.getValue()),
         propagationDelay: time,
         steps: steps,
       };
     } else {
       this.#log(LogLevel.TRACE, "Building output as object.");
       const outputs: Record<string, BitString | null> = {};
-
-      for (const key of Object.keys(this.#outputs)) {
-        outputs[key] = this.#outputs[key].getValue();
+      const elements = this.getOutputs();
+      for (const key of Object.keys(elements)) {
+        outputs[key] = elements[key].getValue();
       }
 
       output = {

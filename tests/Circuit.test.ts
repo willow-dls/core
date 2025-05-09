@@ -31,13 +31,13 @@ import { BitString } from "../src/BitString";
 test("Multiple inputs with the same label", async () => {
   expect(async () => {
     await loadProject(CircuitVerseLoader, "tests/cv/DuplicateInputLabels.cv");
-  }).rejects.toThrow("Multiple inputs with the same label");
+  }).rejects.toThrow("Multiple elements with the same label");
 });
 
-test("Multiple inputs with the same label", async () => {
+test("Multiple outputs with the same label", async () => {
   expect(async () => {
     await loadProject(CircuitVerseLoader, "tests/cv/DuplicateOutputLabels.cv");
-  }).rejects.toThrow("Multiple outputs with the same label");
+  }).rejects.toThrow("Multiple elements with the same label");
 });
 
 test("Bad inputs and outputs", async () => {
@@ -45,7 +45,7 @@ test("Bad inputs and outputs", async () => {
   const circuit = project.getCircuitByName("Combinatorial");
 
   expect(() => circuit.run({ randomInput: BitString.low() })).toThrow(
-    "No inputs or outputs with the given label",
+    "No elements with the given label",
   );
 });
 
