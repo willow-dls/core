@@ -51,6 +51,8 @@ import { Clock } from "../CircuitElement/Clock";
 import { Multiplexer } from "../CircuitElement/Multiplexer";
 import { Extend } from "../CircuitElement/Extend";
 import { Splitter } from "../CircuitElement/Splitter";
+import { JLSRAM } from "../CircuitElement/JLSRAM";
+import { JLSRegister } from "../CircuitElement/JLSRegister";
 
 function genSplit(data: {
   type: string;
@@ -132,6 +134,80 @@ const createElement: Record<
     new Splitter(genSplit(data), inputs[0], outputs),
   Binder: (data, inputs, outputs) =>
     new Splitter(genSplit(data), outputs[0], inputs),
+
+  Memory: (data, inputs, outputs) => {
+    if (data.props["file"][0] != "") {
+      // This is a security feature. We don't want to be reading arbitrary files off
+      // the disk like JLS does.
+      throw new Error(
+        'Unable to initialize JLS memory from external file. Make sure all memory is initialized using the "built-in" editor instead of reading from a file.',
+      );
+    }
+
+    const parsedInit = data.props["init"][0]
+      .split("\\n")
+      .map((line) => line.split(" "))
+      .map(([addr, data]) => [parseInt(addr, 16), parseInt(data, 16)])
+      .map(([addr, data]) => [addr, new BitString(data.toString(2))]);
+
+    const initialData = Array(parseInt(data.props["cap"][0])).fill(
+      BitString.low(parseInt(data.props["bits"][0])),
+    );
+    parsedInit.forEach(([addr, data]) => {
+      if ((addr as number) >= initialData.length) {
+        throw new Error(
+          `Address '${addr}' out of bounds for memory with capacity of '${initialData.length}'.`,
+        );
+      }
+      initialData[addr as number] = data;
+    });
+
+    if (inputs.length == 3) {
+      // This is a ROM, it doesn't have an input or a write enable bus,
+      // so we just make a dummy bus with no connections and pass it in.
+      return new JLSRAM(
+        inputs[0],
+        new CircuitBus(0),
+        outputs[0],
+        inputs[2],
+        inputs[1],
+        new CircuitBus(0),
+        parseInt(data.props["cap"][0]),
+        parseInt(data.props["bits"][0]),
+        initialData,
+      );
+    } else if (inputs.length == 5) {
+      return new JLSRAM(
+        inputs[0],
+        inputs[2],
+        outputs[0],
+        inputs[3],
+        inputs[1],
+        inputs[4],
+        parseInt(data.props["cap"][0]),
+        parseInt(data.props["bits"][0]),
+        initialData,
+      );
+    } else {
+      throw new Error(
+        "Sanity check failed: Unable to detect RAM or ROM. Make sure all wires are connected to all memory elements.",
+      );
+    }
+  },
+  Register: (data, inputs, outputs) => {
+    if (!["pff", "nff"].includes(data.props["type"][0])) {
+      throw new Error(
+        `Unrecogized or unsupported register type: '${data.props["type"][0]}'.`,
+      );
+    }
+    return new JLSRegister(
+      inputs[0],
+      inputs[1],
+      outputs[1],
+      outputs[0],
+      data.props["type"][0] as "pff" | "nff",
+    );
+  },
 };
 
 /**
@@ -339,7 +415,12 @@ export class JLSLoader extends CircuitLoader {
     const elements: CircuitElement[] = [];
     for (const parsedElement of noWires) {
       const id = parsedElement.props["id"][0];
-      const delay = parseInt((parsedElement.props["delay"] ?? ["0"])[0]);
+      // Some elements store their delay in the "delay" prop, while others (memory)
+      // store their delay in the "time" prop.
+      const delay = parseInt(
+        (parsedElement.props["delay"] ??
+          parsedElement.props["time"] ?? ["0"])[0],
+      );
 
       const connectedWires = parsedWires
         .filter((w) => (w.props["attach"] ?? []).includes(id))
@@ -360,6 +441,11 @@ export class JLSLoader extends CircuitLoader {
           ],
           TriState: [["control"], []],
           Mux: [["select"], []],
+          Memory: [["WE", "OE", "CS", "address"], []],
+          Register: [
+            ["D", "C"],
+            ["Q", "notQ"],
+          ],
         };
 
         let parsedInputWires: {
