@@ -23,12 +23,15 @@ export abstract class Memory extends CircuitElement {
     });
   }
 
-  read(address: number): BitString {
-    return this.data[address];
+  read(address: number, length: number = 1): BitString[] {
+    return this.data.slice(address, length);
   }
 
-  write(address: number, value: BitString): void {
-    this.data[address] = value.truncate(this.wordSize).pad(this.wordSize);
+  write(address: number, value: BitString[]): void {
+    const words = value.map((v) =>
+      v.truncate(this.wordSize).pad(this.wordSize),
+    );
+    this.data = this.data.splice(address, words.length, ...words);
   }
 
   getWordSize(): number {

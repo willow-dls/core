@@ -190,6 +190,14 @@ export class Circuit extends CircuitLoggable {
     return record;
   }
 
+  readMemory(name: string, address: number, length: number = 1): BitString[] {
+    return this.getMemory()[name].read(address, length);
+  }
+
+  writeMemory(name: string, address: number, words: BitString[]): void {
+    return this.getMemory()[name].write(address, words);
+  }
+
   /**
    * Get the name of this circuit.
    * @returns The name of this circuit which was passed into the constructor.
