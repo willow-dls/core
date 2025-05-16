@@ -6,7 +6,7 @@
 > [!NOTE]
 > Willow is a _headless_ DLS _framework_. It does not implement a GUI and has no intentions to do so. The intended use cases are:
 >
-> - Students, instructors, and others who use graphical educational simulators and want to test circuits using a familiar unit testing framework (as opposed to the table-based ad-hoc techniques that many simulators provide).
+> - Students, instructors, and others who use graphical educational simulators and want to test circuits using a familiar unit testing framework (as opposed to the table-based, ad-hoc techniques that many simulators provide).
 > - Software developers who want to write a DLS GUI in TypeScript using Willow as the actual logic engine.
 
 > [!WARNING]
@@ -71,10 +71,8 @@ Willow provides template repositories that you can clone to simplify project set
 
 For example, to use Jest and plain JavaScript, you can simply `git clone` or download this template:
 
-!!! **Verify new template repo name** !!!
-
 ```
-$ git clone https://github.com/willow-dls/example-js.git
+$ git clone https://github.com/willow-dls/template-js.git
 $ cd example
 $ npm install
 ```
@@ -85,11 +83,8 @@ These commands will automatically install the necessary dependencies. At this po
 
 If you prefer to write your unit tests in Typescript, simply `git clone` or download this template:
 
-
-!!! **Verify new template repo name** !!!
-
 ```
-$ git clone https://github.com/willow-dls/example-ts.git
+$ git clone https://github.com/willow-dls/template-ts.git
 $ cd example
 $ npm install
 ```
@@ -108,15 +103,15 @@ If you prefer to configure your package manually, see [Manual Typescript Configu
 
 ## Manual Typescript Configuration
 
-If you prefer to manually install and configure Jest and TypeScript:
+If you prefer to manually configure an npm project to use Willow:
 
 #### Step 0: Install Dependencies
 
-If you don't already have NodeJS and NPM installed, go ahead and make sure those are installed and available in your shell's `PATH`.
+If you don't already have NodeJS and NPM installed, make sure those are installed and available in your shell's `PATH`.
 
-#### Step 1: Initialize Workspace
+#### Step 1: Initialize npm project
 
-Start by creating a folder for your circuits to live and installing the simulator as well as the unit testing framework.
+Start by creating a folder for your circuits and tests. Then add a new npm project to manage the simulator and unit testing framework.
 
 ```
 $ mkdir my-circuits
@@ -126,7 +121,7 @@ $ npm install --save-dev jest typescript @types/node @types/jest @jest/globals @
 $ npm install @willow-dls/core
 ```
 
-Next, configure TypeScript by creating a `tsconfig.json` in the root of your project directory. We have this in ours; you should be able to copy and paste it without any modifications.
+Next, configure TypeScript by creating a `tsconfig.json` in the root of your project directory. We use this; you should be able to copy and paste it without any modifications if you are using ESM modules (as opposed to CommonJS).
 
 ```json
 {
@@ -149,7 +144,7 @@ Next, configure TypeScript by creating a `tsconfig.json` in the root of your pro
 }
 ```
 
-Then, create a Babel config (Jest uses Babel). Babel requires `babel.config.cjs` in the root of the project directory. We have this in our repository, and again, you should have no difficulties copying and pasting this:
+Then, create a Babel config. (Babel is needed to use Jest with Typescript). Babel requires `babel.config.cjs` in the root of the project directory. Again, you should be able to use our version without modification:
 
 ```js
 module.exports = {
@@ -252,7 +247,7 @@ Jest will then run through all the test files in your tests folder and check you
 
 ## Example: Building From Source
 
-Sometimes, you may not want to install Willow from NPM, but rather build it from source, most likely for development and testing, or peace of mind. Here's how you do that in your local environment:
+Sometimes, you may not want to install Willow from NPM, but rather build it from source --- perhaps for development and testing, or peace of mind. Here's how you do that in your local environment:
 
 1. Clone the Git repository:
    ```
@@ -289,7 +284,7 @@ Most of the other classes are used mostly internally. Though they may surface oc
 
 ### Contributing
 
-Contributing to this project is as straightforward as most others these days. Just open up a Pull Request on GitHub. However, before submitting your pull request, do remember to do the following:
+Contributing to this project is as straightforward as most others these days: Simply open a Pull Request on GitHub. However, before submitting your pull request, do remember to do the following:
 
 1. Write tests for your new code and make sure they pass by running `npm run test`.
 1. Make sure all the existing tests pass by running `npm run test`.
