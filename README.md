@@ -250,6 +250,8 @@ Then you can commit and push your changes.
 - Added the ability to initialize _any_ labeled element with `Circuit.run()`, not just inputs and outputs. This feature was implemented by adding a `CircuitElement.initialize()` method and refactoring the code in `Circuit` so that it can call this method on any elements that have a label, not just inputs and outputs.
   > ![NOTE]
   > This change means that Willow now checks all of your element labels and will throw an error if there are duplicates. Make sure elements have unique labels.
+- Implemented ROMs and RAMs in CircuitVerse and JLS.
+- Implemented registers in JLS.
 
 ### v0.4.1
 
