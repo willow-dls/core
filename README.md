@@ -72,7 +72,7 @@ Willow provides template repositories that you can clone to simplify project set
 For example, to use Jest and plain JavaScript, you can simply `git clone` or download this template:
 
 ```
-$ git clone https://github.com/willow-dls/template-js.git
+$ git clone https://github.com/willow-dls/template-jest-js
 $ cd example
 $ npm install
 ```
@@ -84,7 +84,7 @@ These commands will automatically install the necessary dependencies. At this po
 If you prefer to write your unit tests in Typescript, simply `git clone` or download this template:
 
 ```
-$ git clone https://github.com/willow-dls/template-ts.git
+$ git clone https://github.com/willow-dls/template-jest-ts.git
 $ cd example
 $ npm install
 ```
