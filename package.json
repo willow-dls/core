@@ -3,7 +3,7 @@
   "version": "0.4.2",
   "description": "Headless digital logic simulator framework written in TypeScript with support for multiple educational circuit logic simulators.",
   "main": "dist/index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "jest --coverage",
     "build": "tsc",
