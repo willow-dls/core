@@ -432,6 +432,10 @@ export class JLSLoader extends CircuitLoader {
 
       attach.forEach((attachedWire) => {
         wires[id].connect(wires[attachedWire]);
+        this.log(
+          LogLevel.TRACE,
+          `Connecting wire: [id = ${wires[id].getId()}, width = ${wires[id].getWidth()}, JLS = ${id}] => [id = ${wires[attachedWire].getId()}, width = ${wires[attachedWire].getWidth()}, JLS = ${attachedWire}]`,
+        );
       });
     }
 
@@ -444,19 +448,39 @@ export class JLSLoader extends CircuitLoader {
       Cout: 1,
     };
 
-    const addrWire = parsedWires.filter(
-      (w) => w.props["put"] && w.props["put"][0] == "address",
-    )[0];
+    const ramElements = noWires.filter((e) => e.type == "Memory");
+    ramElements.forEach((ram) => {
+      const addrWire = parsedWires.filter(
+        (w) =>
+          w.props["put"] &&
+          w.props["put"][0] == "address" &&
+          w.props["attach"][0] == ram.props["id"][0],
+      )[0];
+      const capacity = parseInt(ram.props["cap"][0]);
 
-    if (addrWire) {
       const currentWidth = wires[addrWire.props["id"][0]].getWidth();
-      const newWidth = Math.log2(currentWidth);
+      const newWidth = Math.ceil(Math.log2(capacity));
+
       this.log(
         LogLevel.TRACE,
         `Found address wire: ${addrWire.props["id"][0]}. Correcting width: ${currentWidth} => ${newWidth}`,
       );
-      overrideWidths["address"] = newWidth;
-    }
+
+      wires[addrWire.props["id"][0]].setWidth(newWidth);
+    });
+
+    // const addrWires = parsedWires.filter(
+    //   (w) => w.props["put"] && w.props["put"][0] == "address",
+    // );
+    // addrWires.forEach(addrWire => {
+    //   const currentWidth = wires[addrWire.props["id"][0]].getWidth();
+    //   const newWidth = Math.log2(currentWidth);
+    //   this.log(
+    //     LogLevel.TRACE,
+    //     `Found address wire: ${addrWire.props["id"][0]}. Correcting width: ${currentWidth} => ${newWidth}`,
+    //   );
+    //   overrideWidths["address"] = newWidth;
+    // });
 
     const splitterWires = parsedWires.filter(
       (w) => w.props["put"] && /^[0-9]+(-[0-9]+)?$/.test(w.props["put"][0]),
@@ -618,8 +642,13 @@ export class JLSLoader extends CircuitLoader {
           .setLabel((parsedElement.props["name"] ?? [""])[0])
           .setPropagationDelay(delay);
 
-        inputs.forEach((input) => input.connectElement(element));
-        outputs.forEach((output) => output.connectElement(element));
+        [...inputs, ...outputs].forEach((w) => {
+          w.connectElement(element);
+          this.log(LogLevel.TRACE, `  => Attach to wire: ${w.getId()}`);
+        });
+
+        // inputs.forEach((input) => input.connectElement(element));
+        // outputs.forEach((output) => output.connectElement(element));
 
         elements.push(element);
       } else {
@@ -681,7 +710,10 @@ export class JLSLoader extends CircuitLoader {
         // Notify the wires. This handles both the inputs and the outputs.
         connectedWires
           .map((w) => wires[w.props["id"][0]])
-          .forEach((w) => w.connectElement(element));
+          .forEach((w) => {
+            this.log(LogLevel.TRACE, `  => Attach to wire: ${w.getId()}`);
+            w.connectElement(element);
+          });
         elements.push(element);
       }
     }

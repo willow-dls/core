@@ -25,6 +25,7 @@
 import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
+import { LogLevel } from "../CircuitLogger";
 
 /**
  * The constant element accepts a hard-coded bit string value which it
@@ -45,7 +46,14 @@ export class Constant extends CircuitElement {
   }
 
   resolve(): number {
-    this.getOutputs().forEach((o) => o.setValue(this.#value));
+    this.getOutputs().forEach((o) => {
+      this.log(
+        LogLevel.TRACE,
+        `Outputting ${this.#value} on bus with width: ${o.getWidth()}`,
+      );
+
+      o.setValue(this.#value);
+    });
     return this.getPropagationDelay();
   }
 }

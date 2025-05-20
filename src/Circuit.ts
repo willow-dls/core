@@ -294,7 +294,7 @@ export class Circuit extends CircuitLoggable {
       clockCycles: number,
       output: CircuitRunResult<T>,
     ) => boolean,
-    clockFrequency: number = 500,
+    clockFrequency: number = 1000,
   ): CircuitRunResult<T> {
     this.#log(LogLevel.INFO, `Beginning simulation with inputs:`, inputs);
 
@@ -327,7 +327,7 @@ export class Circuit extends CircuitLoggable {
         `[cycle = ${clockCycles}, high = ${clockHigh}] Resolving circuit for this cycle.`,
       );
 
-      result = this.resolve(init ? inputs : undefined);
+      result = this.resolve(init ? inputs : undefined, clockFrequency);
 
       this.#log(
         LogLevel.INFO,
@@ -335,7 +335,7 @@ export class Circuit extends CircuitLoggable {
         result.outputs,
       );
 
-      if (clockFrequency && result.propagationDelay > clockFrequency / 2) {
+      if (clockFrequency && result.propagationDelay > clockFrequency) {
         this.#log(
           LogLevel.WARN,
           `Circuit propogation delay longer than clock frequency: results cannot be trusted.`,
@@ -384,7 +384,10 @@ export class Circuit extends CircuitLoggable {
    * re-evaluated each cycle.
    * @returns
    */
-  resolve<T extends CircuitRunType>(inputs?: T): CircuitRunResult<T> {
+  resolve<T extends CircuitRunType>(
+    inputs?: T,
+    timeLimit?: number,
+  ): CircuitRunResult<T> {
     type QueueEntry = {
       time: number;
       element: CircuitElement;
@@ -536,6 +539,14 @@ export class Circuit extends CircuitLoggable {
         `Event Queue:`,
         eventQueue.map((e) => `[t = ${e.time}] ${e.element}`),
       );
+
+      if (timeLimit && time >= timeLimit) {
+        this.#log(
+          LogLevel.INFO,
+          `Time ${time} exceeded limit of ${timeLimit}.`,
+        );
+        break;
+      }
 
       if (steps > 1000000) {
         throw new Error(
