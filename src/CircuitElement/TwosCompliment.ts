@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
 
 /**
  * Represents a Two's Complement circuit element that computes the two's complement

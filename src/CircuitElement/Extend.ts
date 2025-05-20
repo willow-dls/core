@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
 
 /**
  * The Extender is what JLS calls a "make N copies" element. It simply takes

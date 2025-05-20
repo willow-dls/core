@@ -1,7 +1,7 @@
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
-import { LogLevel } from "../CircuitLogger";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
+import { LogLevel } from "../CircuitLogger.js";
 
 export abstract class Memory extends CircuitElement {
   protected wordSize: number;

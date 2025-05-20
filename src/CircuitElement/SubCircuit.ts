@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-import { Circuit } from "../Circuit";
-import { CircuitElement } from "../CircuitElement";
-import { CircuitBus } from "../CircuitBus";
-import { LogLevel } from "../CircuitLogger";
-import { Clock } from "./Clock";
+import { Circuit } from "../Circuit.js";
+import { CircuitElement } from "../CircuitElement.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { LogLevel } from "../CircuitLogger.js";
+import { Clock } from "./Clock.js";
 
 /**
  * Most circuit simulation libraries support the concept of "subcircuits," which are

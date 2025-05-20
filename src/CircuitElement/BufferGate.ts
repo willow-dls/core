@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { LogLevel } from "../CircuitLogger";
-import { Gate } from "./Gate";
+import { BitString } from "../BitString.js";
+import { LogLevel } from "../CircuitLogger.js";
+import { Gate } from "./Gate.js";
 
 /**
  * A buffer element simply passes through its input with a propagation delay.

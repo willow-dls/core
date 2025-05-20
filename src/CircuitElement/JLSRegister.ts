@@ -1,6 +1,6 @@
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { SequentialElement } from "./SequentialElement";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { SequentialElement } from "./SequentialElement.js";
 
 export class JLSRegister extends SequentialElement {
   #type: "nff" | "pff";

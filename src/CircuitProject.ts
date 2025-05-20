@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-import { Circuit } from "./Circuit";
-import { CircuitLoggable } from "./CircuitLogger";
+import { Circuit } from "./Circuit.js";
+import { CircuitLoggable } from "./CircuitLogger.js";
 
 /**
  * A Circuit Project is a collection of circuits which may or may not be

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { CircuitLogger, LogLevel, logLevelString } from "../CircuitLogger";
+import { CircuitLogger, LogLevel, logLevelString } from "../CircuitLogger.js";
 
 /**
  * A logger implementation that outputs a human-readable log using JavaScript's `console.log()`.

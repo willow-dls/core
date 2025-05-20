@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
-import { LogLevel } from "../CircuitLogger";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
+import { LogLevel } from "../CircuitLogger.js";
 
 /**
  * A bi-directional bus splitter that either combines multiple buses into

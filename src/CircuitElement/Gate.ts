@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { CircuitElement } from "../CircuitElement";
-import { CircuitBus } from "../CircuitBus";
-import { BitString } from "../BitString";
+import { CircuitElement } from "../CircuitElement.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { BitString } from "../BitString.js";
 
 /**
  * The Gate class is an abstract class which provides common functionality

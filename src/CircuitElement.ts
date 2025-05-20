@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { BitString } from "./BitString";
-import { CircuitBus } from "./CircuitBus";
-import { CircuitLoggable } from "./CircuitLogger";
+import { BitString } from "./BitString.js";
+import { CircuitBus } from "./CircuitBus.js";
+import { CircuitLoggable } from "./CircuitLogger.js";
 
 /**
  * A circuit element is a component in a circuit. It represents the fundamental unit of a

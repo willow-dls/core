@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
-import { LogLevel } from "../CircuitLogger";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
+import { LogLevel } from "../CircuitLogger.js";
 
 /**
  * A simple adder which supports operands of any width.

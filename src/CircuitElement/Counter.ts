@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { LogLevel } from "../CircuitLogger";
-import { SequentialElement } from "./SequentialElement";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { LogLevel } from "../CircuitLogger.js";
+import { SequentialElement } from "./SequentialElement.js";
 
 /**
  * The counter element simply increments its output line on each rising edge

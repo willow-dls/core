@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
 
 /**
  * Represents a Power element in a circuit, which sets its output to a high value (logic 1).

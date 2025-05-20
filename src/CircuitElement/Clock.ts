@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
 
 /**
  * The clock element allows the simulation engine to iteratively run the

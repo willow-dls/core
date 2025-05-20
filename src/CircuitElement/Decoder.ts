@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import { CircuitElement } from "../CircuitElement";
-import { CircuitBus } from "../CircuitBus";
-import { BitString } from "../BitString";
-import { LogLevel } from "../CircuitLogger";
+import { CircuitElement } from "../CircuitElement.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { BitString } from "../BitString.js";
+import { LogLevel } from "../CircuitLogger.js";
 
 /**
  * Decoder is a class representing a priority decoder, which takes an input bus and outputs

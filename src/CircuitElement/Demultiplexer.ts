@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { CircuitElement } from "../CircuitElement";
-import { CircuitBus } from "../CircuitBus";
-import { BitString } from "../BitString";
+import { CircuitElement } from "../CircuitElement.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { BitString } from "../BitString.js";
 
 /**
  * A Demultiplexer element for routing a signal to one of many outputs based on a control signal.

@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
 
 /**
  * The sequential element class is an abstract class which provides common

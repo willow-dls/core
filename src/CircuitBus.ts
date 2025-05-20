@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-import { BitString } from "./BitString";
-import { CircuitElement } from "./CircuitElement";
+import { BitString } from "./BitString.js";
+import { CircuitElement } from "./CircuitElement.js";
 
 /**
  * A circuit bus is simply a wire or collection of wires. A bus is commonly

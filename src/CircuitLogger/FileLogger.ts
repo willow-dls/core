@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import { CircuitLogger, LogLevel, logLevelString } from "../CircuitLogger";
+import { CircuitLogger, LogLevel, logLevelString } from "../CircuitLogger.js";
 import { createWriteStream, WriteStream } from "node:fs";
 
 /**

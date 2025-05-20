@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { CircuitElement } from "../CircuitElement";
-import { CircuitBus } from "../CircuitBus";
-import { Circuit } from "../Circuit";
+import { BitString } from "../BitString.js";
+import { CircuitElement } from "../CircuitElement.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { Circuit } from "../Circuit.js";
 
 /**
  * A class representing a multiplexer circuit element.

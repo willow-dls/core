@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { CircuitBus } from "../CircuitBus";
-import { CircuitElement } from "../CircuitElement";
-import { LogLevel } from "../CircuitLogger";
+import { CircuitBus } from "../CircuitBus.js";
+import { CircuitElement } from "../CircuitElement.js";
+import { LogLevel } from "../CircuitLogger.js";
 
 /**
  * A simple tri state element, which passes through its input to the output

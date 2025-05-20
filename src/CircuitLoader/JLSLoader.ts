@@ -22,37 +22,37 @@
  * SOFTWARE.
  */
 
-import { CircuitLoader } from "../CircuitLoader";
-import { CircuitProject } from "../CircuitProject";
-import { LogLevel } from "../CircuitLogger";
-import { CircuitElement } from "../CircuitElement";
+import { CircuitLoader } from "../CircuitLoader.js";
+import { CircuitProject } from "../CircuitProject.js";
+import { LogLevel } from "../CircuitLogger.js";
+import { CircuitElement } from "../CircuitElement.js";
 
 import Stream from "stream";
-import { FileUtil } from "../Util/File";
+import { FileUtil } from "../Util/File.js";
 
-import { Circuit } from "../Circuit";
-import { CircuitBus } from "../CircuitBus";
-import { AndGate } from "../CircuitElement/AndGate";
-import { XorGate } from "../CircuitElement/XorGate";
-import { Input } from "../CircuitElement/Input";
-import { Output } from "../CircuitElement/Output";
-import { OrGate } from "../CircuitElement/OrGate";
-import { SubCircuit } from "../CircuitElement/SubCircuit";
-import { Decoder } from "../CircuitElement/Decoder";
-import { BufferGate } from "../CircuitElement/BufferGate";
-import { NorGate } from "../CircuitElement/NorGate";
-import { Adder } from "../CircuitElement/Adder";
-import { TriState } from "../CircuitElement/TriState";
-import { NandGate } from "../CircuitElement/NandGate";
-import { Constant } from "../CircuitElement/Constant";
-import { BitString } from "../BitString";
-import { NotGate } from "../CircuitElement/NotGate";
-import { Clock } from "../CircuitElement/Clock";
-import { Multiplexer } from "../CircuitElement/Multiplexer";
-import { Extend } from "../CircuitElement/Extend";
-import { Splitter } from "../CircuitElement/Splitter";
-import { JLSRAM } from "../CircuitElement/JLSRAM";
-import { JLSRegister } from "../CircuitElement/JLSRegister";
+import { Circuit } from "../Circuit.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { AndGate } from "../CircuitElement/AndGate.js";
+import { XorGate } from "../CircuitElement/XorGate.js";
+import { Input } from "../CircuitElement/Input.js";
+import { Output } from "../CircuitElement/Output.js";
+import { OrGate } from "../CircuitElement/OrGate.js";
+import { SubCircuit } from "../CircuitElement/SubCircuit.js";
+import { Decoder } from "../CircuitElement/Decoder.js";
+import { BufferGate } from "../CircuitElement/BufferGate.js";
+import { NorGate } from "../CircuitElement/NorGate.js";
+import { Adder } from "../CircuitElement/Adder.js";
+import { TriState } from "../CircuitElement/TriState.js";
+import { NandGate } from "../CircuitElement/NandGate.js";
+import { Constant } from "../CircuitElement/Constant.js";
+import { BitString } from "../BitString.js";
+import { NotGate } from "../CircuitElement/NotGate.js";
+import { Clock } from "../CircuitElement/Clock.js";
+import { Multiplexer } from "../CircuitElement/Multiplexer.js";
+import { Extend } from "../CircuitElement/Extend.js";
+import { Splitter } from "../CircuitElement/Splitter.js";
+import { JLSRAM } from "../CircuitElement/JLSRAM.js";
+import { JLSRegister } from "../CircuitElement/JLSRegister.js";
 
 function genSplit(data: {
   type: string;

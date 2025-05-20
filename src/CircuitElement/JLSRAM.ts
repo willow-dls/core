@@ -1,7 +1,7 @@
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { LogLevel } from "../CircuitLogger";
-import { Memory } from "./Memory";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { LogLevel } from "../CircuitLogger.js";
+import { Memory } from "./Memory.js";
 
 export class JLSRAM extends Memory {
   constructor(

@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-import { BitString } from "./BitString";
-import { CircuitElement } from "./CircuitElement";
-import { Clock } from "./CircuitElement/Clock";
-import { Input } from "./CircuitElement/Input";
-import { Memory } from "./CircuitElement/Memory";
-import { Output } from "./CircuitElement/Output";
-import { SubCircuit } from "./CircuitElement/SubCircuit";
-import { CircuitLoggable, LogLevel } from "./CircuitLogger";
+import { BitString } from "./BitString.js";
+import { CircuitElement } from "./CircuitElement.js";
+import { Clock } from "./CircuitElement/Clock.js";
+import { Input } from "./CircuitElement/Input.js";
+import { Memory } from "./CircuitElement/Memory.js";
+import { Output } from "./CircuitElement/Output.js";
+import { SubCircuit } from "./CircuitElement/SubCircuit.js";
+import { CircuitLoggable, LogLevel } from "./CircuitLogger.js";
 
 /**
  * There are multiple ways to run a circuit with {@link Circuit.run}. You can either

@@ -24,9 +24,9 @@
 
 import { Stream } from "node:stream";
 import fs from "node:fs";
-import { CircuitProject } from "./CircuitProject";
-import { CircuitLoggable, CircuitLogger } from "./CircuitLogger";
-import { Circuit } from "./Circuit";
+import { CircuitProject } from "./CircuitProject.js";
+import { CircuitLoggable, CircuitLogger } from "./CircuitLogger.js";
+import { Circuit } from "./Circuit.js";
 
 export abstract class CircuitLoader extends CircuitLoggable {
   /**

@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { SequentialElement } from "./SequentialElement";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { SequentialElement } from "./SequentialElement.js";
 
 /**
  * A T-Flip-Flop, which is a type of sequential circuit element.

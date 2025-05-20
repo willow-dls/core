@@ -22,10 +22,10 @@
  * SOFTWARE.
  */
 
-import { CircuitElement } from "../CircuitElement";
-import { CircuitBus } from "../CircuitBus";
-import { BitString } from "../BitString";
-import { LogLevel } from "../CircuitLogger";
+import { CircuitElement } from "../CircuitElement.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { BitString } from "../BitString.js";
+import { LogLevel } from "../CircuitLogger.js";
 
 /**
  * The LSB element outputs the index of the least significant bit which is

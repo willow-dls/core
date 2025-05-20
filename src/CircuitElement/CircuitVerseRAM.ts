@@ -1,6 +1,6 @@
-import { BitString } from "../BitString";
-import { CircuitBus } from "../CircuitBus";
-import { Memory } from "./Memory";
+import { BitString } from "../BitString.js";
+import { CircuitBus } from "../CircuitBus.js";
+import { Memory } from "./Memory.js";
 
 export class CircuitVerseRAM extends Memory {
   constructor(
