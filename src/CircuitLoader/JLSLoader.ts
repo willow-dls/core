@@ -106,7 +106,11 @@ const createElement: Record<
 
   // Other elements
   Constant: (data, inputs, outputs) => {
-    const base = parseInt(data.props["base"][0]);
+    // Apparently the base is not used to convert the number,
+    // it is only used for displaying. Regardless of the base,
+    // the number is stored as base 10 in the file.
+    // const base = parseInt(data.props["base"][0]);
+    const base = 10;
     const value = parseInt(data.props["value"][0], base);
     const binStr = value.toString(2);
 
@@ -431,6 +435,62 @@ export class JLSLoader extends CircuitLoader {
       });
     }
 
+    const overrideWidths: Record<string, number> = {
+      C: 1,
+      WE: 1,
+      OE: 1,
+      CS: 1,
+      Cin: 1,
+      Cout: 1,
+    };
+
+    const addrWire = parsedWires.filter(
+      (w) => w.props["put"] && w.props["put"][0] == "address",
+    )[0];
+
+    if (addrWire) {
+      const currentWidth = wires[addrWire.props["id"][0]].getWidth();
+      const newWidth = Math.log2(currentWidth);
+      this.log(
+        LogLevel.TRACE,
+        `Found address wire: ${addrWire.props["id"][0]}. Correcting width: ${currentWidth} => ${newWidth}`,
+      );
+      overrideWidths["address"] = newWidth;
+    }
+
+    const splitterWires = parsedWires.filter(
+      (w) => w.props["put"] && /^[0-9]+(-[0-9]+)?$/.test(w.props["put"][0]),
+    );
+    splitterWires.forEach((w) => {
+      const label = w.props["put"][0];
+      const id = w.props["id"][0];
+
+      const [s, e] = label.split("-").map((i) => parseInt(i));
+      const newWidth = e != undefined ? s - e + 1 : 1;
+      overrideWidths[label] = newWidth;
+      this.log(
+        LogLevel.TRACE,
+        `Found splitter/binder wire: ${w.props["id"][0]}. Computing width: ${wires[w.props["id"][0]].getWidth()} => ${newWidth}`,
+      );
+    });
+
+    parsedWires.forEach((w) => {
+      if (!w.props["put"]) {
+        return;
+      }
+
+      const label = w.props["put"][0];
+      const id = w.props["id"][0];
+
+      if (overrideWidths[label]) {
+        this.log(
+          LogLevel.TRACE,
+          `Updated wire [label = '${label}', id = ${id}]: ${wires[id].getWidth()} => ${overrideWidths[label]}`,
+        );
+        wires[id].setWidth(overrideWidths[label]);
+      }
+    });
+
     // All wires are connected, now create the elements and attach them to their
     // buses.
     const elements: CircuitElement[] = [];
@@ -526,30 +586,6 @@ export class JLSLoader extends CircuitLoader {
           ),
         ];
 
-        const overrideWidths: Record<string, number> = {
-          C: 1,
-          WE: 1,
-          OE: 1,
-          CS: 1,
-        };
-
-        const addrWire = parsedInputWires.filter(
-          (w) => w.props["put"][0] == "address",
-        )[0];
-        if (addrWire) {
-          overrideWidths["address"] = Math.log2(
-            wires[addrWire.props["id"][0]].getWidth(),
-          );
-        }
-
-        connectedWires.forEach((w) => {
-          const label = w.props["put"][0];
-          const id = w.props["id"][0];
-          if (overrideWidths[label]) {
-            wires[id].setWidth(overrideWidths[label]);
-          }
-        });
-
         // Sort inputs by their 'put'. JLS increments a number at then end of the put string which corresponds
         // to the index that the input connects to. For elements that have custom
         // put values, this ensures that they are provided in a deterministic order
@@ -570,6 +606,7 @@ export class JLSLoader extends CircuitLoader {
           throw new Error(`Unsupported element of type: ${parsedElement.type}`);
         }
 
+        this.log(LogLevel.TRACE, `Creating element: ${parsedElement.type}`);
         const element = createElement[parsedElement.type](
           parsedElement,
           inputs,
