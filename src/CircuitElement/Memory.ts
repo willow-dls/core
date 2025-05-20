@@ -1,6 +1,7 @@
 import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
+import { LogLevel } from "../CircuitLogger";
 
 export abstract class Memory extends CircuitElement {
   protected wordSize: number;
@@ -31,7 +32,11 @@ export abstract class Memory extends CircuitElement {
     const words = value.map((v) =>
       v.truncate(this.wordSize).pad(this.wordSize),
     );
-    this.data = this.data.splice(address, words.length, ...words);
+    this.data.splice(address, words.length, ...words);
+    this.log(
+      LogLevel.TRACE,
+      `Write: addr = ${address}, len = ${value.length}, words = ${value.map((d) => d.toString())}`,
+    );
   }
 
   getWordSize(): number {

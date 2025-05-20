@@ -33,13 +33,11 @@ import { Gate } from "./Gate";
  */
 export class XorGate extends Gate {
   evaluate(previousValue: BitString, currentValue: BitString): BitString {
+    this.log(LogLevel.TRACE, `${previousValue} XOR ${currentValue}`);
     const result = previousValue
       .and(currentValue.not())
       .or(previousValue.not().and(currentValue));
-    this.log(
-      LogLevel.TRACE,
-      `${previousValue} XOR ${currentValue} => ${result}`,
-    );
+    this.log(LogLevel.TRACE, `  => ${result}`);
     return result;
   }
 }

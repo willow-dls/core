@@ -31,11 +31,9 @@ import { Gate } from "./Gate";
  */
 export class AndGate extends Gate {
   evaluate(previousValue: BitString, currentValue: BitString): BitString {
+    this.log(LogLevel.TRACE, `${previousValue} AND ${currentValue}`);
     const result = previousValue.and(currentValue);
-    this.log(
-      LogLevel.TRACE,
-      `${previousValue} AND ${currentValue} => ${result}`,
-    );
+    this.log(LogLevel.TRACE, `  => ${result}`);
     return result;
   }
 }

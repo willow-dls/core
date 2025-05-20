@@ -24,6 +24,7 @@
 
 import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
+import { LogLevel } from "../CircuitLogger";
 
 /**
  * A simple adder which supports operands of any width.
@@ -55,16 +56,26 @@ export class Adder extends CircuitElement {
     const valB = b.getValue();
     const valC = carryIn.getValue();
 
+    const width = Math.max(valA?.getWidth() ?? 0, valB?.getWidth() ?? 0);
+
     if (!valA || !valB || !valC) {
       // Values aren't on the line, can't reasonably do any computation.
+      this.log(
+        LogLevel.TRACE,
+        "Missing a value on an input line; not changing output.",
+      );
       return this.getPropagationDelay();
     }
 
+    this.log(LogLevel.TRACE, `Inputs: ${valA} + ${valB} (Carry In: ${valC})`);
+
     // Pad with an extra bit to detect carry out.
     const addition = valA
-      .pad(valA.getWidth() + 1)
-      .add(valB.pad(valB.getWidth() + 1))
-      .add(valC.pad(valA.getWidth() + 1)); // Pad carry in to width of other operands.
+      .pad(width + 1)
+      .add(valB.pad(width + 1))
+      .add(valC.pad(width + 1)); // Pad carry in to width of other operands.
+
+    this.log(LogLevel.TRACE, `Result: ${addition}`);
 
     // Strip off carry out bit before setting sum.
     sum.setValue(addition.substring(1));

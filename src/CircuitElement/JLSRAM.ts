@@ -1,5 +1,6 @@
 import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
+import { LogLevel } from "../CircuitLogger";
 import { Memory } from "./Memory";
 
 export class JLSRAM extends Memory {
@@ -28,21 +29,29 @@ export class JLSRAM extends Memory {
     const [address, data, enable, chipSelect, writeEnable] = this.getInputs();
     const [output] = this.getOutputs();
 
+    const idx = address.getValue()?.toUnsigned();
+    this.log(LogLevel.TRACE, `Address: ${address.getValue()}, idx = ${idx}`);
+    this.log(LogLevel.TRACE, `Data: ${data.getValue()}`);
+
     // "The output of a memory element is tri-state, and is enabled whenever both CS and OE are 0."
     if (
       BitString.low().equals(chipSelect.getValue()) &&
       BitString.low().equals(enable.getValue())
     ) {
-      const idx = address.getValue()?.toUnsigned();
       if (idx) {
         if (idx > this.data.length) {
           output.setValue(BitString.high(this.wordSize));
         } else {
+          this.log(LogLevel.TRACE, `Read value: ${this.data[idx]}`);
           output.setValue(this.data[idx]);
         }
       }
     } else {
       output.setValue(null);
+      this.log(
+        LogLevel.TRACE,
+        `CS = ${chipSelect.getValue()}, OE = ${enable.getValue()}. Disabling output.`,
+      );
     }
 
     // "If CS and WE become 0, then a write will be initiated using the current values of the address
@@ -52,10 +61,20 @@ export class JLSRAM extends Memory {
       BitString.low().equals(chipSelect.getValue()) &&
       BitString.low().equals(writeEnable.getValue())
     ) {
-      const idx = address.getValue()?.toUnsigned();
-      if (idx && idx < this.data.length) {
+      if (idx && data.getValue() && idx < this.data.length) {
+        this.log(LogLevel.TRACE, `Writing value: ${data.getValue()}`);
         this.data[idx] = data.getValue() ?? BitString.low(this.wordSize);
+      } else {
+        this.log(
+          LogLevel.WARN,
+          `Not writing: idx = ${idx} (size = ${this.data.length}), data = ${data.getValue()}`,
+        );
       }
+    } else {
+      this.log(
+        LogLevel.TRACE,
+        `CS = ${chipSelect.getValue()}, WE = ${writeEnable.getValue()}. Not writing.`,
+      );
     }
 
     return this.getPropagationDelay();
