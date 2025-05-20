@@ -40,7 +40,7 @@ export class JLSRAM extends Memory {
     ) {
       if (idx) {
         if (idx > this.data.length) {
-          output.setValue(BitString.high(this.wordSize));
+          output.setValue(null);
         } else {
           this.log(LogLevel.TRACE, `Read value: ${this.data[idx]}`);
           output.setValue(this.data[idx]);
