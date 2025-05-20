@@ -303,7 +303,7 @@ export abstract class CircuitLoggable {
    * @param msg The message to log.
    * @param data Any additional data to associate with the message.
    */
-  protected log(level: LogLevel, msg: string, data?: any): void {
+  log(level: LogLevel, msg: string, data?: any): void {
     this.#loggers.forEach((l) => l.log(level, this.#subsystem, msg, data));
   }
 }

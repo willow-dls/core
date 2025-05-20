@@ -82,6 +82,7 @@ const createElement: Record<
     },
     inputs: CircuitBus[],
     outputs: CircuitBus[],
+    loader: CircuitLoader,
   ) => CircuitElement
 > = {
   // We hard-code 0 indices for all inputs and outputs for now, but the parser will update these as necessary
@@ -135,7 +136,7 @@ const createElement: Record<
   Binder: (data, inputs, outputs) =>
     new Splitter(genSplit(data), outputs[0], inputs),
 
-  Memory: (data, inputs, outputs) => {
+  Memory: (data, inputs, outputs, loader) => {
     if (data.props["file"][0] != "") {
       // This is a security feature. We don't want to be reading arbitrary files off
       // the disk like JLS does.
@@ -144,23 +145,38 @@ const createElement: Record<
       );
     }
 
-    const parsedInit = data.props["init"][0]
-      .split("\\n")
-      .map((line) => line.split(" "))
-      .map(([addr, data]) => [parseInt(addr, 16), parseInt(data, 16)])
-      .map(([addr, data]) => [addr, new BitString(data.toString(2))]);
+    const bits = parseInt(data.props["bits"][0]);
+    const cap = parseInt(data.props["cap"][0]);
 
-    const initialData = Array(parseInt(data.props["cap"][0])).fill(
-      BitString.low(parseInt(data.props["bits"][0])),
-    );
-    parsedInit.forEach(([addr, data]) => {
-      if ((addr as number) >= initialData.length) {
-        throw new Error(
-          `Address '${addr}' out of bounds for memory with capacity of '${initialData.length}'.`,
-        );
-      }
-      initialData[addr as number] = data;
-    });
+    let initialData = Array(cap).fill(BitString.low(bits));
+
+    if (data.props["init"][0]) {
+      loader.log(
+        LogLevel.TRACE,
+        `RAM has initial data: '${data.props["init"][0]}'.`,
+      );
+
+      const parsedInit = data.props["init"][0]
+        .split("\\n")
+        .map((line) => line.split(" "))
+        .map(([addr, data]) => [parseInt(addr, 16), parseInt(data, 16)])
+        .map(([addr, data]) => [addr, new BitString(data.toString(2), bits)]);
+
+      parsedInit.forEach(([addr, data]) => {
+        if ((addr as number) >= initialData.length) {
+          throw new Error(
+            `Address '${addr}' out of bounds for memory with capacity of '${initialData.length}'.`,
+          );
+        }
+        initialData[addr as number] = data;
+      });
+
+      loader.log(
+        LogLevel.TRACE,
+        `Full contents of RAM: ${initialData.map((b) => b.toString())}`,
+      );
+      initialData = Array(cap).fill(BitString.low(bits));
+    }
 
     if (inputs.length == 3) {
       // This is a ROM, it doesn't have an input or a write enable bus,
@@ -172,8 +188,8 @@ const createElement: Record<
         inputs[2],
         inputs[1],
         new CircuitBus(0),
-        parseInt(data.props["cap"][0]),
-        parseInt(data.props["bits"][0]),
+        cap,
+        bits,
         initialData,
       );
     } else if (inputs.length == 5) {
@@ -184,8 +200,8 @@ const createElement: Record<
         inputs[3],
         inputs[1],
         inputs[4],
-        parseInt(data.props["cap"][0]),
-        parseInt(data.props["bits"][0]),
+        cap,
+        bits,
         initialData,
       );
     } else {
@@ -328,6 +344,11 @@ export class JLSLoader extends CircuitLoader {
 
       for (const connectedWire of connectedWires) {
         if (wires[connectedWire.props["id"][0]]) {
+          if (wires[connectedWire.props["id"][0]].getWidth() != width) {
+            wires[connectedWire.props["id"][0]].setWidth(
+              Math.max(width, wires[connectedWire.props["id"][0]].getWidth()),
+            );
+          }
           continue;
         }
 
@@ -505,6 +526,30 @@ export class JLSLoader extends CircuitLoader {
           ),
         ];
 
+        const overrideWidths: Record<string, number> = {
+          C: 1,
+          WE: 1,
+          OE: 1,
+          CS: 1,
+        };
+
+        const addrWire = parsedInputWires.filter(
+          (w) => w.props["put"][0] == "address",
+        )[0];
+        if (addrWire) {
+          overrideWidths["address"] = Math.log2(
+            wires[addrWire.props["id"][0]].getWidth(),
+          );
+        }
+
+        connectedWires.forEach((w) => {
+          const label = w.props["put"][0];
+          const id = w.props["id"][0];
+          if (overrideWidths[label]) {
+            wires[id].setWidth(overrideWidths[label]);
+          }
+        });
+
         // Sort inputs by their 'put'. JLS increments a number at then end of the put string which corresponds
         // to the index that the input connects to. For elements that have custom
         // put values, this ensures that they are provided in a deterministic order
@@ -529,6 +574,7 @@ export class JLSLoader extends CircuitLoader {
           parsedElement,
           inputs,
           outputs,
+          this,
         );
 
         element
@@ -588,6 +634,7 @@ export class JLSLoader extends CircuitLoader {
           parsedElement,
           inputWires,
           outputWires,
+          this,
         );
 
         element
@@ -675,7 +722,7 @@ export class JLSLoader extends CircuitLoader {
 
     if (type == "String") {
       while (!value.endsWith('"')) {
-        value += tokens.shift();
+        value += " " + tokens.shift();
       }
 
       value = value.split('"')[1];

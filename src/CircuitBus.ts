@@ -213,4 +213,13 @@ export class CircuitBus {
   getWidth(): number {
     return this.#width;
   }
+
+  setWidth(width: number): void {
+    if (width == this.#width) {
+      return;
+    }
+
+    this.#width = width;
+    this.#connections.forEach((c) => c.setWidth(width));
+  }
 }
