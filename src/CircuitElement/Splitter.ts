@@ -101,8 +101,11 @@ export class Splitter extends CircuitElement {
 
       this.log(LogLevel.TRACE, `Computing ${input}[${off}:${off + split}]...`);
       const value = input.substring(off, off + split);
-      this.log(LogLevel.TRACE, `Got value: ${value}`);
-
+      this.log(
+        LogLevel.TRACE,
+        `Got value: ${value} (width = ${value.getWidth()})`,
+      );
+      this.log(LogLevel.TRACE, `Output bus width: ${output.getWidth()}`);
       output.setValue(value);
 
       off += split;

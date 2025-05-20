@@ -79,6 +79,9 @@ export abstract class CircuitElement extends CircuitLoggable {
 
     this.#propagationDelay = 0;
     this.#label = null;
+
+    // Propagate element loggers to the bus.
+    [...inputs, ...outputs].forEach((bus) => this.propagateLoggersTo(bus));
   }
 
   /**

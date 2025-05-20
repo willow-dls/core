@@ -24,6 +24,7 @@
 
 import { BitString } from "./BitString";
 import { CircuitElement } from "./CircuitElement";
+import { CircuitLoggable, LogLevel } from "./CircuitLogger";
 
 /**
  * A circuit bus is simply a wire or collection of wires. A bus is commonly
@@ -43,7 +44,7 @@ import { CircuitElement } from "./CircuitElement";
  * > element implementations to ensure that indeterminate bus values are handled
  * > properly.
  */
-export class CircuitBus {
+export class CircuitBus extends CircuitLoggable {
   #connections: CircuitBus[];
   #elements: CircuitElement[];
   #value: BitString | null;
@@ -59,6 +60,7 @@ export class CircuitBus {
    * other buses as well.
    */
   constructor(bitWidth: number, ...connections: CircuitBus[]) {
+    super("CircuitBus");
     this.#connections = connections;
     this.#width = bitWidth;
     this.#elements = [];
@@ -145,10 +147,18 @@ export class CircuitBus {
       }
 
       if (value.getWidth() < this.#width) {
+        this.log(
+          LogLevel.WARN,
+          `[id = ${this.getId()}] Incoming value width too small: ${value.getWidth()} < ${this.#width}. It will be padded with leading zeros.`,
+        );
         value = value.pad(this.#width);
       }
     }
 
+    this.log(
+      LogLevel.TRACE,
+      `[id = ${this.getId()}] Value change: '${this.#value}' => '${value}'`,
+    );
     this.#value = value;
     // Propagate value to connected nodes.
     this.#connections.forEach((c) => c.setValue(value, lastUpdate));
