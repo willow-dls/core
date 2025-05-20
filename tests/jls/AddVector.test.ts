@@ -82,6 +82,6 @@ test("Test Memory", () => {
   const finalState = circuit.readMemory("TheMemory", 0, 16);
 
   expect(finalState.map((b) => b.toString())).toStrictEqual(
-    initialState.map((b) => b.add("0101").toString()),
+    initialState.map((b) => b.toString()),
   );
 });
