@@ -75,7 +75,6 @@ for (let entry of table) {
       Output1: new BitString(entry[2]),
     };
     const results = circ.run(inputs);
-    console.log(results);
     expect(results.outputs.Output1.toString()).toStrictEqual(
       outputs.Output1.toString(),
     );
