@@ -52,14 +52,19 @@ export abstract class Gate extends CircuitElement {
     const inputs = this.getInputs();
     const outputs = this.getOutputs();
 
+    const bitWidth = inputs.reduce(
+      (prev, cur) => Math.max(prev, cur.getWidth()),
+      0,
+    );
+
     const inputValues = inputs.map((i) => i.getValue());
     const result: BitString | null =
       inputValues.length == 1 && inputValues[0] != null
         ? this.evaluate(BitString.low(), inputValues[0] as BitString)
         : inputValues.slice(1).reduce((prev, cur) => {
             return this.evaluate(
-              prev ?? BitString.low(),
-              cur ?? BitString.low(),
+              prev ?? BitString.low(bitWidth),
+              cur ?? BitString.low(bitWidth),
             );
           }, inputValues[0]);
 
