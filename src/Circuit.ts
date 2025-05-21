@@ -55,6 +55,7 @@ export type CircuitRunType =
  * shorter runtime.
  */
 export type CircuitRunResult<T extends CircuitRunType> = {
+  stop: boolean,
   outputs: T;
   propagationDelay: number;
   steps: number;
@@ -316,11 +317,7 @@ export class Circuit extends CircuitLoggable {
     }
 
     let init: boolean = true;
-    let result: CircuitRunResult<T> = {
-      outputs: {} as T,
-      propagationDelay: 0,
-      steps: 0
-    };
+    let result: CircuitRunResult<T>;
 
     let clockHigh: boolean = false;
     let clockCycles: number = 0;
@@ -332,17 +329,7 @@ export class Circuit extends CircuitLoggable {
         `[cycle = ${clockCycles}, high = ${clockHigh}] Resolving circuit for this cycle.`,
       );
 
-      try {
-        // TODO: Should still return results if we can, even though the simulation was stopped.
-        result = this.resolve(init ? inputs : undefined, clockFrequency);
-      } catch (e) {
-        if (e instanceof SimulationStopError) {
-          this.#log(LogLevel.INFO, `Simulation stopped by Stop element.`);
-          break;
-        } else {
-          throw e;
-        }
-      }
+      result = this.resolve(init ? inputs : undefined, clockFrequency);
 
       this.#log(
         LogLevel.INFO,
@@ -364,6 +351,10 @@ export class Circuit extends CircuitLoggable {
 
       if (!clockHigh) {
         clockCycles++;
+      }
+
+      if (result.stop) {
+        break;
       }
     } while (!(haltCond && haltCond(clockHigh, clockCycles, result)));
 
@@ -589,10 +580,6 @@ export class Circuit extends CircuitLoggable {
       }
     }
 
-    if (stopErr) {
-      throw stopErr;
-    }
-
     this.#log(LogLevel.TRACE, "Resolution completed. Collecting outputs...");
     let output;
 
@@ -616,6 +603,7 @@ export class Circuit extends CircuitLoggable {
       }
 
       output = {
+        stop: stopErr ? true : false,
         outputs: outputs,
         propagationDelay: time,
         steps: steps,
