@@ -296,7 +296,7 @@ export class Circuit extends CircuitLoggable {
       clockCycles: number,
       output: CircuitRunResult<T>,
     ) => boolean,
-    clockFrequency: number = 1000,
+    clockFrequency: number = 1,
   ): CircuitRunResult<T> {
     this.#log(LogLevel.INFO, `Beginning simulation with inputs:`, inputs);
 
@@ -322,8 +322,11 @@ export class Circuit extends CircuitLoggable {
     let clockHigh: boolean = false;
     let clockCycles: number = 0;
 
+    this.#clocks.forEach((c) => c.tick());
+
     do {
       this.#clocks.forEach((c) => c.tick());
+
       this.#log(
         LogLevel.INFO,
         `[cycle = ${clockCycles}, high = ${clockHigh}] Resolving circuit for this cycle.`,
@@ -491,8 +494,8 @@ export class Circuit extends CircuitLoggable {
       } catch (e) {
         if (e instanceof SimulationStopError) {
           stopErr = e;
-          this.log(LogLevel.DEBUG, `resolve() stopped by a Stop element. Draining event queue before re-throwing.`);
-          continue;
+          this.log(LogLevel.DEBUG, `Simulation stopped by a Stop element.`);
+          break;
         } else {
           throw e;
         }
