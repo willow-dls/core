@@ -316,7 +316,11 @@ export class Circuit extends CircuitLoggable {
     }
 
     let init: boolean = true;
-    let result: CircuitRunResult<T>;
+    let result: CircuitRunResult<T> = {
+      outputs: {} as T,
+      propagationDelay: 0,
+      steps: 0
+    };
 
     let clockHigh: boolean = false;
     let clockCycles: number = 0;
@@ -329,6 +333,7 @@ export class Circuit extends CircuitLoggable {
       );
 
       try {
+        // TODO: Should still return results if we can, even though the simulation was stopped.
         result = this.resolve(init ? inputs : undefined, clockFrequency);
       } catch (e) {
         if (e instanceof SimulationStopError) {
