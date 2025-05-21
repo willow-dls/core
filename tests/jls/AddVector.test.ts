@@ -72,9 +72,7 @@ test("Test Memory", () => {
     },
     (clockHigh, clockCycles, { outputs: { Halt } }) => {
       console.log(`${clockHigh}, ${clockCycles}`);
-
-      //return Halt.toString() == "1";
-      return clockCycles == 100;
+      return clockCycles > 0 && Halt.toString() == 1;
     },
     3000,
   );
