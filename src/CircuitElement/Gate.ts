@@ -25,6 +25,7 @@
 import { CircuitElement } from "../CircuitElement";
 import { CircuitBus } from "../CircuitBus";
 import { BitString } from "../BitString";
+import { LogLevel } from "../CircuitLogger";
 
 /**
  * The Gate class is an abstract class which provides common functionality
@@ -69,6 +70,11 @@ export abstract class Gate extends CircuitElement {
           }, inputValues[0]);
 
     outputs.forEach((o) => o.setValue(result));
+
+    this.log(
+      LogLevel.TRACE,
+      `Result: [${inputValues.map((s) => s?.toString() ?? "null")}] => ${result}`,
+    );
 
     return this.getPropagationDelay();
   }

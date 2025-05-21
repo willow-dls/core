@@ -53,6 +53,7 @@ import { Extend } from "../CircuitElement/Extend";
 import { Splitter } from "../CircuitElement/Splitter";
 import { JLSRAM } from "../CircuitElement/JLSRAM";
 import { JLSRegister } from "../CircuitElement/JLSRegister";
+import { Stop } from "../CircuitElement/Stop";
 
 function genSplit(data: {
   type: string;
@@ -228,6 +229,7 @@ const createElement: Record<
       data.props["type"][0] as "pff" | "nff",
     );
   },
+  Stop: (data, inputs, outputs) => new Stop(inputs),
 };
 
 /**
@@ -338,6 +340,9 @@ export class JLSLoader extends CircuitLoader {
 
             inputs = parsedElement.subcircuit.getInputs();
             outputs = parsedElement.subcircuit.getOutputs();
+            break;
+          case "Stop":
+            width = 1;
             break;
           default:
             throw new Error(

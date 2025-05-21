@@ -1,5 +1,6 @@
 import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
+import { LogLevel } from "../CircuitLogger";
 import { SequentialElement } from "./SequentialElement";
 
 export class JLSRegister extends SequentialElement {
@@ -22,16 +23,19 @@ export class JLSRegister extends SequentialElement {
 
     q.setValue(d.getValue());
     qInv.setValue(q.getValue()?.not() ?? null);
+    this.log(LogLevel.TRACE, `Set output: ${q.getValue()}`);
   }
 
   onClockRise(): void {
     if (this.#type == "pff") {
+      this.log(LogLevel.TRACE, `Register mode: positive triggered.`);
       this.#setOutput();
     }
   }
 
   onClockFall(): void {
     if (this.#type == "nff") {
+      this.log(LogLevel.TRACE, `Register mode: negative triggered.`);
       this.#setOutput();
     }
   }
