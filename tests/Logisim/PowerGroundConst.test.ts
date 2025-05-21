@@ -30,25 +30,25 @@ import { FileLogger } from "../../src/CircuitLogger/FileLogger";
 import { LogLevel } from "../../src/CircuitLogger";
 
 let circ;
-const logger = new FileLogger("pow.log");
+// const logger = new FileLogger("pow.log");
 // test("Load Logisim file by name", async () => {
 //     const project = await loadProject(LogisimLoader, "tests/Logisim/AndGate.circ");
 //     expect(project).not.toBe(null);
 // });
 
 beforeAll(async () => {
-  logger.setLevel(LogLevel.TRACE);
+  // logger.setLevel(LogLevel.TRACE);
   const project = await loadProject(
     LogisimLoader,
     "tests/Logisim/PowerGroundConst.circ",
   );
   circ = project.getCircuitByName("main");
-  logger.attachTo(circ);
+  // logger.attachTo(circ);
 });
 
-afterAll(async () => {
-  logger.close();
-});
+// afterAll(async () => {
+//   logger.close();
+// });
 
 test("Power", async () => {
   const outputs = {

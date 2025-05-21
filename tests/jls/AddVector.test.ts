@@ -31,13 +31,13 @@ import { LogLevel } from "../../src/CircuitLogger";
 let circuit: Circuit;
 
 beforeAll(async () => {
-  const logger = new FileLogger("AddVector.log");
-  logger.setLevel(LogLevel.TRACE);
+  // const logger = new FileLogger("AddVector.log");
+  // logger.setLevel(LogLevel.TRACE);
   circuit = await loadCircuit(
     JLSLoader,
     "tests/jls/AddVector.jls",
     "AddVector",
-    logger,
+    // logger,
   );
 });
 

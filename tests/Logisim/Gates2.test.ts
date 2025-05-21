@@ -35,12 +35,12 @@ let norCircuit;
 let xnorCircuit;
 let notCircuit;
 let bufferCircuit;
-const logger = new FileLogger("gate2.log");
-const logger2 = new FileLogger("gate2x.log");
+// const logger = new FileLogger("gate2.log");
+// const logger2 = new FileLogger("gate2x.log");
 
 beforeAll(async () => {
-  logger.setLevel(LogLevel.TRACE);
-  logger2.setLevel(LogLevel.TRACE);
+  // logger.setLevel(LogLevel.TRACE);
+  // logger2.setLevel(LogLevel.TRACE);
   const project = await loadProject(LogisimLoader, "tests/Logisim/Gates2.circ");
   mainCircuit = project.getCircuitByName("main");
   nandCircuit = project.getCircuitByName("NANDGate");
@@ -48,14 +48,14 @@ beforeAll(async () => {
   xnorCircuit = project.getCircuitByName("XNORGate");
   notCircuit = project.getCircuitByName("NOTGate");
   bufferCircuit = project.getCircuitByName("BufferGate");
-  logger.attachTo(project);
-  logger2.attachTo(notCircuit);
+  // logger.attachTo(project);
+  // logger2.attachTo(notCircuit);
 });
 
-afterAll(async () => {
-  logger.close();
-  logger2.close();
-});
+// afterAll(async () => {
+//   logger.close();
+//   logger2.close();
+// });
 
 const maintable = [
   //I1 I2 O1

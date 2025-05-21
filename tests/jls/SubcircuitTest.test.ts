@@ -31,14 +31,14 @@ import { LogLevel } from "../../src/CircuitLogger";
 let circuit: Circuit;
 
 beforeAll(async () => {
-  const logger = new FileLogger("jls.log");
-  logger.setLevel(LogLevel.TRACE);
+  // const logger = new FileLogger("jls.log");
+  // logger.setLevel(LogLevel.TRACE);
 
   circuit = await loadCircuit(
     JLSLoader,
     "tests/jls/SubcircuitTest.jls",
     "EightBitAdder",
-    logger,
+    // logger,
   );
 });
 
