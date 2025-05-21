@@ -479,6 +479,13 @@ export class Circuit extends CircuitLoggable {
 
     while ((entry = eventQueue.shift())) {
       time = entry.time;
+
+      if (!(entry.element instanceof Output)) {
+        if (stopErr || (timeLimit && time >= timeLimit)) {
+          continue;
+        }
+      }
+
       this.#log(
         LogLevel.DEBUG,
         `[Step: ${steps + 1}, Time: ${time}] Resolving element: ${entry.element}`,
@@ -494,8 +501,8 @@ export class Circuit extends CircuitLoggable {
       } catch (e) {
         if (e instanceof SimulationStopError) {
           stopErr = e;
-          this.log(LogLevel.DEBUG, `Simulation stopped by a Stop element.`);
-          break;
+          this.log(LogLevel.DEBUG, `Simulation stopped by a Stop element. Draining outputs in queue.`);
+          continue;
         } else {
           throw e;
         }
@@ -573,7 +580,7 @@ export class Circuit extends CircuitLoggable {
           LogLevel.INFO,
           `Time ${time} exceeded limit of ${timeLimit}.`,
         );
-        break;
+        continue; // Will drain outputs.
       }
 
       if (steps > 1000000) {
