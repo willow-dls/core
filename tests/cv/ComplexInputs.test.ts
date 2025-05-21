@@ -28,16 +28,19 @@ import { BitString } from "../../src/BitString";
 import { loadProject } from "../../src/CircuitLoader";
 
 import { CircuitVerseLoader } from "../../src/CircuitLoader/CircuitVerseLoader";
+import { FileLogger } from "../../src/CircuitLogger/FileLogger";
+import { LogLevel } from "../../src/CircuitLogger";
 
 let circuit;
 
 beforeAll(async () => {
-  // const logger = new FileLogger('complex-inputs.log');
-  // logger.setLevel(LogLevel.TRACE);
+  const logger = new FileLogger('complex-inputs.log');
+  logger.setLevel(LogLevel.TRACE);
   // logger.setSubsystems(/^Circuit$/, /^CounterElement$/);
   const project = await loadProject(
     CircuitVerseLoader,
     "tests/cv/ComplexInputs.cv",
+    logger
   );
   circuit = project.getCircuitByName("Main");
 });
@@ -54,7 +57,7 @@ test(`Count clock cycles 1`, async () => {
     {
       MaxValue: "0011",
     },
-    (high, cycles) => !high && cycles == 1,
+    (high, cycles) => high && cycles == 1,
   );
 
   const countOut = result.outputs.CounterOutput.toString();
@@ -84,7 +87,7 @@ test(`Count clock cycles 3`, async () => {
     {
       MaxValue: "0011",
     },
-    (high, cycles) => !high && cycles == 3,
+    (high, cycles) => high && cycles == 3,
   );
 
   const countOut = result.outputs.CounterOutput.toString();
@@ -114,7 +117,7 @@ test(`Count clock cycles 5`, async () => {
     {
       MaxValue: "0011",
     },
-    (high, cycles) => !high && cycles == 5,
+    (high, cycles) => high && cycles == 5,
   );
 
   const countOut = result.outputs.CounterOutput.toString();
