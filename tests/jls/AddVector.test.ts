@@ -70,11 +70,11 @@ test("Test Memory", () => {
       Offset: "0101",
       Counter: "0011",
     },
-    (clockHigh, clockCycles, { outputs: { Halt } }) => {
-      console.log(`${clockHigh}, ${clockCycles}`);
-      return clockCycles > 0 && Halt.toString() == 1;
-    },
-    3000,
+    // (clockHigh, clockCycles, { outputs: { Halt } }) => {
+    //   console.log(`${clockHigh}, ${clockCycles}`);
+    //   return (clockCycles > 1 && Halt.toString() == "1") || clockCycles > 1000;
+    // },
+    // 3000,
   );
 
   const finalState = circuit.readMemory("TheMemory", 0, 16);

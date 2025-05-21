@@ -28,6 +28,7 @@ import { Clock } from "./CircuitElement/Clock";
 import { Input } from "./CircuitElement/Input";
 import { Memory } from "./CircuitElement/Memory";
 import { Output } from "./CircuitElement/Output";
+import { SimulationStopError } from "./CircuitElement/Stop";
 import { SubCircuit } from "./CircuitElement/SubCircuit";
 import { CircuitLoggable, LogLevel } from "./CircuitLogger";
 
@@ -327,7 +328,16 @@ export class Circuit extends CircuitLoggable {
         `[cycle = ${clockCycles}, high = ${clockHigh}] Resolving circuit for this cycle.`,
       );
 
-      result = this.resolve(init ? inputs : undefined, clockFrequency);
+      try {
+        result = this.resolve(init ? inputs : undefined, clockFrequency);
+      } catch (e) {
+        if (e instanceof SimulationStopError) {
+          this.#log(LogLevel.INFO, `Simulation stopped by Stop element.`);
+          break;
+        } else {
+          throw e;
+        }
+      }
 
       this.#log(
         LogLevel.INFO,
@@ -466,6 +476,8 @@ export class Circuit extends CircuitLoggable {
     let time = 0;
 
     let entry: QueueEntry | undefined = undefined;
+    let stopErr = null;
+
     while ((entry = eventQueue.shift())) {
       time = entry.time;
       this.#log(
@@ -476,7 +488,19 @@ export class Circuit extends CircuitLoggable {
       const currentOutputs = entry.element
         .getOutputs()
         .map((o) => o.getValue());
-      const propDelay = entry.element.resolve();
+      let propDelay;
+
+      try {
+        propDelay = entry.element.resolve();
+      } catch (e) {
+        if (e instanceof SimulationStopError) {
+          stopErr = e;
+          this.log(LogLevel.DEBUG, `resolve() stopped by a Stop element. Draining event queue before re-throwing.`);
+          continue;
+        } else {
+          throw e;
+        }
+      }
 
       this.#log(LogLevel.TRACE, `Propagation delay: ${propDelay}`);
       this.#log(LogLevel.DEBUG, `Outputs:`, {
@@ -525,11 +549,16 @@ export class Circuit extends CircuitLoggable {
           continue;
         }
 
-        this.#log(LogLevel.TRACE, `Propagating to element: ${el}]`);
-        eventQueue.push({
-          time: time + propDelay,
-          element: el,
-        });
+        if (!stopErr) {
+          this.#log(LogLevel.TRACE, `Propagating to element: ${el}]`);
+          eventQueue.push({
+            time: time + propDelay,
+            element: el,
+          });
+        } else {
+          this.#log(LogLevel.TRACE, `(Stop) Would propagate to: ${el}]`);
+
+        }
       }
 
       eventQueue.sort((a, b) => a.time - b.time);
@@ -553,6 +582,10 @@ export class Circuit extends CircuitLoggable {
           "Resolution step limit exceeded; check for loops in circuit.",
         );
       }
+    }
+
+    if (stopErr) {
+      throw stopErr;
     }
 
     this.#log(LogLevel.TRACE, "Resolution completed. Collecting outputs...");

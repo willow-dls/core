@@ -190,12 +190,14 @@ export class Splitter extends CircuitElement {
   }
 
   resolve(): number {
-    this.log(LogLevel.TRACE, `Resolving splitter...`);
     const [input, outputs] = this.#getValues();
 
+    this.log(LogLevel.TRACE, `Input: ${input}`);
+    this.log(LogLevel.TRACE, `Outputs: ${outputs}`);
+
     // if (!this.#prevInput || !this.#prevOutputs) {
-    //     this.#prevInput = input;
-    //     this.#prevOutputs = outputs;
+    //   this.#prevInput = input;
+    //   this.#prevOutputs = outputs;
     // }
 
     if (!input) {
@@ -250,9 +252,15 @@ export class Splitter extends CircuitElement {
               `Splitter contention: Both inputs and outputs were set and have changed at the same time: ${input} != ${this.#prevInput} && ${JSON.stringify(outputs)} != ${JSON.stringify(this.#prevOutputs)}`,
             );
           } else {
-            // Do nothing.
-            // Neither the input nor the output changed, or they changed at the
-            // same time and are consistent.
+            if (inputUpdate > outputUpdate) {
+              this.#propOut(input);
+            } else if (outputUpdate > inputUpdate) {
+              this.#propIn();
+            } else {
+              // Do nothing.
+              // Neither the input nor the output changed, or they changed at the
+              // same time and are consistent.
+            }
           }
         }
 
