@@ -352,7 +352,7 @@ export class Circuit extends CircuitLoggable {
       }
     } while (!(haltCond && haltCond(clockHigh, clockCycles, result)));
 
-    this.#log(
+    this.#log( 
       LogLevel.INFO,
       `Halt condition satisfied after ${clockCycles} cycles. Clock ended ${clockHigh ? "high" : "low"}.`,
     );
@@ -462,8 +462,27 @@ export class Circuit extends CircuitLoggable {
     let steps = 0;
     let time = 0;
 
+    const elementPriority = (etry : any) => {
+        switch(etry.element.constructor.name) {
+          case 'Constant':
+            return 1;
+          case 'Input':
+            return 2;
+          default:
+            return 3;
+        }
+        return -999;
+    };
+    eventQueue.sort((a, b) => elementPriority(a) - elementPriority(b));
+
     let entry: QueueEntry | undefined = undefined;
     while ((entry = eventQueue.shift())) {
+      if (steps > 1000) {
+        process.exit(1);
+      }
+      console.log(`Entry ${entry.element.constructor.name}  ${entry.time}\t-- (${eventQueue.length})`)
+      console.log(eventQueue.map((e) => e.element.constructor.name).join(' '))
+      console.log(entry.element.getOutputs().map((o)=>o.getElements()))
       time = entry.time;
       this.#log(
         LogLevel.DEBUG,

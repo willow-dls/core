@@ -51,8 +51,12 @@ export abstract class Gate extends CircuitElement {
   resolve(): number {
     const inputs = this.getInputs();
     const outputs = this.getOutputs();
+    console.log("I/O")
+    console.log(inputs)
+    console.log(outputs)
 
     const inputValues = inputs.map((i) => i.getValue());
+    console.log(inputValues)
     const result: BitString | null =
       inputValues.length == 1 && inputValues[0] != null
         ? this.evaluate(BitString.low(), inputValues[0] as BitString)
