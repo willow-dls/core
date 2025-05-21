@@ -25,6 +25,7 @@
 import { BitString } from "../BitString";
 import { CircuitBus } from "../CircuitBus";
 import { CircuitElement } from "../CircuitElement";
+import { LogLevel } from "../CircuitLogger";
 
 /**
  * The sequential element class is an abstract class which provides common
@@ -72,14 +73,19 @@ export abstract class SequentialElement extends CircuitElement {
 
     const lastClock = this.#lastClock;
 
+    this.log(LogLevel.TRACE, `Clock: [last = ${lastClock}, current = ${clock}]`);
+
     if (lastClock.equals("0") && clock.equals("1")) {
+      this.log(LogLevel.TRACE, `Clock went high. Invoking onClockRise().`);
       this.onClockRise();
     }
 
     if (lastClock.equals("1") && clock.equals("0")) {
+      this.log(LogLevel.TRACE, `Clock went low. Invoking onClockFall().`);
       this.onClockFall();
     }
 
+    this.log(LogLevel.TRACE, `Invoking onResolve().`);
     this.onResolve();
 
     // Save the last clock value.
