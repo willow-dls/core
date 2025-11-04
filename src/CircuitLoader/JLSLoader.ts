@@ -62,23 +62,21 @@ function genSplit(data: {
 }): number[] {
   const pairs = data.props["pair"];
 
-  // The parser converts "pair X Y" to "X:Y" format, so pairs are always colon-separated
-  // We need to detect if this is:
+  // Parsing formats
   // 1. New format (ranges): "0:3", "4:7" where numbers represent bit ranges
   // 2. Old format (mapping): "0:0", "1:1", "2:2" where first number is output index
 
   const parsedPairs = pairs.map((s) => s.split(":").map((n) => parseInt(n)));
 
-  // Check if this looks like the new range format:
-  // - All pairs have start <= end (ranges)
-  // - Pairs are consecutive or form groups
+  // Detecting format
+  // - All pairs have start <= end (ranges) forming groups
   // Old format would have many pairs with the same first number (output index)
   const isNewFormat = parsedPairs.length > 1 && parsedPairs.every(([start, end]) => {
     const width = end - start;
     return width >= 0 && width <= 15; // Range format has reasonable widths
   });
 
-  // Also check if we have duplicate first numbers (indicates old format)
+  // Detecting old format
   const firstNumbers = parsedPairs.map(p => p[0]);
   const hasDuplicates = firstNumbers.length !== new Set(firstNumbers).size;
 
@@ -537,19 +535,6 @@ export class JLSLoader extends CircuitLoader {
       wires[addrWire.props["id"][0]].setWidth(newWidth);
     });
 
-    // const addrWires = parsedWires.filter(
-    //   (w) => w.props["put"] && w.props["put"][0] == "address",
-    // );
-    // addrWires.forEach(addrWire => {
-    //   const currentWidth = wires[addrWire.props["id"][0]].getWidth();
-    //   const newWidth = Math.log2(currentWidth);
-    //   this.log(
-    //     LogLevel.TRACE,
-    //     `Found address wire: ${addrWire.props["id"][0]}. Correcting width: ${currentWidth} => ${newWidth}`,
-    //   );
-    //   overrideWidths["address"] = newWidth;
-    // });
-
     const splitterWires = parsedWires.filter(
       (w) => w.props["put"] && /^[0-9]+(-[0-9]+)?$/.test(w.props["put"][0]),
     );
@@ -609,7 +594,7 @@ export class JLSLoader extends CircuitLoader {
     // Final pass: Ensure all connected wires have consistent widths by propagating
     // the maximum width through each connected group. This fixes cases where wires
     // are connected across subcircuits with incompatible widths.
-    const visited = new Set<number>();
+    const visited = new Set<string>();
     const propagateMaxWidth = (bus: CircuitBus, maxWidth: number): number => {
       const busId = bus.getId();
       if (visited.has(busId)) {
