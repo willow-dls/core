@@ -19,7 +19,8 @@ import { Input } from "../CircuitElement/Input";
 import { Output } from "../CircuitElement/Output";
 import { CircuitBus } from "../CircuitBus";
 import { CircuitLoggable, LogLevel } from "../CircuitLogger";
-import { FileUtil, Stream } from "../FileUtil"; // adjust if your FileUtil exports differ
+import { FileUtil } from "../Util/File";
+import Stream from "stream";
 
 // ===== Willow primitive elements (ADD HERE as Willow gains new elements) =====
 import { AndGate } from "../CircuitElement/AndGate";
