@@ -1,15 +1,26 @@
 import { beforeAll, test, expect } from "@jest/globals";
-import { Circuit, loadCircuit } from "../../../src";
+import { Circuit } from "../../../src";
 import { Nand2TetrisLoader } from "../../../src/CircuitLoader/Nand2TetrisLoader";
+import fs from "fs";
+import path from "path";
 
 let circuit: Circuit;
 
 beforeAll(async () => {
-  circuit = await loadCircuit(
-    Nand2TetrisLoader,
-    "tests/n2t/nand_up_chips/FullAdder.hdl",
-    "FullAdder",
-  );
+  // Create a resolver that can find HDL files in the same directory
+  const baseDir = "tests/n2t/nand_up_chips";
+  const resolver = async (chipName: string) => {
+    const hdlPath = path.join(baseDir, `${chipName}.hdl`);
+    if (fs.existsSync(hdlPath)) {
+      return fs.createReadStream(hdlPath);
+    }
+    return null;
+  };
+
+  const loader = new Nand2TetrisLoader(resolver);
+  const stream = fs.createReadStream("tests/n2t/nand_up_chips/FullAdder.hdl");
+  const project = await loader.load(stream);
+  circuit = project.getCircuitByName("FullAdder");
 });
 
 const truthTable = [

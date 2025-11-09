@@ -52,24 +52,24 @@ const truthTable = [
 function genTest(inputs, outputs) {
   return () => {
     const actualOutputs = circuit.run(inputs).outputs;
-    expect(actualOutputs.Sum.toString()).toStrictEqual(outputs.Sum);
-    expect(actualOutputs.Carry.toString()).toStrictEqual(outputs.Carry);
+    expect(actualOutputs.sum.toString()).toStrictEqual(outputs.sum);
+    expect(actualOutputs.carry.toString()).toStrictEqual(outputs.carry);
   };
 }
 
 for (const row of truthTable) {
   const inputs = {
-    InputA: row[0][0],
-    InputB: row[0][1],
+    a: row[0][0],
+    b: row[0][1],
   };
 
   const outputs = {
-    Sum: row[1][0],
-    Carry: row[1][1],
+    sum: row[1][0],
+    carry: row[1][1],
   };
 
   test(
-    `N2T Half Adder(non-builtin) [A = ${inputs.InputA}, B = ${inputs.InputB}] => [Sum = ${outputs.Sum}, Carry = ${outputs.Carry}]`,
+    `N2T Half Adder(non-builtin) [a = ${inputs.a}, b = ${inputs.b}] => [sum = ${outputs.sum}, carry = ${outputs.carry}]`,
     genTest(inputs, outputs),
   );
 }

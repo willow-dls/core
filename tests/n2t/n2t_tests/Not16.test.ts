@@ -23,6 +23,9 @@ const truthTable = [
 function genTest(input: string, output: string) {
   return () => {
     const actualOutputs = circuit.run({ in: input }).outputs;
+    if (!actualOutputs.out) {
+      throw new Error(`Output 'out' is null. Available outputs: ${Object.keys(actualOutputs).join(', ')}. Values: ${JSON.stringify(actualOutputs)}`);
+    }
     expect(actualOutputs.out.toString()).toStrictEqual(output);
   };
 }
